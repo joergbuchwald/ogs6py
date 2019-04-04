@@ -1,6 +1,5 @@
 from ogs6py import OGS
 model=OGS(PROJECT_FILE="test.prj")
-model.addGeom()
 model.addGeom(filename="square_1x1.gml")
 model.addMesh(filename="square_1x1_quad_1e2.vtu")
 model.setProcess(name="SD",type="SMALL_DEFORMATION",integration_order="2",solid_density="rho_sr", specific_body_force="0 0")
