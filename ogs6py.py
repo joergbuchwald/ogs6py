@@ -55,6 +55,8 @@ class OGS(object):
 	def __init__(self,**args):
 		if "PROJECT_FILE" in args:
 			self.prjfile=args['PROJECT_FILE']
+		else:
+			 self.prjfile=PROJECT_FILE
 		self.geomfile="foobar.gml"
 
 #inner class definition
@@ -64,12 +66,10 @@ class OGS(object):
 		if "process_variable" in args:
 			if "process_variable_name" in args:
 				self.primary_variables=np.append(self.primary_variables,[[args["process_variable"],args["process_variable_name"]]],axis=0)
-				print(self.primary_variables)
 		if "secondary_variable" in args:
 			if "type" in args:
 				if "output_name" in args:
 					self.secondary_variables=np.append(self.secondary_variables,[[args["type"],args["secondary_variable"],args["output_name"]]],axis=0)
-					print(self.secondary_variables)
 				else:
 					print("throw exception")
 			else:
@@ -115,9 +115,7 @@ class OGS(object):
 	def addGeom(self,**args):
 		if "filename" in args:
 			self.geomfile=args["filename"]
-		print(self.geomfile)
 	def addMesh(self,**args):
-		print(len(self.meshfiles))
 		if "filename" in args:
 			self.meshfiles.append(args["filename"])
 	def setProcess(self,**args):
@@ -183,7 +181,6 @@ class OGS(object):
 					self.outputtype=args["type"]
 					self.outputprefix=args["prefix"]
 					self.outputvariables=args["variables"]
-					print(self.outputvariables)
 	def addNonlinear_solver(self,**args):
 		if "name" in args:
 			if "type" in args:
@@ -207,13 +204,11 @@ class OGS(object):
 			if "type" in args:
 				if args["type"]=="Constant":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],args['value'],'','','']],axis=0)
-					print(self.parameters)
 				if args["type"]=="MeshElement" or args["type"]=="MeshNode":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],'',args['mesh'],args['field_name'],'']],axis=0)
 				if args["type"]=="Function":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],'','','',args['expression']]],axis=0)
-				print(self.parameters)
-	def write_input(self):
+	def writeInput(self):
 		root=ET.Element("OpenGeoSysProject")
 		geometry=ET.SubElement(root,"geometry")
 		geometry.text=self.geomfile
@@ -221,7 +216,6 @@ class OGS(object):
 			meshes=ET.SubElement(root,"meshes")
 			mesh=[]
 			for i in np.arange(0,len(self.meshfiles)):
-				print(self.meshfiles[i])
 				mesh.append(ET.SubElement(meshes,"mesh"))
 				mesh[i].text=self.meshfiles[i]
 		else:
@@ -315,7 +309,6 @@ class OGS(object):
 		tl_output_prefix.text=self.outputprefix
 		tl_output_variables=ET.SubElement(tl_output,"variables")
 		tl_output_variable=[]
-		print(len(self.outputvariables))
 		for i in np.arange(0,len(self.outputvariables)):
 			tl_output_variable.append(ET.SubElement(tl_output_variables,"variable"))
 			tl_output_variable[i].text=self.outputvariables[i]
@@ -470,7 +463,7 @@ class OGS(object):
 		tree=ET.ElementTree(root)
 		tree.write(self.prjfile, encoding="ISO-8859-1", xml_declaration=True, pretty_print=True)
 		return True
-	def run_model(self,ogs_root=None,ogs_name=OGS_NAME,print_log=True,save_log=True,log_path=None,	log_name=None,timeout=None,):
+	def runModel(self,ogs_root=None,ogs_name=OGS_NAME,print_log=True,save_log=True,log_path=None,	log_name=None,timeout=None,):
 		cmd=ogs_name+" "+self.prjfile+" >out"
 		os.system(cmd)
 		return True
@@ -507,6 +500,6 @@ if __name__=='__main__':
 #inner class usage
 #	model.mesh1=OGS().mesh()
 #	model.mesh1.addMesh()
-	model.write_input()
-	model.run_model()
+	model.writeInput()
+	model.runModel()
 

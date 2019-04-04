@@ -24,5 +24,5 @@ model.addNonlinear_solver(name="basic_newton",type="Newton",max_iter="4",linear_
 model.addLinear_solver(name="general_linear_solver", kind="lis",solver_type="cg",precon_type="jacobi",max_iteration_step="10000",error_tolerance="1e-16")
 model.addLinear_solver(name="general_linear_solver", kind="eigen",solver_type="CG",precon_type="Diagonal",max_iteration_step="10000",error_tolerance="1e-16")
 model.addLinear_solver(name="general_linear_solver", kind="petsc",solver_type="cg",precon_type="bjacobi",max_iteration_step="10000",error_tolerance="1e-16")
-model.write_input()
-model.run_model()
+model.writeInput()
+model.runModel()
