@@ -34,7 +34,7 @@ class PROCESSES(object):
 						self.SM_param[1,2]=args["specific_body_force"]
 					if "hydraulic_conductivity" in args:
 						self.GW_param[1,0]=args["hydraulic_conductivity"]
-	def setProcessRelation(self,**args):
+	def setConstitutiveRelation(self,**args):
 		for i in args:
 			self.constitutive_relation[i]=args[i]
 

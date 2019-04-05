@@ -3,7 +3,7 @@ class LINSOLVERS(object):
 	def __init__(self,**args):
 		self.lin_solver_name=""
 		self.lin_solvers=np.array([['kind','type','preconditioner','max_iter','tol']])
-	def addLinear_solver(self,**args):
+	def addLinSolver(self,**args):
 		if "name" in args:
 			self.lin_solver_name=args['name']
 		if "kind" in args:

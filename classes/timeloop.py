@@ -14,7 +14,7 @@ class TIMELOOP(object):
 		self.outputtype=""
 		self.outputprefix=""
 		self.outputvariables=[]
-	def addTime_loopProcess(self,**args):
+	def addProcess(self,**args):
 		if "nonlinear_solver_name" in args:
 			self.nonlinear_solver=args["nonlinear_solver_name"]
 			if "convergence_type" in args:
@@ -40,7 +40,7 @@ class TIMELOOP(object):
 					pass
 			if "time_discretization" in args:
 				self.time_discretization=args["time_discretization"]
-	def setTime_loopStepping(self,**args):
+	def setStepping(self,**args):
 		if "type" in args:
 			if args["type"]=="FixedTimeStepping":
 				self.time_stepping="FixedTimeStepping"
@@ -51,7 +51,7 @@ class TIMELOOP(object):
 					self.t_deltat=args["delta_t"]
 			if args["type"]=="SingleStep":
 				self.timestepping="SingleStep"
-	def addTime_loopOutput(self,**args):
+	def addOutput(self,**args):
 		if "type" in args:
 			if "prefix" in args:
 				if "variables" in args:

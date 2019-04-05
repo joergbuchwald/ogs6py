@@ -2,7 +2,7 @@ import numpy as np
 class NONLINSOLVERS(object):
 	def __init__(self,**args):
 		self.nonlin_solvers=np.array([['name','type','max_iter','linear_solver','damping']])
-	def addNonlinear_solver(self,**args):
+	def addNonlinSolver(self,**args):
 		if "name" in args:
 			if "type" in args:
 				if "max_iter" in args:
