@@ -38,9 +38,13 @@ class OGS(object):
 			for i in np.arange(0,len(self.mesh.meshfiles)):
 				mesh.append(ET.SubElement(meshes,"mesh"))
 				mesh[i].text=self.mesh.meshfiles[i]
+				if self.mesh.axially_symmetric[i]=="True":
+					mesh[i].set("axially_symmetric","True")
 		else:
 			mesh=ET.SubElement(root,"mesh")
 			mesh.text=self.mesh.meshfiles[0]
+			if self.mesh.axially_symmetric[0]=="True":
+				mesh.set("axially_symmetric","True")
 		processes=ET.SubElement(root,"processes")
 		process=ET.SubElement(processes, "process")
 		process_name=ET.SubElement(process,"name")
@@ -59,6 +63,14 @@ class OGS(object):
 		if self.processes.process[1,1]=="GROUNDWATER_FLOW":
 			hydraulic_conductivity=ET.SubElement(process,"hydraulic_conductivity")
 			hydraulic_conductivity.text=self.processes.GW_param[1,0]
+		if self.processes.process[1,1]=="THERMO_HYDRO_MECHANICS":
+			if len(self.processes.THM_param)>0:
+				thm_tag=[]
+				k=0
+				for i in self.processes.THM_param:
+					thm_tag.append(ET.SubElement(process,i))
+					thm_tag[k].text=self.processes.THM_param[i]
+					k=k+1
 		if len(self.processes.constitutive_relation)>0:
 			const_rel=ET.SubElement(process,"constitutive_relation")
 			tag=[]
@@ -174,8 +186,18 @@ class OGS(object):
 		procvar_bc_component=[]
 		procvar_bc_param=[]
 		procvar_bc_bcobject=[]
+		procvar_sts=[]
+		procvar_st=[]
+		procvar_st_geomset=[]
+		procvar_st_geometry=[]
+		procvar_st_type=[]
+		procvar_st_mesh=[]
+		procvar_st_component=[]
+		procvar_st_param=[]
+		procvar_st_stobject=[]
 		print("initial conditions:", self.processvars.initial_conditions)
 		print("boundary conditions:", self.processvars.boundary_conditions)
+		print("Source Terms:",self.processvars.source_terms)
 		for i in np.arange(0,len(self.processes.primary_variables[:,0])-1):
 			procvar.append(ET.SubElement(procvars,"process_variable"))
 			procvar_name.append(ET.SubElement(procvar[i],"name"))
@@ -235,6 +257,54 @@ class OGS(object):
 						procvar_bc_param[i].append('')
 						procvar_bc_bcobject[i].append(ET.SubElement(procvar_bc[i][q],"bc_object"))
 						procvar_bc_bcobject[i][q].text=self.processvars.boundary_conditions[j+1,7]
+			procvar_sts.append(ET.SubElement(procvar[i],"source_terms"))
+			procvar_st.append('')
+			procvar_st_geomset.append('')
+			procvar_st_geometry.append('')
+			procvar_st_type.append('')
+			procvar_st_mesh.append('')
+			procvar_st_component.append('')
+			procvar_st_param.append('')
+			procvar_st_stobject.append('')
+			procvar_st[i]=[]
+			procvar_st_geomset[i]=[]
+			procvar_st_geometry[i]=[]
+			procvar_st_type[i]=[]
+			procvar_st_mesh[i]=[]
+			procvar_st_component[i]=[]
+			procvar_st_param[i]=[]
+			procvar_st_stobject[i]=[]
+			for j in np.arange(0,len(self.processvars.source_terms[:,0])-1):
+				if self.processvars.source_terms[j+1,0]==self.processes.primary_variables[i+1,1]:
+					procvar_st[i].append(ET.SubElement(procvar_sts[i],"source_term"))
+					q=len(procvar_st[i])-1
+					if not self.processvars.source_terms[j+1,1]=="":
+						procvar_st_geomset[i].append(ET.SubElement(procvar_st[i][q],"geometrical_set"))
+						procvar_st_geomset[i][q].text=self.processvars.source_terms[j+1,1]
+						procvar_st_geometry[i].append(ET.SubElement(procvar_st[i][q],"geometry"))
+						procvar_st_geometry[i][q].text=self.processvars.source_terms[j+1,2]
+						procvar_st_mesh[i].append('')
+					else:
+						procvar_st_geomset[i].append('')
+						procvar_st_geometry[i].append('')
+						procvar_st_mesh[i].append(ET.SubElement(procvar_st[i][q],"mesh"))
+						procvar_st_mesh[i][q].text=self.processvars.source_terms[j+1,3]
+					procvar_st_type[i].append(ET.SubElement(procvar_st[i][q],"type"))
+					procvar_st_type[i][q].text=self.processvars.source_terms[j+1,4]
+					if not self.processvars.source_terms[j+1,5]=="":
+						procvar_st_component[i].append(ET.SubElement(procvar_st[i][q],"component"))
+						procvar_st_component[i][q].text=self.processvars.source_terms[j+1,5]
+					else:
+						procvar_st_component[i].append('')
+					if not self.processvars.source_terms[j+1,6]=="":
+						procvar_st_param[i].append(ET.SubElement(procvar_st[i][q],"parameter"))
+						procvar_st_param[i][q].text=self.processvars.source_terms[j+1,6]
+						procvar_st_stobject[i].append('')
+					else:
+						procvar_st_param[i].append('')
+						procvar_st_stobject[i].append(ET.SubElement(procvar_st[i][q],"source_term_object"))
+						procvar_st_stobject[i][q].text=self.processvars.source_terms[j+1,7]
+
 		nonlinsolvers=ET.SubElement(root,"nonlinear_solvers")
 		nonlinsolver=[]
 		nonlinsolvername=[]
