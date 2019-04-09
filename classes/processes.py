@@ -32,15 +32,24 @@ class PROCESSES(object):
 					self.process[1,1]=args["type"]
 					print(args["type"],self.process[1,1])
 					self.process[1,2]=args["integration_order"]
-					if args["type"]=="GROUNDWATER_FLOW" or args["type"]=="SMALL_DEFORMATION":
-						if "reference_temperature" in args:
-							self.SM_param[1,0]=args["reference_temperature"]
-						if "solid_density" in args:
-							self.SM_param[1,1]=args["solid_density"]
-						if "specific_body_force" in args:
-							self.SM_param[1,2]=args["specific_body_force"]
+					if args["type"]=="GROUNDWATER_FLOW":
 						if "hydraulic_conductivity" in args:
 							self.GW_param[1,0]=args["hydraulic_conductivity"]
+						else:
+							raise KeyError("No hydraulic conductivity given")
+					if args["type"]=="SMALL_DEFORMATION":
+						if "reference_temperature" in args:
+							self.SM_param[1,0]=args["reference_temperature"]
+						else:
+							print("No reference_temperature given")
+						if "solid_density" in args:
+							self.SM_param[1,1]=args["solid_density"]
+						else:
+							raise KeyError("No solid density given")
+						if "specific_body_force" in args:
+							self.SM_param[1,2]=args["specific_body_force"]
+						else:
+							raise KeyError("No specific_body_force given")
 					elif args["type"]=="THERMO_HYDRO_MECHANICS":
 						for i in args:
 							if not (i=="name" or i=="type" or i=="integration_order"):
