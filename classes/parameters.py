@@ -7,8 +7,14 @@ class PARAMETERS(object):
 			if "type" in args:
 				if args["type"]=="Constant":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],args['value'],'','','']],axis=0)
-				if args["type"]=="MeshElement" or args["type"]=="MeshNode":
+				elif args["type"]=="MeshElement" or args["type"]=="MeshNode":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],'',args['mesh'],args['field_name'],'']],axis=0)
-				if args["type"]=="Function":
+				elif args["type"]=="Function":
 					self.parameters=np.append(self.parameters,[[args['name'], args['type'],'','','',args['expression']]],axis=0)
+				else:
+					raise KeyError("Parameter type not supported (yet).")
+			else:
+				raise KeyError("Parameter type not given.")
+		else:
+			raise KeyError("No parameter name given.")
 

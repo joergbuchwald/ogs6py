@@ -12,14 +12,18 @@ class PROCESSES(object):
 		if "process_variable" in args:
 			if "process_variable_name" in args:
 				self.primary_variables=np.append(self.primary_variables,[[args["process_variable"],args["process_variable_name"]]],axis=0)
-		if "secondary_variable" in args:
+			else:
+				raise KeyError("process_variable_name missing.")
+		elif "secondary_variable" in args:
 			if "type" in args:
 				if "output_name" in args:
 					self.secondary_variables=np.append(self.secondary_variables,[[args["type"],args["secondary_variable"],args["output_name"]]],axis=0)
 				else:
-					print("throw exception")
+					raise KeyError("No output_name given.")
 			else:
-				print("throw exception")
+				raise KeyError("type missing")
+		else:
+			raise KeyError("No process_variable/secondary_variable given.")
 	def setProcess(self,**args):
 		if "name" in args:
 			if "type" in args:
@@ -37,10 +41,18 @@ class PROCESSES(object):
 							self.SM_param[1,2]=args["specific_body_force"]
 						if "hydraulic_conductivity" in args:
 							self.GW_param[1,0]=args["hydraulic_conductivity"]
-					if args["type"]=="THERMO_HYDRO_MECHANICS":
+					elif args["type"]=="THERMO_HYDRO_MECHANICS":
 						for i in args:
 							if not (i=="name" or i=="type" or i=="integration_order"):
 								self.THM_param[i]=args[i]
+					else:
+						raise KeyError("Given process type not (yet) supported.")
+				else:
+					raise KeyError("integration_order missing.")
+			else:
+				raise KeyError("type missing.")
+		else:
+			raise KeyError("No process name given.")					
 	def setConstitutiveRelation(self,**args):
 		for i in args:
 			self.constitutive_relation[i]=args[i]

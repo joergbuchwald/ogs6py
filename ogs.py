@@ -19,6 +19,7 @@ class OGS(object):
 		if "PROJECT_FILE" in args:
 			self.prjfile=args['PROJECT_FILE']
 		else:
+			print("PROJECT_FILE not given. Calling it default.prj.")
 			self.prjfile="default.prj"
 
 	def runModel(self,**args):
@@ -112,10 +113,10 @@ class OGS(object):
 		if self.timeloop.convergence_type=="PerComponentDeltaX":
 			tl_process_conv_crit_norm=ET.SubElement(tl_process_conv_crit,"norm_type")
 			tl_process_conv_crit_norm.text=self.timeloop.norm_type
-			if self.abstol !="":
+			if self.timeloop.abstol !="":
 				tl_process_conv_crit_abstol=ET.SubElement(tl_process_conv_crit,"abstols")
 				tl_process_conv_crit_abstol.text=self.timeloop.abstol
-			if self.reltol !="":
+			if self.timeloop.reltol !="":
 				tl_process_conv_crit_reltol=ET.SubElement(tl_process_conv_crit,"reltols")
 				tl.process_conv_crit_reltol.text=self.timeloop.reltol
 		tl_process_td=ET.SubElement(tl_process,"time_discretization")

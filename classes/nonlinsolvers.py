@@ -11,4 +11,13 @@ class NONLINSOLVERS(object):
 							self.nonlin_solvers=np.append(self.nonlin_solvers,[[args['name'], args['type'],args['max_iter'],args['linear_solver'],args['damping']]],axis=0)
 						else:
 							self.nonlin_solvers=np.append(self.nonlin_solvers,[[args['name'], args['type'],args['max_iter'],args['linear_solver'],'']],axis=0)
+					else:
+						raise KeyError("No linear_solver specified.")
+				else:
+					raise KeyError("Please provide the maximum number of iterations (max_iter).")
+			else:
+				raise KeyError("Please specify the type of the nonlinear solver.")
+		else:
+			raise KeyError("Missing name of the nonlinear solver.")
+
 

@@ -26,7 +26,7 @@ model.processes.addProcessVariable(process_variable="pressure", process_variable
 model.processes.addProcessVariable(process_variable="temperature", process_variable_name="temperature")
 model.processes.addProcessVariable(secondary_variable="sigma",type="static", output_name="sigma")
 model.processes.addProcessVariable(secondary_variable="epsilon",type="static", output_name="epsilon")
-model.timeloop.addProcess(nonlinear_solver_name="basic_newton",convergence_type="PerComponentDeltaX", norm_type="NORM2", abstol="1e-5 1e-5 1e-5 1e-5", time_discretization="BackwardEuler")
+model.timeloop.addProcess(nonlinear_solver_name="basic_newton",convergence_type="PerComponentDeltaX", norm_type="NORM2", abstols="1e-5 1e-5 1e-5 1e-5", time_discretization="BackwardEuler")
 model.timeloop.setStepping(type="FixedTimeStepping",t_initial="0",t_end="50000",repeat="10",delta_t="5000")
 model.timeloop.addOutput(type="VTK",prefix="blubb",variables=["displacement", "pressure", "temperature", "sigma", "epsilon"])
 model.parameters.addParameter(name="E",type="Constant",value="5000000000")

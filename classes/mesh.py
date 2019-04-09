@@ -9,5 +9,7 @@ class MESH(object):
 				self.axially_symmetric.append(args["axially_symmetric"])
 			else:
 				self.axially_symmetric.append("False")
+		else:
+			raise KeyError("No filename given")
 	def getMesh(self,**args):
 		return self.meshfiles
