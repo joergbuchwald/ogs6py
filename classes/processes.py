@@ -37,11 +37,11 @@ class PROCESSES(object):
 							self.GW_param[1,0]=args["hydraulic_conductivity"]
 						else:
 							raise KeyError("No hydraulic conductivity given")
-					if args["type"]=="SMALL_DEFORMATION":
+					elif args["type"]=="SMALL_DEFORMATION":
 						if "reference_temperature" in args:
 							self.SM_param[1,0]=args["reference_temperature"]
 						else:
-							print("No reference_temperature given")
+							print("No reference_temperature given. Taking 300 K instead.")
 						if "solid_density" in args:
 							self.SM_param[1,1]=args["solid_density"]
 						else:
@@ -54,6 +54,20 @@ class PROCESSES(object):
 						for i in args:
 							if not (i=="name" or i=="type" or i=="integration_order"):
 								self.THM_param[i]=args[i]
+					elif args["type"]=="RichardsComponentTransport":
+						pass
+					elif args["type"]=="HEAT_CONDUCTION":
+						pass
+					elif args["type"]=="RICHARDS_FLOW":
+						pass 
+					elif args["type"]=="RICHARDS_MECHANICS":
+						pass
+					elif args["type"]=="HT":
+						pass
+					elif args["type"]=="HYDRO_MECHANICS":
+						pass
+					elif args["type"]=="THERMO_HYDRO_MECHANICS":
+						pass
 					else:
 						raise KeyError("Given process type not (yet) supported.")
 				else:
@@ -65,6 +79,9 @@ class PROCESSES(object):
 	def setConstitutiveRelation(self,**args):
 		for i in args:
 			self.constitutive_relation[i]=args[i]
-
+	def setFluid(self,**args):
+		pass
+	def addPorousMedium(self,**args):
+		pass
 		
 
