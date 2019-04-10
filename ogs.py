@@ -39,13 +39,13 @@ class OGS(object):
             for i in np.arange(0,len(self.mesh.meshfiles)):
                 mesh.append(ET.SubElement(meshes,"mesh"))
                 mesh[i].text=self.mesh.meshfiles[i]
-                if self.mesh.axially_symmetric[i]=="True":
-                    mesh[i].set("axially_symmetric","True")
+                if self.mesh.axially_symmetric[i]=="true":
+                    mesh[i].set("axially_symmetric","true")
         else:
             mesh=ET.SubElement(root,"mesh")
             mesh.text=self.mesh.meshfiles[0]
-            if self.mesh.axially_symmetric[0]=="True":
-                mesh.set("axially_symmetric","True")
+            if self.mesh.axially_symmetric[0]=="true":
+                mesh.set("axially_symmetric","true")
         processes=ET.SubElement(root,"processes")
         process=ET.SubElement(processes, "process")
         process_name=ET.SubElement(process,"name")
