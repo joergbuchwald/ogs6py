@@ -1,21 +1,21 @@
 class TIMELOOP(object):
     def __init__(self,**args):
-        self.nonlinear_solver="basic_newton"
-        self.time_discretization="BackwardEuler"
-        self.time_stepping="SingleStep"
-        self.t_initial="0"
-        self.t_end="1"
-        self.t_repeat="5"
-        self.t_deltat="0.1"
-        self.convergence_type="DeltaX"
-        self.norm_type="NORM2"
+        self.nonlinear_solver=""
+        self.time_discretization=""
+        self.time_stepping=""
+        self.t_initial=""
+        self.t_end=""
+        self.t_repeat=[]
+        self.t_deltat=[]
+        self.convergence_type=""
+        self.norm_type=""
         self.abstol=""
         self.reltol=""
         self.outputtype=""
         self.outputprefix=""
         self.outputvariables=[]
-        self.output_repeat=""
-        self.output_each_steps="10"
+        self.output_repeat=[]
+        self.output_each_steps=[]
     def addProcess(self,**args):
         if "nonlinear_solver_name" in args:
             self.nonlinear_solver=args["nonlinear_solver_name"]
@@ -64,8 +64,8 @@ class TIMELOOP(object):
                 self.t_initial=args["t_initial"]
                 self.t_end=args["t_end"]
                 if "repeat" in args and "delta_t" in args:
-                    self.t_repeat=args["repeat"]
-                    self.t_deltat=args["delta_t"]
+                    self.t_repeat.append(args["repeat"])
+                    self.t_deltat.append(args["delta_t"])
                 else:
                     raise KeyError("No proper time stepping defined. Please specify repeat and delta_t.")
             elif args["type"]=="SingleStep":
@@ -83,8 +83,8 @@ class TIMELOOP(object):
                     self.outputvariables=args["variables"]
                     if "repeat" in args:
                         if "each_steps" in args:
-                            self.output_repeat=args["repeat"]
-                            self.output_each_steps=args["each_steps"]
+                            self.output_repeat.append(args["repeat"])
+                            self.output_each_steps.append(args["each_steps"])
                         else:
                             raise KeyError("each_steps is a required tag.")
                     else:
@@ -95,5 +95,16 @@ class TIMELOOP(object):
                 raise KeyError("No prefix given.") 
         else:        
             raise KeyError("If you want to specify an output method, you need to provide type, prefix and a list of variables.")
-
+    def addTimeSteppingPair(self,**args):
+        if "repeat" in args and "delta_t" in args:
+            self.t_repeat.append(args["repeat"])
+            self.t_deltat.append(args["delta_t"])
+        else:
+            raise KeyError("You muss provide repeat and delta_t attributes to define additional time stepping pairs.")
+    def addOutputPair(self,**args):
+        if "repeat" in args and "each_steps" in args:
+            self.output_repeat.append(args["repeat"])
+            self.output_each_steps.append(args["each_steps"])
+        else:
+            raise KeyError("You muss provide repeat and each_steps attributes to define additional output pairs.")
 

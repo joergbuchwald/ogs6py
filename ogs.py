@@ -130,23 +130,31 @@ class OGS(object):
         tl_process_ts_end=ET.SubElement(tl_process_ts,"t_end")
         tl_process_ts_end.text=self.timeloop.t_end
         tl_process_ts_ts=ET.SubElement(tl_process_ts,"timesteps")
-        tl_process_ts_ts_pair=ET.SubElement(tl_process_ts_ts,"pair")
-        tl_process_ts_ts_pair_repeat=ET.SubElement(tl_process_ts_ts_pair,"repeat")
-        tl_process_ts_ts_pair_repeat.text=self.timeloop.t_repeat
-        tl_process_ts_ts_pair_deltat=ET.SubElement(tl_process_ts_ts_pair,"delta_t")
-        tl_process_ts_ts_pair_deltat.text=self.timeloop.t_deltat
+        tl_process_ts_ts_pair=[]
+        tl_process_ts_ts_pair_repeat=[]
+        tl_process_ts_ts_pair_deltat=[]
+        for i in np.arange(0,len(self.timeloop.t_repeat)):
+            tl_process_ts_ts_pair.append(ET.SubElement(tl_process_ts_ts,"pair"))
+            tl_process_ts_ts_pair_repeat.append(ET.SubElement(tl_process_ts_ts_pair[i],"repeat"))
+            tl_process_ts_ts_pair_repeat[i].text=self.timeloop.t_repeat[i]
+            tl_process_ts_ts_pair_deltat.append(ET.SubElement(tl_process_ts_ts_pair[i],"delta_t"))
+            tl_process_ts_ts_pair_deltat[i].text=self.timeloop.t_deltat[i]
         tl_output=ET.SubElement(timeloop,"output")
         tl_output_type=ET.SubElement(tl_output,"type")
         tl_output_type.text=self.timeloop.outputtype
         tl_output_prefix=ET.SubElement(tl_output,"prefix")
         tl_output_prefix.text=self.timeloop.outputprefix
-        if not self.timeloop.output_repeat=="":
+        tl_output_ts_pair=[]
+        tl_output_ts_repeat=[]
+        tl_output_ts_each_steps=[]
+        if len(self.timeloop.output_repeat)>0:
             tl_output_timesteps=ET.SubElement(tl_output,"timesteps")
-            tl_output_ts_pair=ET.SubElement(tl_output_timesteps,"pair")
-            tl_output_ts_repeat=ET.SubElement(tl_output_ts_pair,"repeat")
-            tl_output_ts_repeat.text=self.timeloop.output_repeat
-            tl_output_ts_each_steps=ET.SubElement(tl_output_ts_pair,"each_steps")
-            tl_output_ts_each_steps.text=self.timeloop.output_each_steps
+            for i in np.arange(0,len(self.timeloop.output_repeat)):
+                tl_output_ts_pair.append(ET.SubElement(tl_output_timesteps,"pair"))
+                tl_output_ts_repeat.append(ET.SubElement(tl_output_ts_pair[i],"repeat"))
+                tl_output_ts_repeat[i].text=self.timeloop.output_repeat[i]
+                tl_output_ts_each_steps.append(ET.SubElement(tl_output_ts_pair[i],"each_steps"))
+                tl_output_ts_each_steps[i].text=self.timeloop.output_each_steps[i]
         tl_output_variables=ET.SubElement(tl_output,"variables")
         tl_output_variable=[]
         for i in np.arange(0,len(self.timeloop.outputvariables)):
