@@ -14,6 +14,8 @@ class TIMELOOP(object):
         self.outputtype=""
         self.outputprefix=""
         self.outputvariables=[]
+        self.output_repeat=""
+        self.output_each_steps="10"
     def addProcess(self,**args):
         if "nonlinear_solver_name" in args:
             self.nonlinear_solver=args["nonlinear_solver_name"]
@@ -79,6 +81,14 @@ class TIMELOOP(object):
                     self.outputtype=args["type"]
                     self.outputprefix=args["prefix"]
                     self.outputvariables=args["variables"]
+                    if "repeat" in args:
+                        if "each_steps" in args:
+                            self.output_repeat=args["repeat"]
+                            self.output_each_steps=args["each_steps"]
+                        else:
+                            raise KeyError("each_steps is a required tag.")
+                    else:
+                        pass
                 else:
                     raise KeyError("Please provide a list with output variables.")
             else:

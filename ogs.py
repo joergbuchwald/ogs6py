@@ -140,6 +140,13 @@ class OGS(object):
         tl_output_type.text=self.timeloop.outputtype
         tl_output_prefix=ET.SubElement(tl_output,"prefix")
         tl_output_prefix.text=self.timeloop.outputprefix
+        if not self.timeloop.output_repeat=="":
+            tl_output_timesteps=ET.SubElement(tl_output,"timesteps")
+            tl_output_ts_pair=ET.SubElement(tl_output_timesteps,"pair")
+            tl_output_ts_repeat=ET.SubElement(tl_output_ts_pair,"repeat")
+            tl_output_ts_repeat.text=self.timeloop.output_repeat
+            tl_output_ts_each_steps=ET.SubElement(tl_output_ts_pair,"each_steps")
+            tl_output_ts_each_steps.text=self.timeloop.output_each_steps
         tl_output_variables=ET.SubElement(tl_output,"variables")
         tl_output_variable=[]
         for i in np.arange(0,len(self.timeloop.outputvariables)):
@@ -196,9 +203,9 @@ class OGS(object):
         procvar_st_component=[]
         procvar_st_param=[]
         procvar_st_stobject=[]
-        print("initial conditions:", self.processvars.initial_conditions)
-        print("boundary conditions:", self.processvars.boundary_conditions)
-        print("Source Terms:",self.processvars.source_terms)
+#        print("initial conditions:", self.processvars.initial_conditions)
+#        print("boundary conditions:", self.processvars.boundary_conditions)
+#        print("Source Terms:",self.processvars.source_terms)
         for i in np.arange(0,len(self.processes.primary_variables[:,0])-1):
             procvar.append(ET.SubElement(procvars,"process_variable"))
             procvar_name.append(ET.SubElement(procvar[i],"name"))
@@ -258,7 +265,7 @@ class OGS(object):
                         procvar_bc_param[i].append('')
                         procvar_bc_bcobject[i].append(ET.SubElement(procvar_bc[i][q],"bc_object"))
                         procvar_bc_bcobject[i][q].text=self.processvars.boundary_conditions[j+1,7]
-            procvar_sts.append(ET.SubElement(procvar[i],"source_terms"))
+            procvar_sts.append('')
             procvar_st.append('')
             procvar_st_geomset.append('')
             procvar_st_geometry.append('')
@@ -277,6 +284,8 @@ class OGS(object):
             procvar_st_stobject[i]=[]
             for j in np.arange(0,len(self.processvars.source_terms[:,0])-1):
                 if self.processvars.source_terms[j+1,0]==self.processes.primary_variables[i+1,1]:
+                    if procvar_sts[i]=='':
+                        procvar_sts[i]=ET.SubElement(procvar[i],"source_terms")
                     procvar_st[i].append(ET.SubElement(procvar_sts[i],"source_term"))
                     q=len(procvar_st[i])-1
                     if not self.processvars.source_terms[j+1,1]=="":
