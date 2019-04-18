@@ -363,6 +363,11 @@ class OGS(object):
                 eigenit.text=self.linsolvers.lin_solvers[i+1,3]
                 eigentol=ET.SubElement(eigen,"error_tolerance")
                 eigentol.text=self.linsolvers.lin_solvers[i+1,4]
+                if self.linsolvers.lin_solvers[i+1,5]=="0":
+                    pass
+                else:
+                    eigenscaling=ET.SubElement(eigen,"scaling")
+                    eigenscaling.text="1"
             if self.linsolvers.lin_solvers[i+1,0]=="petsc":
                 petsc=ET.SubElement(linsolver,"petsc")
                 petscparam=ET.SubElement(petsc,"parameters")

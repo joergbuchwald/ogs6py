@@ -65,7 +65,7 @@ model.processvars.addBC(process_variable_name="temperature",geometrical_set="squ
 model.processvars.addST(process_variable_name="temperature",geometrical_set="square_1x1_geometry",geometry="center",type="Nodal", parameter="temperature_source_term")
 model.nonlinsolvers.addNonlinSolver(name="basic_newton",type="Newton",max_iter="50",linear_solver="general_linear_solver")
 model.linsolvers.addLinSolver(name="general_linear_solver", kind="lis",solver_type="bicgstab",precon_type="ilu",max_iteration_step="10000",error_tolerance="1e-16")
-model.linsolvers.addLinSolver(name="general_linear_solver", kind="eigen",solver_type="BiCGSTAB",precon_type="ILUT",max_iteration_step="10000",error_tolerance="1e-8")
+model.linsolvers.addLinSolver(name="general_linear_solver", kind="eigen",solver_type="SparseLU",precon_type="DIAGONAL",max_iteration_step="10000",error_tolerance="1e-8",scaling="1")
 model.linsolvers.addLinSolver(name="general_linear_solver", kind="petsc",solver_type="cg",precon_type="bjacobi",max_iteration_step="10000",error_tolerance="1e-16")
 model.writeInput()
 #model.runModel()
