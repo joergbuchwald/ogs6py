@@ -61,14 +61,14 @@ class OGS(object):
         if self.processes.process[1, 1] == "SMALL_DEFORMATION":
             solid_density = ET.SubElement(process, "solid_density")
             solid_density.text = self.processes.SM_param[1, 1]
-            reference_temperature = ET.SubElement(
-                process, "reference_temperature")
+            reference_temperature = ET.SubElement(process,
+                                                  "reference_temperature")
             reference_temperature.text = self.processes.SM_param[1, 0]
             specific_body_force = ET.SubElement(process, "specific_body_force")
             specific_body_force.text = self.processes.SM_param[1, 2]
         if self.processes.process[1, 1] == "GROUNDWATER_FLOW":
-            hydraulic_conductivity = ET.SubElement(
-                process, "hydraulic_conductivity")
+            hydraulic_conductivity = ET.SubElement(process,
+                                                   "hydraulic_conductivity")
             hydraulic_conductivity.text = self.processes.GW_param[1, 0]
         if self.processes.process[1, 1] == "THERMO_HYDRO_MECHANICS":
             if len(self.processes.THM_param) > 0:
@@ -89,16 +89,15 @@ class OGS(object):
         processvars = ET.SubElement(process, "process_variables")
         processvar = []
         for i in np.arange(1, len(self.processes.primary_variables)):
-            processvar.append(ET.SubElement(
-                processvars, self.processes.primary_variables[i, 0]))
+            processvar.append(
+                ET.SubElement(processvars,
+                              self.processes.primary_variables[i, 0]))
             processvar[i - 1].text = self.processes.primary_variables[i, 1]
         secondaryvars = ET.SubElement(process, "secondary_variables")
         secondaryvar = []
         for i in np.arange(1, len(self.processes.secondary_variables[:, 0])):
             secondaryvar.append(
-                ET.SubElement(
-                    secondaryvars,
-                    "secondary_variable"))
+                ET.SubElement(secondaryvars, "secondary_variable"))
             secondaryvar[i - 1].set("type",
                                     self.processes.secondary_variables[i, 0])
             secondaryvar[i - 1].set("internal_name",
@@ -111,13 +110,13 @@ class OGS(object):
         tl_process.set("ref", self.processes.process[1, 0])
         tl_process_nonlinsolver = ET.SubElement(tl_process, "nonlinear_solver")
         tl_process_nonlinsolver.text = self.timeloop.nonlinear_solver
-        tl_process_conv_crit = ET.SubElement(
-            tl_process, "convergence_criterion")
+        tl_process_conv_crit = ET.SubElement(tl_process,
+                                             "convergence_criterion")
         tl_process_conv_crit_type = ET.SubElement(tl_process_conv_crit, "type")
         tl_process_conv_crit_type.text = self.timeloop.convergence_type
         if self.timeloop.convergence_type == "DeltaX":
-            tl_process_conv_crit_norm = ET.SubElement(
-                tl_process_conv_crit, "norm_type")
+            tl_process_conv_crit_norm = ET.SubElement(tl_process_conv_crit,
+                                                      "norm_type")
             tl_process_conv_crit_norm.text = self.timeloop.norm_type
             if self.timeloop.abstol != "":
                 tl_process_conv_crit_abstol = ET.SubElement(
@@ -128,8 +127,8 @@ class OGS(object):
                     tl_process_conv_crit, "reltol")
                 tl_process_conv_crit_reltol.text = self.timeloop.reltol
         if self.timeloop.convergence_type == "PerComponentDeltaX":
-            tl_process_conv_crit_norm = ET.SubElement(
-                tl_process_conv_crit, "norm_type")
+            tl_process_conv_crit_norm = ET.SubElement(tl_process_conv_crit,
+                                                      "norm_type")
             tl_process_conv_crit_norm.text = self.timeloop.norm_type
             if self.timeloop.abstol != "":
                 tl_process_conv_crit_abstol = ET.SubElement(
@@ -174,12 +173,9 @@ class OGS(object):
             tl_output_timesteps = ET.SubElement(tl_output, "timesteps")
             for i in np.arange(0, len(self.timeloop.output_repeat)):
                 tl_output_ts_pair.append(
-                    ET.SubElement(
-                        tl_output_timesteps, "pair"))
+                    ET.SubElement(tl_output_timesteps, "pair"))
                 tl_output_ts_repeat.append(
-                    ET.SubElement(
-                        tl_output_ts_pair[i],
-                        "repeat"))
+                    ET.SubElement(tl_output_ts_pair[i], "repeat"))
                 tl_output_ts_repeat[i].text = self.timeloop.output_repeat[i]
                 tl_output_ts_each_steps.append(
                     ET.SubElement(tl_output_ts_pair[i], "each_steps"))
@@ -189,9 +185,7 @@ class OGS(object):
         tl_output_variable = []
         for i in np.arange(0, len(self.timeloop.outputvariables)):
             tl_output_variable.append(
-                ET.SubElement(
-                    tl_output_variables,
-                    "variable"))
+                ET.SubElement(tl_output_variables, "variable"))
             tl_output_variable[i].text = self.timeloop.outputvariables[i]
         parameters = ET.SubElement(root, "parameters")
         parameter = []
@@ -245,9 +239,9 @@ class OGS(object):
         procvar_st_component = []
         procvar_st_param = []
         procvar_st_stobject = []
-#        print("initial conditions:", self.processvars.initial_conditions)
-#        print("boundary conditions:", self.processvars.boundary_conditions)
-#        print("Source Terms:",self.processvars.source_terms)
+        #        print("initial conditions:", self.processvars.initial_conditions)
+        #        print("boundary conditions:", self.processvars.boundary_conditions)
+        #        print("Source Terms:",self.processvars.source_terms)
         for i in np.arange(0, len(self.processes.primary_variables[:, 0]) - 1):
             procvar.append(ET.SubElement(procvars, "process_variable"))
             procvar_name.append(ET.SubElement(procvar[i], "name"))
@@ -256,7 +250,8 @@ class OGS(object):
             procvar_components.append(ET.SubElement(procvar[i], "components"))
             procvar_ic.append(ET.SubElement(procvar[i], "initial_condition"))
             for j in np.arange(
-                    0, len(self.processvars.initial_conditions[:, 0]) - 1):
+                    0,
+                    len(self.processvars.initial_conditions[:, 0]) - 1):
                 if self.processvars.initial_conditions[j + 1, 0] \
                         == self.processes.primary_variables[i + 1, 1]:
                     procvar_order[i].text \
@@ -265,10 +260,8 @@ class OGS(object):
                             = self.processvars.initial_conditions[j + 1, 1]
                     procvar_ic[i].text \
                             = self.processvars.initial_conditions[j + 1, 3]
-            procvar_bcs.append(
-                ET.SubElement(
-                    procvar[i],
-                    "boundary_conditions"))
+            procvar_bcs.append(ET.SubElement(procvar[i],
+                                             "boundary_conditions"))
             procvar_bc.append('')
             procvar_bc_geomset.append('')
             procvar_bc_geometry.append('')
@@ -286,17 +279,17 @@ class OGS(object):
             procvar_bc_param[i] = []
             procvar_bc_bcobject[i] = []
             for j in np.arange(
-                    0, len(self.processvars.boundary_conditions[:, 0]) - 1):
+                    0,
+                    len(self.processvars.boundary_conditions[:, 0]) - 1):
                 if self.processvars.boundary_conditions[j + 1, 0] \
                         == self.processes.primary_variables[i + 1, 1]:
                     procvar_bc[i].append(
-                        ET.SubElement(
-                            procvar_bcs[i],
-                            "boundary_condition"))
+                        ET.SubElement(procvar_bcs[i], "boundary_condition"))
                     q = len(procvar_bc[i]) - 1
-                    if not self.processvars.boundary_conditions[j + 1, 1] == "":
-                        procvar_bc_geomset[i].append(ET.SubElement(
-                            procvar_bc[i][q], "geometrical_set"))
+                    if not self.processvars.boundary_conditions[j +
+                                                                1, 1] == "":
+                        procvar_bc_geomset[i].append(
+                            ET.SubElement(procvar_bc[i][q], "geometrical_set"))
                         procvar_bc_geomset[i][q].text \
                                 = self.processvars.boundary_conditions[j + 1, 1]
                         procvar_bc_geometry[i].append(
@@ -315,14 +308,16 @@ class OGS(object):
                         ET.SubElement(procvar_bc[i][q], "type"))
                     procvar_bc_type[i][q].text \
                             = self.processvars.boundary_conditions[j + 1, 4]
-                    if not self.processvars.boundary_conditions[j + 1, 5] == "":
+                    if not self.processvars.boundary_conditions[j +
+                                                                1, 5] == "":
                         procvar_bc_component[i].append(
                             ET.SubElement(procvar_bc[i][q], "component"))
                         procvar_bc_component[i][q].text \
                                 = self.processvars.boundary_conditions[j + 1, 5]
                     else:
                         procvar_bc_component[i].append('')
-                    if not self.processvars.boundary_conditions[j + 1, 6] == "":
+                    if not self.processvars.boundary_conditions[j +
+                                                                1, 6] == "":
                         procvar_bc_param[i].append(
                             ET.SubElement(procvar_bc[i][q], "parameter"))
                         procvar_bc_param[i][q].text \
@@ -351,21 +346,19 @@ class OGS(object):
             procvar_st_component[i] = []
             procvar_st_param[i] = []
             procvar_st_stobject[i] = []
-            for j in np.arange(
-                    0, len(self.processvars.source_terms[:, 0]) - 1):
+            for j in np.arange(0,
+                               len(self.processvars.source_terms[:, 0]) - 1):
                 if self.processvars.source_terms[j + 1, 0] \
                         == self.processes.primary_variables[i + 1, 1]:
                     if procvar_sts[i] == '':
-                        procvar_sts[i] = ET.SubElement(
-                            procvar[i], "source_terms")
+                        procvar_sts[i] = ET.SubElement(procvar[i],
+                                                       "source_terms")
                     procvar_st[i].append(
-                        ET.SubElement(
-                            procvar_sts[i],
-                            "source_term"))
+                        ET.SubElement(procvar_sts[i], "source_term"))
                     q = len(procvar_st[i]) - 1
                     if not self.processvars.source_terms[j + 1, 1] == "":
-                        procvar_st_geomset[i].append(ET.SubElement(
-                            procvar_st[i][q], "geometrical_set"))
+                        procvar_st_geomset[i].append(
+                            ET.SubElement(procvar_st[i][q], "geometrical_set"))
                         procvar_st_geomset[i][q].text \
                                 = self.processvars.source_terms[j + 1, 1]
                         procvar_st_geometry[i].append(
@@ -399,8 +392,9 @@ class OGS(object):
                         procvar_st_stobject[i].append('')
                     else:
                         procvar_st_param[i].append('')
-                        procvar_st_stobject[i].append(ET.SubElement(
-                            procvar_st[i][q], "source_term_object"))
+                        procvar_st_stobject[i].append(
+                            ET.SubElement(procvar_st[i][q],
+                                          "source_term_object"))
                         procvar_st_stobject[i][q].text \
                                 = self.processvars.source_terms[j + 1, 7]
 
@@ -411,12 +405,10 @@ class OGS(object):
         nonlinsolveriter = []
         nonlinsolverlin = []
         nonlinsolverdamp = []
-        for i in np.arange(
-                0, len(self.nonlinsolvers.nonlin_solvers[:, 0]) - 1):
+        for i in np.arange(0,
+                           len(self.nonlinsolvers.nonlin_solvers[:, 0]) - 1):
             nonlinsolver.append(
-                ET.SubElement(
-                    nonlinsolvers,
-                    "nonlinear_solver"))
+                ET.SubElement(nonlinsolvers, "nonlinear_solver"))
             nonlinsolvername.append(ET.SubElement(nonlinsolver[i], "name"))
             nonlinsolvername[i].text \
                     = self.nonlinsolvers.nonlin_solvers[i + 1, 0]
@@ -427,16 +419,12 @@ class OGS(object):
             nonlinsolveriter[i].text \
                     = self.nonlinsolvers.nonlin_solvers[i + 1, 2]
             nonlinsolverlin.append(
-                ET.SubElement(
-                    nonlinsolver[i],
-                    "linear_solver"))
+                ET.SubElement(nonlinsolver[i], "linear_solver"))
             nonlinsolverlin[i].text \
                     = self.nonlinsolvers.nonlin_solvers[i + 1, 3]
             if not self.nonlinsolvers.nonlin_solvers[i + 1, 4] == "":
                 nonlinsolverdamp.append(
-                    ET.SubElement(
-                        nonlinsolver[i],
-                        "damping"))
+                    ET.SubElement(nonlinsolver[i], "damping"))
                 nonlinsolverdamp[i].text \
                         = self.nonlinsolvers.nonlin_solvers[i + 1, 4]
             else:
@@ -480,9 +468,8 @@ class OGS(object):
                         + self.linsolvers.lin_solvers[i + 1, 3]
 
         tree = ET.ElementTree(root)
-        tree.write(
-            self.prjfile,
-            encoding="ISO-8859-1",
-            xml_declaration=True,
-            pretty_print=True)
+        tree.write(self.prjfile,
+                   encoding="ISO-8859-1",
+                   xml_declaration=True,
+                   pretty_print=True)
         return True

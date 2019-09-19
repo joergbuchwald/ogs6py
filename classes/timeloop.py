@@ -53,16 +53,14 @@ class TIMELOOP(object):
                 else:
                     raise KeyError("Invalid convergence_type.")
             else:
-                raise KeyError(
-                    "No convergence criterion given. \
+                raise KeyError("No convergence criterion given. \
                             Specify convergence_type.")
             if "time_discretization" in args:
                 self.time_discretization = args["time_discretization"]
             else:
                 raise KeyError("No time_discretization specified.")
         else:
-            raise KeyError(
-                "Please specify a name (nonlinear_solver_name) \
+            raise KeyError("Please specify a name (nonlinear_solver_name) \
                         for the nonlinear solver.")
 
     def setStepping(self, **args):
@@ -75,8 +73,7 @@ class TIMELOOP(object):
                     self.t_repeat.append(args["repeat"])
                     self.t_deltat.append(args["delta_t"])
                 else:
-                    raise KeyError(
-                        "No proper time stepping defined. \
+                    raise KeyError("No proper time stepping defined. \
                                 Please specify repeat and delta_t.")
             elif args["type"] == "SingleStep":
                 self.timestepping = "SingleStep"
@@ -106,8 +103,7 @@ class TIMELOOP(object):
             else:
                 raise KeyError("No prefix given.")
         else:
-            raise KeyError(
-                "If you want to specify an output method, \
+            raise KeyError("If you want to specify an output method, \
                         you need to provide type, \
                         prefix and a list of variables.")
 
@@ -116,8 +112,7 @@ class TIMELOOP(object):
             self.t_repeat.append(args["repeat"])
             self.t_deltat.append(args["delta_t"])
         else:
-            raise KeyError(
-                "You muss provide repeat and delta_t attributes to \
+            raise KeyError("You muss provide repeat and delta_t attributes to \
                         define additional time stepping pairs.")
 
     def addOutputPair(self, **args):
@@ -125,6 +120,5 @@ class TIMELOOP(object):
             self.output_repeat.append(args["repeat"])
             self.output_each_steps.append(args["each_steps"])
         else:
-            raise KeyError(
-                "You muss provide repeat and each_steps attributes \
+            raise KeyError("You muss provide repeat and each_steps attributes \
                         to define additional output pairs.")

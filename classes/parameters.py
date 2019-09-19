@@ -10,37 +10,23 @@ class PARAMETERS(object):
         if "name" in args:
             if "type" in args:
                 if args["type"] == "Constant":
-                    self.parameters = np.append(
-                            self.parameters, 
-                            [[
-                                args['name'],
-                                args['type'],
-                                args['value'],
-                                '',
-                                '',
-                                '']],
-                            axis=0)
+                    self.parameters = np.append(self.parameters, [[
+                        args['name'], args['type'], args['value'], '', '', ''
+                    ]],
+                                                axis=0)
                 elif args["type"] == "MeshElement" \
                         or args["type"] == "MeshNode":
-                    self.parameters = np.append(
-                            self.parameters,
-                            [[args['name'],
-                                args['type'],
-                                '',
-                                args['mesh'],
-                                args['field_name'],
-                                '']],
-                            axis=0)
+                    self.parameters = np.append(self.parameters, [[
+                        args['name'], args['type'], '', args['mesh'],
+                        args['field_name'], ''
+                    ]],
+                                                axis=0)
                 elif args["type"] == "Function":
-                    self.parameters = np.append(
-                            self.parameters,
-                            [[args['name'],
-                                args['type'],
-                                '',
-                                '',
-                                '',
-                                args['expression']]],
-                            axis=0)
+                    self.parameters = np.append(self.parameters, [[
+                        args['name'], args['type'], '', '', '',
+                        args['expression']
+                    ]],
+                                                axis=0)
                 else:
                     raise KeyError("Parameter type not supported (yet).")
             else:
