@@ -33,6 +33,31 @@ class OGS(object):
         os.system(cmd)
         print("OGS finished")
 
+    def writeInputnew(self):
+        root = ET.Element("OpenGeoSysProject")
+        for entry in self.geo.tree:
+            _ = ET.SubElement(root, self.geo.tree[entry]['tag'])
+            _.text = self.geo.tree[entry]['text']
+            if len(self.geo.tree[entry]['attr']) > 0: 
+                pass
+        print(self.mesh.tree)
+        for entry in self.mesh.tree:
+            _ = ET.SubElement(root, self.mesh.tree[entry]['tag'])
+            if len(self.mesh.tree[entry]['text'])>0:
+                _.text = self.mesh.tree[entry]['text']
+            if len(self.mesh.tree[entry]['attr']) > 0:
+                pass
+            for subentry in self.mesh.tree[entry]['children']:
+                print(subentry)
+                Q_ = ET.SubElement(_,self.mesh.tree[entry]['children'][subentry]['tag'])
+                if len(self.mesh.tree[entry]['children'][subentry]['text']) > 0:
+                    Q_.text = self.mesh.tree[entry]['children'][subentry]['text']
+        tree = ET.ElementTree(root)
+        tree.write(self.prjfile,
+                   encoding="ISO-8859-1",
+                   xml_declaration=True,
+                   pretty_print=True)
+        return True
     def writeInput(self):
         root = ET.Element("OpenGeoSysProject")
         geometry = ET.SubElement(root, "geometry")
@@ -473,3 +498,9 @@ class OGS(object):
                    xml_declaration=True,
                    pretty_print=True)
         return True
+if __name__ == '__main__':
+    model = OGS(PROJECT_FILE="test.prj")
+    model.geo.addGeom(filename="square_1x1.gml")
+    model.mesh.addMesh(filename="square_1x1.vtu")
+    model.mesh.addMesh(filename="square_1x1-2.vtu")
+    model.writeInputnew()

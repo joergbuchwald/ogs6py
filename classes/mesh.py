@@ -1,5 +1,6 @@
 class MESH(object):
     def __init__(self, **args):
+#        self.tree = { 'geometry': { 'text': "", 'attr': {}, 'children': {} } }
         self.meshfiles = []
         self.axially_symmetric = []
 
@@ -15,6 +16,17 @@ class MESH(object):
                 self.axially_symmetric.append("false")
         else:
             raise KeyError("No filename given")
-
+    @property
+    def tree(self):
+        if len(self.meshfiles) == 1:
+            if self.axially_symmetric[0] == "false":
+                baum = { 'mesh': { 'tag': 'mesh', 'text': self.meshfiles[0], 'attr': {}, 'children': {} } }
+            else:
+                baum = { 'mesh': { 'tag': 'mesh', 'text': self.meshfiles[0], 'attr': { 'axially_symmetric': 'true' }, 'children': {} } }
+        if len(self.meshfiles) > 1:
+            baum = { 'meshes': { 'tag': 'meshes', 'text': '', 'attr': {}, 'children': {} } }
+            for meshfile in self.meshfiles:
+                baum['meshes']['children'][meshfile] = { 'tag': 'mesh', 'text': meshfile, 'attr': {}, 'children': {} } 
+        return baum
     def getMesh(self, **args):
         return self.meshfiles
