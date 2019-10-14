@@ -33,25 +33,18 @@ class OGS(object):
         os.system(cmd)
         print("OGS finished")
 
-    def writeInputnew(self):
+    def dict2xml(self,parent,dictionary):
+        for entry in dictionary:
+            tag = ET.SubElement(parent, dictionary[entry]['tag'])
+            tag.text = dictionary[entry]['text']
+            for attr in dictionary[entry]['attr']:
+                tag.set(attr,dictionary[entry]['attr'][attr])
+            if len(dictionary[entry]['children']) >0:
+                self.dict2xml(tag,dictionary[entry]['children'])
+    def writeInput_ng(self):
         root = ET.Element("OpenGeoSysProject")
-        for entry in self.geo.tree:
-            _ = ET.SubElement(root, self.geo.tree[entry]['tag'])
-            _.text = self.geo.tree[entry]['text']
-            if len(self.geo.tree[entry]['attr']) > 0: 
-                pass
-        print(self.mesh.tree)
-        for entry in self.mesh.tree:
-            _ = ET.SubElement(root, self.mesh.tree[entry]['tag'])
-            if len(self.mesh.tree[entry]['text'])>0:
-                _.text = self.mesh.tree[entry]['text']
-            if len(self.mesh.tree[entry]['attr']) > 0:
-                pass
-            for subentry in self.mesh.tree[entry]['children']:
-                print(subentry)
-                Q_ = ET.SubElement(_,self.mesh.tree[entry]['children'][subentry]['tag'])
-                if len(self.mesh.tree[entry]['children'][subentry]['text']) > 0:
-                    Q_.text = self.mesh.tree[entry]['children'][subentry]['text']
+        self.dict2xml(root,self.geo.tree)
+        self.dict2xml(root,self.mesh.tree)
         tree = ET.ElementTree(root)
         tree.write(self.prjfile,
                    encoding="ISO-8859-1",
@@ -503,4 +496,5 @@ if __name__ == '__main__':
     model.geo.addGeom(filename="square_1x1.gml")
     model.mesh.addMesh(filename="square_1x1.vtu")
     model.mesh.addMesh(filename="square_1x1-2.vtu")
-    model.writeInputnew()
+    model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
+    model.writeInput_ng()
