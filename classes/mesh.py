@@ -1,6 +1,5 @@
 class MESH(object):
     def __init__(self, **args):
-#        self.tree = { 'geometry': { 'text': "", 'attr': {}, 'children': {} } }
         self.meshfiles = []
         self.axially_symmetric = []
 

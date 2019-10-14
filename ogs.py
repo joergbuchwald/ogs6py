@@ -16,6 +16,7 @@ class OGS(object):
         self.processvars = processvars.PROCESSVARS()
         self.linsolvers = linsolvers.LINSOLVERS()
         self.nonlinsolvers = nonlinsolvers.NONLINSOLVERS()
+        sys.setrecursionlimit(10000)
         ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
@@ -45,6 +46,7 @@ class OGS(object):
         root = ET.Element("OpenGeoSysProject")
         self.dict2xml(root,self.geo.tree)
         self.dict2xml(root,self.mesh.tree)
+        self.dict2xml(root,self.processes.tree)
         tree = ET.ElementTree(root)
         tree.write(self.prjfile,
                    encoding="ISO-8859-1",
@@ -497,4 +499,42 @@ if __name__ == '__main__':
     model.mesh.addMesh(filename="square_1x1.vtu")
     model.mesh.addMesh(filename="square_1x1-2.vtu")
     model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
+    model.processes.setProcess(
+    name="THM",
+    type="THERMO_HYDRO_MECHANICS",
+    integration_order="4",
+    dimension="2",
+    intrinsic_permeability="k",
+    specific_storage="S",
+    biot_coefficient="alpha",
+    porosity="phi",
+    solid_density="rho_sr",
+    fluid_density="rho_fr",
+    fluid_viscosity="mu",
+    fluid_volumetric_thermal_expansion_coefficient="beta_f",
+    solid_linear_thermal_expansion_coefficient="alpha_s",
+    solid_specific_heat_capacity="C_s",
+    solid_thermal_conductivity="lambda_s",
+    fluid_specific_heat_capacity="C_f",
+    fluid_thermal_conductivity="lambda_f",
+    reference_temperature="T0",
+    specific_body_force="0 0")
+    model.processes.setConstitutiveRelation(type="LinearElasticIsotropic",
+                                            youngs_modulus="E",
+                                            poissons_ratio="nu")
+    model.processes.addProcessVariable(
+            process_variable="displacement",
+            process_variable_name="displacement")
+    model.processes.addProcessVariable(
+            process_variable="pressure",
+            process_variable_name="pressure")
+    model.processes.addProcessVariable(
+            process_variable="temperature",
+            process_variable_name="temperature")
+    model.processes.addProcessVariable(secondary_variable="sigma",
+                                   type="static",
+                                   output_name="sigma")
+    model.processes.addProcessVariable(secondary_variable="epsilon",
+                                   type="static",
+                                   output_name="epsilon")
     model.writeInput_ng()
