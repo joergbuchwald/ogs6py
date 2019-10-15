@@ -11,6 +11,7 @@ class OGS(object):
         self.geo = geo.GEO()
         self.mesh = mesh.MESH()
         self.processes = processes.PROCESSES()
+        self.media = media.MEDIA()
         self.timeloop = timeloop.TIMELOOP()
         self.parameters = parameters.PARAMETERS()
         self.processvars = processvars.PROCESSVARS()
@@ -47,6 +48,7 @@ class OGS(object):
         self.dict2xml(root,self.geo.tree)
         self.dict2xml(root,self.mesh.tree)
         self.dict2xml(root,self.processes.tree)
+        self.dict2xml(root,self.media.tree)
         tree = ET.ElementTree(root)
         tree.write(self.prjfile,
                    encoding="ISO-8859-1",
@@ -537,4 +539,7 @@ if __name__ == '__main__':
     model.processes.addProcessVariable(secondary_variable="epsilon",
                                    type="static",
                                    output_name="epsilon")
+    model.media.addProperty(medium_id="0", phase_type="AqueousLiquid", name="specific_heat_capacity", type="Constant", value="4280.0")
+    model.media.addProperty(medium_id="0", phase_type="AqueousLiquid", name="thermal_conductivity", type="Constant", value="0.6")
+    model.media.addProperty(medium_id="0", phase_type="Solid", name="permeability", type="Constant", value="2e-20 0 0 2e-20")
     model.writeInput_ng()

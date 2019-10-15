@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class PROCESSES(object):
     def __init__(self, **args):
         self.tree = { 'processes': { 'tag': 'processes', 'text': '', 'attr': {}, 'children': {} } }
