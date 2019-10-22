@@ -50,6 +50,7 @@ class OGS(object):
         self.dict2xml(self.root,self.mesh.tree)
         self.dict2xml(self.root,self.processes.tree)
         self.dict2xml(self.root,self.media.tree)
+        self.dict2xml(self.root,self.timeloop.tree)
         # Reparsing for pretty_print to work properly
         parser=ET.XMLParser(remove_blank_text=True)
         self.tree_string = ET.tostring(self.root, pretty_print=True)
@@ -547,4 +548,16 @@ if __name__ == '__main__':
     model.media.addProperty(medium_id="0", phase_type="AqueousLiquid", name="specific_heat_capacity", type="Constant", value="4280.0")
     model.media.addProperty(medium_id="0", phase_type="AqueousLiquid", name="thermal_conductivity", type="Constant", value="0.6")
     model.media.addProperty(medium_id="0", phase_type="Solid", name="permeability", type="Constant", value="2e-20 0 0 2e-20")
+    model.timeloop.addProcess(process="THERMO_HYDRO_MECHANICS",
+                          nonlinear_solver_name="basic_newton",
+                          convergence_type="PerComponentDeltaX",
+                          norm_type="NORM2",
+                          abstols="1e-5 1e-5 1e-5 1e-5",
+                          time_discretization="BackwardEuler")
+    model.timeloop.setStepping(process="THERMO_HYDRO_MECHANICS",
+                           type="FixedTimeStepping",
+                           t_initial="0",
+                           t_end="50000",
+                           repeat="10",
+                           delta_t="5000")
     model.writeInput_ng()

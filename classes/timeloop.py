@@ -1,47 +1,62 @@
 class TIMELOOP(object):
     def __init__(self, **args):
         self.process = { }
+        self.baum = { 'time_loop': { 'tag': 'time_loop', 'text': '', 'attr': {}, 'children': {} } }
         self.outputtype = ""
         self.outputprefix = ""
         self.outputvariables = []
         self.output_repeat = []
         self.output_each_steps = []
+        self.itstring = []
+    def iteratestring(self):
+        self.itstring.append(str(len(self.itstring)))
+        print("###TEST:",self.itstring)
     def populateTree(self, tag, text='', attr={}, children={}):
         return { 'tag': tag, 'text': text, 'attr': attr, 'children': children }
     @property
     def tree(self):
-        baum = { 'time_loop': { 'tag': 'time_loop', 'text': '', 'attr': {}, 'children': {} } }
-        baum['time_loop']['children']['processes'] = { 'processes': { 'tag': 'processes', 'text': '', 'attr': {}, 'children': {} } }
-        process = baum['time_loop']['children']['processes']['children']
-        baum['time_loop']['children']['output'] = { 'processes': { 'tag': 'processes', 'text': '', 'attr': {}, 'children': {} } }
-        output = baum['time_loop']['children']['output']['children']
-        for processname in self.process:
-            process[processname] = populateTree( 'process', attr= { 'ref': processname })
-            process[processname]['children']['nonlinear_solver'] =  populateTree( 'nonlinear_solver', text=self.process[processname]['nonlinear_solver'])
-            process[processname]['children']['convergence_criterion']= populateTree( 'convergence_criterion')
-            conv_crit = process[processname]['children']['convergence_criterion']['children']
-            conv_crit['type'] = populateTree( 'type', text=self.process[processname]['convergence_type'])
-            conv_crit['norm_type'] = populateTree( 'type', text=self.process[processname]['norm_type'])
-            if 'abstol' in self.process[processname]:
-                conv_crit['abstol']= populateTree( 'abstol', text=self.process[processname]['abstol'])
-            elif 'abstols' in self.process[processname]:
-                conv_crit['abstols']= populateTree( 'abstols', text=self.process[processname]['abstols'])
-            elif 'reltol' in self.process[processname]:
-                conv_crit['reltol']= populateTree( 'reltol', text=self.process[processname]['reltol'])
-            elif 'reltol' in self.process[processname]:
-                conv_crit['reltols']= populateTree( 'reltols', text=self.process[processname]['reltols'])
-            process[processname]['children']['time_discretization']= populateTree( 'time_discretization')
-            time_discr = process[processname]['children']['time_discretization']['children']
-            time_discr['type'] = populateTree( 'type', text=self.process[processname]['time_discretization'])
-            process[processname]['children']['time_stepping']= populateTree( 'time_stepping')
-            time_stepping = process[processname]['children']['time_stepping']['children']
+        self.baum['time_loop']['children']['processes2'] = self.populateTree('processes')
+        process = self.baum['time_loop']['children']['processes2']['children']
 
-        return baum
+#        baum['time_loop']['children']['output'] = self.populateTree('output')
+#        output = baum['time_loop']['children']['output']['children']
+        for processname in self.process:
+            process[processname] = self.populateTree( 'process', attr= { 'ref': processname }, children={})
+            process[processname]['children']['nonlinear_solver'] =  self.populateTree( 'nonlinear_solver', text=self.process[processname]['nonlinear_solver'], children={})
+            process[processname]['children']['convergence_criterion']= self.populateTree( 'convergence_criterion', children={})
+            conv_crit = process[processname]['children']['convergence_criterion']['children']
+            conv_crit['type'] = self.populateTree( 'type', text=self.process[processname]['convergence_type'], children={})
+            conv_crit['norm_type'] = self.populateTree( 'type', text=self.process[processname]['norm_type'], children={})
+            if 'abstol' in self.process[processname]:
+                conv_crit['abstol']= self.populateTree( 'abstol', text=self.process[processname]['abstol'], children={})
+            elif 'abstols' in self.process[processname]:
+                conv_crit['abstols']= self.populateTree( 'abstols', text=self.process[processname]['abstols'], children={})
+            elif 'reltol' in self.process[processname]:
+                conv_crit['reltol']= self.populateTree( 'reltol', text=self.process[processname]['reltol'], children={})
+            elif 'reltol' in self.process[processname]:
+                conv_crit['reltols']= self.populateTree( 'reltols', text=self.process[processname]['reltols'], children={})
+            process[processname]['children']['time_discretization']= self.populateTree( 'time_discretization', children={})
+            time_discr = process[processname]['children']['time_discretization']['children']
+            time_discr['type'] = self.populateTree( 'type', text=self.process[processname]['time_discretization'], children={})
+            process[processname]['children']['time_stepping']= self.populateTree( 'time_stepping', children={})
+            time_stepping = process[processname]['children']['time_stepping']['children']
+            time_stepping['type'] = self.populateTree( 'type', text=self.process[processname]['time_stepping'], children={})
+            if 't_initial' in self.process[processname]:
+                time_stepping['t_initial']= self.populateTree( 't_initial', text=self.process[processname]['t_initial'], children={})
+                time_stepping['t_end']= self.populateTree( 't_end', text=self.process[processname]['t_end'], children={})
+            time_stepping['timesteps'] = self.populateTree( 'timesteps', children={})
+            time_pair = time_stepping['timesteps']['children']
+            self.iteratestring()
+            time_pair['pair'+self.itstring[-1]]=self.populateTree( 'pair', children={})
+            print(self.itstring,self.process[processname]['t_repeat'])
+            time_pair['pair'+self.itstring[-1]]['children']['repeat'] = self.populateTree( 'repeat', text=self.process[processname]['t_repeat'][len(self.itstring)-1], children={})
+            time_pair['pair'+self.itstring[-1]]['children']['delta_t'] = self.populateTree( 'delta_t', text=self.process[processname]['t_deltat'][len(self.itstring)-1], children={})
+        return self.baum
     def addProcess(self, **args):
         if "process" in args:
             self.process = { args["process"] : {} }
-            self.process['process']['t_repeat'] = []
-            self.process['process']['delat_t'] = []
+            self.process[args['process']]['t_repeat'] = []
+            self.process[args['process']]['t_deltat'] = []
         else:
             raise KeyError("No process referenced")
         if "nonlinear_solver_name" in args:
