@@ -17,9 +17,8 @@ class TIMELOOP(object):
     def tree(self):
         self.baum['time_loop']['children']['processes2'] = self.populateTree('processes')
         process = self.baum['time_loop']['children']['processes2']['children']
-
-#        baum['time_loop']['children']['output'] = self.populateTree('output')
-#        output = baum['time_loop']['children']['output']['children']
+        self.baum['time_loop']['children']['output'] = self.populateTree('output', children={})
+        output = self.baum['time_loop']['children']['output']['children']
         for processname in self.process:
             process[processname] = self.populateTree( 'process', attr= { 'ref': processname }, children={})
             process[processname]['children']['nonlinear_solver'] =  self.populateTree( 'nonlinear_solver', text=self.process[processname]['nonlinear_solver'], children={})
@@ -46,11 +45,21 @@ class TIMELOOP(object):
                 time_stepping['t_end']= self.populateTree( 't_end', text=self.process[processname]['t_end'], children={})
             time_stepping['timesteps'] = self.populateTree( 'timesteps', children={})
             time_pair = time_stepping['timesteps']['children']
-            self.iteratestring()
-            time_pair['pair'+self.itstring[-1]]=self.populateTree( 'pair', children={})
-            print(self.itstring,self.process[processname]['t_repeat'])
-            time_pair['pair'+self.itstring[-1]]['children']['repeat'] = self.populateTree( 'repeat', text=self.process[processname]['t_repeat'][len(self.itstring)-1], children={})
-            time_pair['pair'+self.itstring[-1]]['children']['delta_t'] = self.populateTree( 'delta_t', text=self.process[processname]['t_deltat'][len(self.itstring)-1], children={})
+            for i, repeat in enumerate(self.process[processname]['t_repeat']):
+                time_pair['pair'+str(i)] = self.populateTree( 'pair', children={})
+                time_pair['pair'+str(i)]['children']['repeat'] = self.populateTree( 'repeat', text=repeat, children={})
+                time_pair['pair'+str(i)]['children']['delta_t'] = self.populateTree( 'delta_t', text=self.process[processname]['t_deltat'][i], children={})
+        output['type'] = self.populateTree('type', text=self.outputtype, children={})
+        output['prefix'] = self.populateTree('prefix', text=self.outputprefix, children={})
+        output['timesteps'] = self.populateTree( 'timesteps', children={})
+        output_pair = output['timesteps']['children']
+        for i, repeat in enumerate(self.output_repeat):
+            output_pair['pair'+str(i)] = self.populateTree('pair', children={})
+            output_pair['pair'+str(i)]['children']['repeat'] = self.populateTree( 'repeat', text=repeat, children={})
+            output_pair['pair'+str(i)]['children']['each_steps'] = self.populateTree( 'each_steps', text=self.output_each_steps[i], children={})
+        output['variables'] = self.populateTree('variables', children={})
+        for i, variable in enumerate(self.outputvariables):
+            output['variables']['children']['variable'+str(i)] = self.populateTree('variable', text=variable, children={})
         return self.baum
     def addProcess(self, **args):
         if "process" in args:
@@ -158,8 +167,8 @@ class TIMELOOP(object):
         else:
             raise KeyError("No process referenced")
         if "repeat" in args and "delta_t" in args:
-            self.process['process']['t_repeat'].append(args["repeat"])
-            self.process['process']['t_deltat'].append(args["delta_t"])
+            self.process[args['process']]['t_repeat'].append(args["repeat"])
+            self.process[args['process']]['t_deltat'].append(args["delta_t"])
         else:
             raise KeyError("You muss provide repeat and delta_t attributes to \
                         define additional time stepping pairs.")

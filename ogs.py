@@ -560,4 +560,12 @@ if __name__ == '__main__':
                            t_end="50000",
                            repeat="10",
                            delta_t="5000")
+    model.timeloop.addOutput(
+    type="VTK",
+    prefix="blubb",
+    repeat="1",
+    each_steps="10",
+    variables=["displacement", "pressure", "temperature", "sigma", "epsilon"])
+    model.timeloop.addTimeSteppingPair(process="THERMO_HYDRO_MECHANICS", repeat="15", delta_t="32")
+    model.timeloop.addOutputPair(repeat="12", each_steps="11")
     model.writeInput_ng()
