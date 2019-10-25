@@ -1,32 +1,27 @@
-import numpy as np
-
-
 class PARAMETERS(object):
     def __init__(self, **args):
-        self.parameters = np.array(
-            [['name', 'type', 'value', 'mesh', 'field_name', 'expression']])
-
+        self.tree = { 'parameters': { 'tag': 'parameters', 'text': '', 'attr': {}, 'children': {} } }
+    def populateTree(self, tag, text='', attr={}, children={}):
+        return { 'tag': tag, 'text': text, 'attr': attr, 'children': children }
     def addParameter(self, **args):
         if "name" in args:
             if "type" in args:
+                entries = len(self.tree['parameters']['children'])
+                self.tree['parameters']['children']['param'+str(entries)] = self.populateTree('parameter', children={})
+                parameter = self.tree['parameters']['children']['param'+str(entries)]
+                parameter['children']['name'] = self.populateTree('name', text=args['name'], children={})
+                parameter['children']['type'] = self.populateTree('type', text=args['type'], children={})
                 if args["type"] == "Constant":
-                    self.parameters = np.append(self.parameters, [[
-                        args['name'], args['type'], args['value'], '', '', ''
-                    ]],
-                                                axis=0)
+                    if "value" in args:
+                        parameter['children']['value'] = self.populateTree('value', text=args['value'], children={})
+                    elif "values" in args:
+                        parameter['children']['values'] = self.populateTree('values', text=args['values'], children={})
                 elif args["type"] == "MeshElement" \
                         or args["type"] == "MeshNode":
-                    self.parameters = np.append(self.parameters, [[
-                        args['name'], args['type'], '', args['mesh'],
-                        args['field_name'], ''
-                    ]],
-                                                axis=0)
+                    parameter['children']['mesh'] = self.populateTree('mesh', text=args['mesh'], children={})
+                    parameter['children']['field_name'] =self.populateTree('field_name', text=args['field_name'], children={})
                 elif args["type"] == "Function":
-                    self.parameters = np.append(self.parameters, [[
-                        args['name'], args['type'], '', '', '',
-                        args['expression']
-                    ]],
-                                                axis=0)
+                    parameter['children']['expression'] = self.populateTree('expression', text=args['expression'], children={})
                 else:
                     raise KeyError("Parameter type not supported (yet).")
             else:
