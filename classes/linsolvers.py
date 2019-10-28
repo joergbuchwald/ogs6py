@@ -1,5 +1,3 @@
-
-
 class LINSOLVERS(object):
     def __init__(self, **args):
         self.tree = { 'linear_solvers': { 'tag': 'linear_solvers', 'text': '', 'attr': {}, 'children': {} } }

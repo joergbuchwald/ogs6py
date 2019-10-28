@@ -3,7 +3,6 @@ import os
 import sys
 from lxml import etree as ET
 from classes import *
-import numpy as np
 
 
 class OGS(object):

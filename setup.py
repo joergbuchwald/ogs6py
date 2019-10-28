@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ogs6py",
-   version=0.1,
+   version=0.2,
     maintainer="Jörg Buchwald",
     maintainer_email="joerg_buchwald@ufz.de",
     author="Jörg Buchwald",
@@ -16,11 +16,7 @@ setup(
     license="MIT -  see LICENSE.txt",
     platforms=["Windows", "Linux", "Solaris", "Mac OS-X", "Unix"],
     include_package_data=True,
-    install_requires=[
-        "numpy",
-        "lxml",
-    ],
+    install_requires=["lxml"],
     py_modules=["ogs"],
     packages=["classes"]
 )
-
