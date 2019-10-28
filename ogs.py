@@ -52,6 +52,9 @@ class OGS(object):
         self.dict2xml(self.root,self.media.tree)
         self.dict2xml(self.root,self.timeloop.tree)
         self.dict2xml(self.root,self.parameters.tree)
+        self.dict2xml(self.root,self.processvars.tree)
+        self.dict2xml(self.root,self.nonlinsolvers.tree)
+        self.dict2xml(self.root,self.linsolvers.tree)
         # Reparsing for pretty_print to work properly
         parser=ET.XMLParser(remove_blank_text=True)
         self.tree_string = ET.tostring(self.root, pretty_print=True)
@@ -134,4 +137,67 @@ if __name__ == '__main__':
                               values="0 0")
     model.parameters.addParameter(name="T0", type="Constant", value="273.15")
     model.parameters.addParameter(name="C_s", type="Constant", value="917.654")
+    model.processvars.setIC(process_variable_name="displacement",
+                        components="2",
+                        order="2",
+                        initial_condition="displacement0")
+    model.processvars.addBC(process_variable_name="displacement",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="left",
+                        type="Dirichlet",
+                        component="0",
+                        parameter="dirichlet0")
+    model.processvars.addBC(process_variable_name="displacement",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="bottom",
+                        type="Dirichlet",
+                        component="1",
+                        parameter="dirichlet0")
+    model.processvars.setIC(process_variable_name="pressure",
+                        components="1",
+                        order="1",
+                        initial_condition="pressure_ic")
+    model.processvars.addBC(process_variable_name="pressure",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="out",
+                        type="Dirichlet",
+                        component="0",
+                        parameter="pressure_bc_left")
+    model.processvars.setIC(process_variable_name="temperature",
+                        components="1",
+                        order="1",
+                        initial_condition="temperature_ic")
+    model.processvars.addBC(process_variable_name="temperature",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="out",
+                        type="Dirichlet",
+                        component="0",
+                        parameter="temperature_bc_left")
+    model.processvars.addST(process_variable_name="temperature",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="center",
+                        type="Nodal",
+                        parameter="temperature_source_term")
+    model.nonlinsolvers.addNonlinSolver(name="basic_newton",
+                                    type="Newton",
+                                    max_iter="4",
+                                    linear_solver="general_linear_solver")
+    model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="lis",
+                              solver_type="cg",
+                              precon_type="jacobi",
+                              max_iteration_step="10000",
+                              error_tolerance="1e-16")
+    model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="eigen",
+                              solver_type="CG",
+                              precon_type="Diagonal",
+                              max_iteration_step="10000",
+                              error_tolerance="1e-16")
+    model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="petsc",
+                              solver_type="cg",
+                              precon_type="bjacobi",
+                              max_iteration_step="10000",
+                              error_tolerance="1e-16")
     model.writeInput()

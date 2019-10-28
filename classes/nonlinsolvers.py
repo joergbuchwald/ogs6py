@@ -1,31 +1,20 @@
-import numpy as np
-
-
 class NONLINSOLVERS(object):
     def __init__(self, **args):
-        self.nonlin_solvers = np.array(
-            [['name', 'type', 'max_iter', 'linear_solver', 'damping']])
-
+        self.tree = { 'nonlinear_solvers': { 'tag': 'nonlinear_solvers', 'text': '', 'attr': {}, 'children': {} } }
+    def populateTree(self, tag, text='', attr={}, children={}):
+        return { 'tag': tag, 'text': text, 'attr': attr, 'children': children }
     def addNonlinSolver(self, **args):
         if "name" in args:
             if "type" in args:
                 if "max_iter" in args:
                     if "linear_solver" in args:
+                        self.tree['nonlinear_solvers']['children'][args['name']] = self.populateTree('nonlinear_solver', children={})
+                        nonlin_solver = self.tree['nonlinear_solvers']['children'][args['name']]['children']
+                        nonlin_solver['name'] = self.populateTree('name', text=args['name'], children={})
+                        nonlin_solver['type'] = self.populateTree('type', text=args['type'], children={})
+                        nonlin_solver['max_iter'] = self.populateTree('max_iter', text=args['max_iter'], children={})
                         if "damping" in args:
-                            self.nonlin_solvers = np.append(
-                                self.nonlin_solvers, [[
-                                    args['name'], args['type'],
-                                    args['max_iter'], args['linear_solver'],
-                                    args['damping']
-                                ]],
-                                axis=0)
-                        else:
-                            self.nonlin_solvers = np.append(
-                                self.nonlin_solvers, [[
-                                    args['name'], args['type'],
-                                    args['max_iter'], args['linear_solver'], ''
-                                ]],
-                                axis=0)
+                            nonlin_solver['damping'] = self.populateTree('damping', text=args['damping'], children={})
                     else:
                         raise KeyError("No linear_solver specified.")
                 else:
