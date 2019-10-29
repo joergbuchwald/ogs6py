@@ -16,25 +16,28 @@ model.processes.addProcessVariable(process_variable="process_variable",
 model.processes.addProcessVariable(secondary_variable="sigma",
                                    type="static",
                                    output_name="sigma")
-model.timeloop.addProcess(nonlinear_solver_name="basic_newton",
+model.timeloop.addProcess(process="SD",
+                          nonlinear_solver_name="basic_newton",
                           convergence_type="DeltaX",
                           norm_type="NORM2",
                           abstol="1e-15",
                           time_discretization="BackwardEuler")
-model.timeloop.setStepping(type="FixedTimeStepping",
+model.timeloop.setStepping(process="SD", type="FixedTimeStepping",
                            t_initial="0",
                            t_end="1",
                            repeat="4",
                            delta_t="0.25")
 model.timeloop.addOutput(type="VTK",
                          prefix="blubb",
+                         repeat="1",
+                         each_steps="10",
                          variables=["displacement", "sigma"])
 model.parameters.addParameter(name="E", type="Constant", value="1")
 model.parameters.addParameter(name="nu", type="Constant", value="0.3")
 model.parameters.addParameter(name="rho_sr", type="Constant", value="1")
 model.parameters.addParameter(name="displacement0",
                               type="Constant",
-                              value="0 0")
+                              values="0 0")
 model.parameters.addParameter(name="dirichlet0", type="Constant", value="0")
 model.parameters.addParameter(name="dirichlet1", type="Constant", value="0.05")
 model.processvars.setIC(process_variable_name="displacement",
@@ -72,7 +75,7 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
 model.linsolvers.addLinSolver(name="general_linear_solver",
                               kind="eigen",
                               solver_type="CG",
-                              precon_type="Diagonal",
+                              precon_type="DIAGONAL",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.linsolvers.addLinSolver(name="general_linear_solver",

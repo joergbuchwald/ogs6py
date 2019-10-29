@@ -68,12 +68,16 @@ class PROCESSVARS(object):
                     )
                 if "geometrical_set" in args:
                     if "geometry" in args:
+                        if "component" in args:
+                            cpnts = args['component']
+                        else:
+                            cpnts = "0"
                         boundary_conditions['children'][
                             args['geometrical_set'] +
-                            args['geometry']] = self.populateTree(
+                            args['geometry'] + cpnts] = self.populateTree(
                                 'boundary_condition', children={})
                         boundary_condition = boundary_conditions['children'][
-                            args['geometrical_set'] + args['geometry']]
+                            args['geometrical_set'] + args['geometry'] + cpnts]
                         boundary_condition['children'][
                             'type'] = self.populateTree('type',
                                                         text=args['type'],

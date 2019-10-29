@@ -49,7 +49,8 @@ class OGS(object):
         self.dict2xml(self.root, self.geo.tree)
         self.dict2xml(self.root, self.mesh.tree)
         self.dict2xml(self.root, self.processes.tree)
-        self.dict2xml(self.root, self.media.tree)
+        if len(self.media.tree['media']['children']) > 0:
+            self.dict2xml(self.root, self.media.tree)
         self.dict2xml(self.root, self.timeloop.tree)
         self.dict2xml(self.root, self.parameters.tree)
         self.dict2xml(self.root, self.processvars.tree)
