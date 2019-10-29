@@ -1,1 +1,9 @@
-from . import mesh, geo, processes, media, timeloop, parameters, processvars, linsolvers, nonlinsolvers
+from . import mesh
+from . import geo
+from . import processes
+from . import media
+from . import timeloop
+from . import parameters
+from . import processvars
+from . import linsolvers
+from . import nonlinsolvers

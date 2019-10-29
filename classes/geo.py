@@ -1,6 +1,13 @@
 class GEO(object):
     def __init__(self, **args):
-        self.tree = { 'geometry': { 'tag': 'geometry', 'text': "", 'attr': {}, 'children': {} } }
+        self.tree = {
+            'geometry': {
+                'tag': 'geometry',
+                'text': "",
+                'attr': {},
+                'children': {}
+            }
+        }
 
     def addGeom(self, **args):
         if "filename" in args:
