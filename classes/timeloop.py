@@ -50,7 +50,7 @@ class TIMELOOP(object):
                 text=self.process[processname]['convergence_type'],
                 children={})
             conv_crit['norm_type'] = self.populateTree(
-                'type',
+                'norm_type',
                 text=self.process[processname]['norm_type'],
                 children={})
             if 'abstol' in self.process[processname]:
@@ -176,10 +176,10 @@ class TIMELOOP(object):
                             args['process']]['norm_type'] = args["norm_type"]
                         if "abstols" in args:
                             self.process[
-                                args['process']]['abstol'] = args["abstols"]
+                                args['process']]['abstols'] = args["abstols"]
                         if "reltols" in args:
                             self.process[
-                                args['process']]['reltol'] = args["reltols"]
+                                args['process']]['reltols'] = args["reltols"]
                         if ("abstol" in args) or ("reltol" in args):
                             raise KeyError("Convergence type \
                                     PerComponentDeltaX requires \

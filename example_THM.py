@@ -4,23 +4,10 @@ model = OGS(PROJECT_FILE="thm_test/test.prj")
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(
-    name="THM",
+    name="THERMO_HYDRO_MECHANICS",
     type="THERMO_HYDRO_MECHANICS",
     integration_order="4",
     dimension="2",
-    intrinsic_permeability="k",
-    specific_storage="S",
-    biot_coefficient="alpha",
-    porosity="phi",
-    solid_density="rho_sr",
-    fluid_density="rho_fr",
-    fluid_viscosity="mu",
-    fluid_volumetric_thermal_expansion_coefficient="beta_f",
-    solid_linear_thermal_expansion_coefficient="alpha_s",
-    solid_specific_heat_capacity="C_s",
-    solid_thermal_conductivity="lambda_s",
-    fluid_specific_heat_capacity="C_f",
-    fluid_thermal_conductivity="lambda_f",
     reference_temperature="T0",
     specific_body_force="0 0")
 model.processes.setConstitutiveRelation(type="LinearElasticIsotropic",
@@ -38,6 +25,74 @@ model.processes.addProcessVariable(secondary_variable="sigma",
 model.processes.addProcessVariable(secondary_variable="epsilon",
                                    type="static",
                                    output_name="epsilon")
+model.media.addProperty(medium_id="0",
+                            phase_type="AqueousLiquid",
+                            name="specific_heat_capacity",
+                            type="Constant",
+                            value="4280.0")
+model.media.addProperty(medium_id="0",
+                            phase_type="AqueousLiquid",
+                            name="thermal_conductivity",
+                            type="Constant",
+                            value="0.6")
+model.media.addProperty(medium_id="0",
+                            phase_type="AqueousLiquid",
+                            name="density",
+                            type="Linear",
+                            reference_value="999.1",
+                            variable_name="temperature",
+                            reference_condition="273.15",
+                            slope="-4e-4")
+model.media.addProperty(medium_id="0",
+                            phase_type="AqueousLiquid",
+                            name="thermal_expansivity",
+                            type="Constant",
+                            value="4.0e-4")
+model.media.addProperty(medium_id="0",
+                            phase_type="AqueousLiquid",
+                            name="viscosity",
+                            type="Constant",
+                            value="1.e-3")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="permeability",
+                            type="Constant",
+                            value="2e-20 0 0 2e-20")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="porosity",
+                            type="Constant",
+                            value="0.16")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="storage",
+                            type="Constant",
+                            value="0.0")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="density",
+                            type="Constant",
+                            value="2290")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="thermal_conductivity",
+                            type="Constant",
+                            value="1.838")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="specific_heat_capacity",
+                            type="Constant",
+                            value="917.654")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="biot_coefficient",
+                            type="Constant",
+                            value="1.0")
+model.media.addProperty(medium_id="0",
+                            phase_type="Solid",
+                            name="thermal_expansivity",
+                            type="Constant",
+                            value="1.5e-5")
 model.timeloop.addProcess(process="THERMO_HYDRO_MECHANICS",
                           nonlinear_solver_name="basic_newton",
                           convergence_type="PerComponentDeltaX",
@@ -56,23 +111,14 @@ model.timeloop.addOutput(
     repeat="1",
     each_steps="10",
     variables=["displacement", "pressure", "temperature", "sigma", "epsilon"])
-model.timeloop.addTimeSteppingPair(repeat="15", delta_t="32")
+model.timeloop.addTimeSteppingPair(process="THERMO_HYDRO_MECHANICS", repeat="15", delta_t="32")
 model.timeloop.addOutputPair(repeat="12", each_steps="11")
 model.parameters.addParameter(name="E", type="Constant", value="5000000000")
 model.parameters.addParameter(name="nu", type="Constant", value="0.3")
-model.parameters.addParameter(name="k", type="Constant", value="2e-20")
-model.parameters.addParameter(name="S", type="Constant", value="0")
-model.parameters.addParameter(name="alpha", type="Constant", value="1")
-model.parameters.addParameter(name="phi", type="Constant", value="0.16")
-model.parameters.addParameter(name="rho_sr", type="Constant", value="2290")
-model.parameters.addParameter(name="alpha_s", type="Constant", value="1.5e-5")
-model.parameters.addParameter(name="beta_f", type="Constant", value="4e-4")
-model.parameters.addParameter(name="lambda_s", type="Constant", value="1.838")
-model.parameters.addParameter(name="C_s", type="Constant", value="917.654")
 model.parameters.addParameter(name="T0", type="Constant", value="273.15")
 model.parameters.addParameter(name="displacement0",
                               type="Constant",
-                              value="0 0")
+                              values="0 0")
 model.parameters.addParameter(name="pressure_ic", type="Constant", value="0")
 model.parameters.addParameter(name="dirichlet0", type="Constant", value="0")
 model.parameters.addParameter(name="Neumann0", type="Constant", value="0.0")
@@ -88,10 +134,6 @@ model.parameters.addParameter(name="temperature_bc_left",
 model.parameters.addParameter(name="temperature_source_term",
                               type="Constant",
                               value="150")
-model.parameters.addParameter(name="rho_fr", type="Constant", value="999.1")
-model.parameters.addParameter(name="mu", type="Constant", value="1e-3")
-model.parameters.addParameter(name="C_f", type="Constant", value="4280")
-model.parameters.addParameter(name="lambda_f", type="Constant", value="0.6")
 model.processvars.setIC(process_variable_name="displacement",
                         components="2",
                         order="2",

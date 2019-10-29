@@ -28,6 +28,8 @@ class NONLINSOLVERS(object):
                             'type', text=args['type'], children={})
                         nonlin_solver['max_iter'] = self.populateTree(
                             'max_iter', text=args['max_iter'], children={})
+                        nonlin_solver['linear_solver'] = self.populateTree(
+                            'linear_solver', text=args['linear_solver'], children={})
                         if "damping" in args:
                             nonlin_solver['damping'] = self.populateTree(
                                 'damping', text=args['damping'], children={})

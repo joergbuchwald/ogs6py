@@ -18,12 +18,11 @@ class MEDIA(object):
                 medium = self.tree['media']['children'][args['medium_id']]
             except KeyError:
                 self.tree['media']['children'][args['medium_id']] = {
-                    'tag': 'medium',
-                    'text': '',
-                    'attr': {
-                        'id': args['medium_id']
-                    },
-                    'children': {}
+                        'tag': 'medium',
+                        'text': '',
+                        'attr': {
+                        'id': args['medium_id']},
+                        'children': {}
                 }
                 medium = self.tree['media']['children'][args['medium_id']]
             if "phase_type" in args:
@@ -66,21 +65,54 @@ class MEDIA(object):
                 'attr': {},
                 'children': {}
             }
-            phase[args['name']]['children'][args['name']] = {
+            phase[args['name']]['children']['name'] = {
                 'tag': 'name',
                 'text': args['name'],
                 'attr': {},
                 'children': {}
             }
-            phase[args['name']]['children'][args['type']] = {
+            phase[args['name']]['children']['type'] = {
                 'tag': 'type',
                 'text': args['type'],
                 'attr': {},
                 'children': {}
             }
-            phase[args['name']]['children'][args['value']] = {
-                'tag': 'value',
-                'text': args['value'],
-                'attr': {},
-                'children': {}
-            }
+            if args['type'] == "Constant":
+                phase[args['name']]['children']['value'] = {
+                    'tag': 'value',
+                    'text': args['value'],
+                    'attr': {},
+                    'children': {}
+                }
+            elif args['type'] == "Linear":
+                phase[args['name']]['children']['reference_value'] = {
+                    'tag': 'reference_value',
+                    'text': args['reference_value'],
+                    'attr': {},
+                    'children': {}
+                }
+                phase[args['name']]['children']['independent_variable'] = {
+                    'tag': 'independent_variable',
+                    'text': '',
+                    'attr': {},
+                    'children': {}
+                }
+                indep_var = phase[args['name']]['children']['independent_variable']['children']
+                indep_var['variable_name'] = {
+                    'tag': 'variable_name',
+                    'text': args['variable_name'],
+                    'attr': {},
+                    'children': {}
+                }
+                indep_var['reference_condition'] = {
+                    'tag': 'reference_condition',
+                    'text': args['reference_condition'],
+                    'attr': {},
+                    'children': {}
+                }
+                indep_var['slope'] = {
+                    'tag': 'slope',
+                    'text': args['slope'],
+                    'attr': {},
+                    'children': {}
+                }
