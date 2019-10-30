@@ -14,6 +14,3 @@ class GEO(object):
             self.tree['geometry']['text'] = args['filename']
         else:
             raise KeyError("No filename given")
-
-    def getGeom(self, **args):
-        return self.tree['geometry']['text']
