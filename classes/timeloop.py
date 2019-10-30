@@ -14,11 +14,6 @@ class TIMELOOP(object):
         self.outputvariables = []
         self.output_repeat = []
         self.output_each_steps = []
-        self.itstring = []
-
-    def iteratestring(self):
-        self.itstring.append(str(len(self.itstring)))
-        print("###TEST:", self.itstring)
 
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
