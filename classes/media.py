@@ -58,6 +58,17 @@ class MEDIA(object):
                         'attr': {},
                         'children': {}
                     }
+            else:
+                try:
+                    properies = medium['children']['properties']
+                except KeyError:
+                    medium['children']['properties'] = {
+                        'tag': 'properties',
+                        'text': '',
+                        'attr': {},
+                        'children': {}
+                    }
+                phase_ = medium
             phase = phase_['children']['properties']['children']
             phase[args['name']] = {
                 'tag': 'property',

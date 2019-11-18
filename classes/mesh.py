@@ -4,14 +4,14 @@ class MESH(object):
         self.axially_symmetric = []
 
     def addMesh(self, **args):
-        if "filename" in args:
+        if not "filename" in args:
+            raise KeyError("No filename given")
+        else:
             self.meshfiles.append(args["filename"])
             if "axially_symmetric" in args:
                 self.axially_symmetric.append(args["axially_symmetric"])
             else:
                 self.axially_symmetric.append("false")
-        else:
-            raise KeyError("No filename given")
 
     @property
     def tree(self):

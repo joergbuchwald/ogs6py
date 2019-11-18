@@ -3,6 +3,9 @@ import os
 import sys
 from lxml import etree as ET
 from classes import *
+import subprocess
+import time
+import concurrent.futures as cf
 
 
 class OGS(object):
@@ -30,10 +33,32 @@ class OGS(object):
             self.ogs_name = "ogs.exe"
         else:
             self.ogs_name = "ogs"
-        cmd = self.ogs_name + " " + self.prjfile + " >out"
-        print("OGS running...")
-        os.system(cmd)
-        print("OGS finished")
+        procs = [0,1]
+        def run(proc):
+            running = True
+            if proc == 0:
+                print("OGS running...")
+                subprocess.run([self.ogs_name + " " + self.prjfile + " >out"], shell=True)
+                print("OGS finished")
+                return
+            if proc == 1:
+                while running is True:
+                    out=subprocess.check_output(["tail", "-10", "out"]).decode("ascii")
+                    out2=out.split("\n")
+                    for line in out2:
+                        if "timestep" in line:
+                            print("\r", line, end="")
+                        if "stepping" in line:
+                            print("\r", line, end="")
+                        if "Iteration" in line:
+                            print("\r", line, end="")
+                        if "terminated" in line:
+                            print("\r", line)
+                            running = False
+                    time.sleep(0.5)
+                return
+        with cf.ThreadPoolExecutor() as executor:
+            results = executor.map(run,procs)
 
     def dict2xml(self, parent, dictionary):
         for entry in dictionary:
