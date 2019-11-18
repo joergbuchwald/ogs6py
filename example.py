@@ -85,6 +85,4 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.writeInput()
-print(model.geo.getGeom())
-print(model.mesh.getMesh())
 model.runModel()
