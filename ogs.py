@@ -38,9 +38,13 @@ class OGS(object):
             running = True
             if proc == 0:
                 print("OGS running...")
-                subprocess.run([self.ogs_name + " " + self.prjfile + " >out"], shell=True)
-                print("OGS finished")
-                return
+                returncode = subprocess.run([self.ogs_name + " " + self.prjfile + " >out"], shell=True)
+                if returncode.returncode == 0:
+                    print("OGS finished")
+                    return True
+                else:
+                    print("OGS execution not successfull. Error code: ", returncode.returncode)
+                    raise RuntimeError
             if proc == 1:
                 while running is True:
                     out=subprocess.check_output(["tail", "-10", "out"]).decode("ascii")
@@ -55,6 +59,10 @@ class OGS(object):
                         if "terminated" in line:
                             print("\r", line)
                             running = False
+                        if "error:" in line:
+                            print("An error during OGS execution occurred")
+                            print("\r", line)
+                            raise RuntimeError
                     time.sleep(0.5)
                 return
         with cf.ThreadPoolExecutor() as executor:
