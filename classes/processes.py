@@ -52,25 +52,21 @@ class PROCESSES(object):
             else:
                 raise KeyError("process_variable_name missing.")
         elif "secondary_variable" in args:
-            if "type" in args:
-                if "output_name" in args:
-                    self.tree['processes']['children']['process']['children'][
-                        'secondary_variables'] = self.sec_vartree
-                    self.sec_vartree['children'][args['output_name']] = {
-                        'tag': 'secondary_variable',
-                        'text': '',
-                        'attr': {
-                            'type': args['type'],
-                            'internal_name': args['secondary_variable'],
-                            'output_name': args['output_name']
-                        },
-                        'children': {}
-                    }
+            if "output_name" in args:
+                self.tree['processes']['children']['process']['children'][
+                    'secondary_variables'] = self.sec_vartree
+                self.sec_vartree['children'][args['output_name']] = {
+                    'tag': 'secondary_variable',
+                    'text': '',
+                    'attr': {
+                        'internal_name': args['secondary_variable'],
+                        'output_name': args['output_name']
+                    },
+                    'children': {}
+                }
 
-                else:
-                    raise KeyError("No output_name given.")
             else:
-                raise KeyError("type missing")
+                raise KeyError("No output_name given.")
         else:
             raise KeyError("No process_variable/secondary_variable given.")
 
