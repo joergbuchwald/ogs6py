@@ -74,9 +74,9 @@ for solid_property in solid_properties:
             model.parameters.addParameter(name="T0", type="Constant", value="0")
             model.parameters.addParameter(name="P0", type="Constant", value="0")
             model.parameters.addParameter(name="p_Dirichlet_left", type="Constant", value="1")
-            model.parameters.addParameter(name="p_Dirichlet_right", type="Constant", value="-1")
+            #model.parameters.addParameter(name="p_Dirichlet_right", type="Constant", value="-1")
             model.parameters.addParameter(name="t_Dirichlet_bottom", type="Constant", value="2")
-            model.parameters.addParameter(name="t_Dirichlet_top", type="Constant", value="1")
+            #model.parameters.addParameter(name="t_Dirichlet_top", type="Constant", value="1")
             model.processvars.setIC(process_variable_name="temperature",
                                     components="1",
                                     order="1",
@@ -87,12 +87,12 @@ for solid_property in solid_properties:
                                     type="Dirichlet",
                                     component="0",
                                     parameter="t_Dirichlet_bottom")
-            model.processvars.addBC(process_variable_name="temperature",
-                                    geometrical_set="square_1x1_geometry",
-                                    geometry="top",
-                                    type="Dirichlet",
-                                    component="1",
-                                    parameter="t_Dirichlet_top")
+            #model.processvars.addBC(process_variable_name="temperature",
+            #                        geometrical_set="square_1x1_geometry",
+            #                        geometry="top",
+            #                        type="Dirichlet",
+            #                        component="1",
+            #                        parameter="t_Dirichlet_top")
             model.processvars.setIC(process_variable_name="pressure",
                                     components="1",
                                     order="1",
@@ -103,12 +103,12 @@ for solid_property in solid_properties:
                                     type="Dirichlet",
                                     component="1",
                                     parameter="p_Dirichlet_left")
-            model.processvars.addBC(process_variable_name="pressure",
-                                    geometrical_set="square_1x1_geometry",
-                                    geometry="right",
-                                    type="Dirichlet",
-                                    component="1",
-                                    parameter="p_Dirichlet_right")
+            #model.processvars.addBC(process_variable_name="pressure",
+            #                        geometrical_set="square_1x1_geometry",
+            #                        geometry="right",
+            #                        type="Dirichlet",
+            #                        component="1",
+            #                        parameter="p_Dirichlet_right")
             model.nonlinsolvers.addNonlinSolver(name="basic_picard",
                                                 type="Picard",
                                                 max_iter="4",
