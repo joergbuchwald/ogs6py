@@ -37,6 +37,8 @@ medium_properties = ["", "thermal_longitudinal_dispersivity", "thermal_transvers
 for solid_property in solid_properties:
     for aqueousfluid_property in aqueousfluid_properties:
         for medium_property in medium_properties:
+            if (solid_property == "" and aqueousfluid_property == "" and medium_property == ""):
+                continue
             model = OGS(PROJECT_FILE="HT_"+solid_property+"_"+aqueousfluid_property+"_"+medium_property+".prj")
             model.mesh.addMesh(filename="square_1x1_quad_1e3.vtu")
             model.geo.addGeom(filename="square_1x1.gml")
