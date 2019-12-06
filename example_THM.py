@@ -1,6 +1,6 @@
 from ogs import *
 
-model = OGS(PROJECT_FILE="thm_test/test.prj")
+model = OGS(PROJECT_FILE="thm_test/test.prj", ogs_mode="verbose")
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(
@@ -20,10 +20,8 @@ model.processes.addProcessVariable(process_variable="pressure",
 model.processes.addProcessVariable(process_variable="temperature",
                                    process_variable_name="temperature")
 model.processes.addProcessVariable(secondary_variable="sigma",
-                                   type="static",
                                    output_name="sigma")
 model.processes.addProcessVariable(secondary_variable="epsilon",
-                                   type="static",
                                    output_name="epsilon")
 model.media.addProperty(medium_id="0",
                             phase_type="AqueousLiquid",

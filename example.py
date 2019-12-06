@@ -1,6 +1,6 @@
 from ogs import *
 
-model = OGS(PROJECT_FILE="test.prj")
+model = OGS(PROJECT_FILE="test.prj", ogs_mode="silent")
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="square_1x1_quad_1e2.vtu")
 model.processes.setProcess(name="SD",
@@ -14,7 +14,6 @@ model.processes.setConstitutiveRelation(type="LinearElasticIsotropic",
 model.processes.addProcessVariable(process_variable="process_variable",
                                    process_variable_name="displacement")
 model.processes.addProcessVariable(secondary_variable="sigma",
-                                   type="static",
                                    output_name="sigma")
 model.timeloop.addProcess(process="SD",
                           nonlinear_solver_name="basic_newton",
