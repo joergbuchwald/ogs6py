@@ -40,7 +40,9 @@ class PROCESSES(object):
 
     def addProcessVariable(self, **args):
         if "process_variable" in args:
-            if "process_variable_name" in args:
+            if not "process_variable_name" in args:
+                raise KeyError("process_variable_name missing.")
+            else:
                 self.tree['processes']['children']['process']['children'][
                     'process_variables'] = self.proc_vartree
                 self.proc_vartree['children'][args['process_variable']] = {
@@ -49,10 +51,12 @@ class PROCESSES(object):
                     'attr': {},
                     'children': {}
                 }
+        elif not "secondary_variable" in args:
+            raise KeyError("No process_variable/secondary_variable given.")
+        else:
+            if not "output_name" in args:
+                raise KeyError("No output_name given.")
             else:
-                raise KeyError("process_variable_name missing.")
-        elif "secondary_variable" in args:
-            if "output_name" in args:
                 self.tree['processes']['children']['process']['children'][
                     'secondary_variables'] = self.sec_vartree
                 self.sec_vartree['children'][args['output_name']] = {
@@ -61,14 +65,9 @@ class PROCESSES(object):
                     'attr': {
                         'internal_name': args['secondary_variable'],
                         'output_name': args['output_name']
-                    },
+                        },
                     'children': {}
                 }
-
-            else:
-                raise KeyError("No output_name given.")
-        else:
-            raise KeyError("No process_variable/secondary_variable given.")
 
     def setProcess(self, **args):
         if "name" in args:
