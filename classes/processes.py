@@ -68,7 +68,7 @@ class PROCESSES(object):
                         },
                     'children': {}
                 }
-    
+
     def setProcess(self, **args):
         if "name" in args:
             if "type" in args:
