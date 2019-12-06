@@ -27,6 +27,10 @@ class OGS(object):
         else:
             print("PROJECT_FILE not given. Calling it default.prj.")
             self.prjfile = "default.prj"
+        if "ogs_mode" in args:
+            self.ogs_mode = args["ogs_mode"]
+        else:
+            self.ogs_mode = "silent"
 
     def runModel(self, **args):
         if sys.platform == "win32":
@@ -47,23 +51,26 @@ class OGS(object):
                     raise RuntimeError
             if proc == 1:
                 while running is True:
-                    out=subprocess.check_output(["tail", "-10", "out"]).decode("ascii")
-                    out2=out.split("\n")
-                    for line in out2:
-                        if "timestep" in line:
-                            print("\r", line, end="")
-                        if "stepping" in line:
-                            print("\r", line, end="")
-                        if "Iteration" in line:
-                            print("\r", line, end="")
-                        if "terminated" in line:
-                            print("\r", line)
-                            running = False
-                        if "error:" in line:
-                            print("An error during OGS execution occurred")
-                            print("\r", line)
-                            raise RuntimeError
-                    time.sleep(0.5)
+                    if self.ogs_mode == "silent":
+                        running = False
+                    else:
+                        out=subprocess.check_output(["tail", "-10", "out"]).decode("ascii")
+                        out2=out.split("\n")
+                        for line in out2:
+                            if "timestep" in line:
+                                print("\r", line, end="")
+                            if "stepping" in line:
+                                print("\r", line, end="")
+                            if "Iteration" in line:
+                                print("\r", line, end="")
+                            if "terminated" in line:
+                                print("\r", line)
+                                running = False
+                            if "error:" in line:
+                                print("An error during OGS execution occurred")
+                                print("\r", line)
+                                raise RuntimeError
+                        time.sleep(0.5)
                 return
         with cf.ThreadPoolExecutor() as executor:
             results = executor.map(run,procs)
