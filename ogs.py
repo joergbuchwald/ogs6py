@@ -12,6 +12,7 @@ class OGS(object):
     def __init__(self, **args):
         self.geo = geo.GEO()
         self.mesh = mesh.MESH()
+        self.pyscript = python_script.PYTHON_SCRIPT()
         self.processes = processes.PROCESSES()
         self.media = media.MEDIA()
         self.timeloop = timeloop.TIMELOOP()
@@ -88,6 +89,8 @@ class OGS(object):
         self.root = ET.Element("OpenGeoSysProject")
         self.dict2xml(self.root, self.geo.tree)
         self.dict2xml(self.root, self.mesh.tree)
+        if len(self.pyscript.tree['pythonscript']['text'])>0:
+            self.dict2xml(self.root, self.pyscript.tree)
         self.dict2xml(self.root, self.processes.tree)
         if len(self.media.tree['media']['children']) > 0:
             self.dict2xml(self.root, self.media.tree)

@@ -1,5 +1,6 @@
 from . import mesh
 from . import geo
+from . import python_script
 from . import processes
 from . import media
 from . import timeloop
