@@ -5,6 +5,7 @@ from . import processes
 from . import media
 from . import timeloop
 from . import parameters
+from . import curves
 from . import processvars
 from . import linsolvers
 from . import nonlinsolvers

@@ -13,8 +13,12 @@ class PARAMETERS(object):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addParameter(self, **args):
-        if "name" in args:
-            if "type" in args:
+        if not "name" in args:
+            raise KeyError("No parameter name given.")
+        else:
+            if not "type" in args:
+                raise KeyError("Parameter type not given.")
+            else:
                 entries = len(self.tree['parameters']['children'])
                 self.tree['parameters']['children'][
                     'param' + str(entries)] = self.populateTree('parameter',
@@ -41,9 +45,12 @@ class PARAMETERS(object):
                 elif args["type"] == "Function":
                     parameter['children']['expression'] = self.populateTree(
                         'expression', text=args['expression'], children={})
+                elif args["type"] == "CurveScaled":
+                    if "curve" in args:
+                        parameter['children']['curve'] = self.populateTree(
+                        'curve', text=args['curve'], children={})
+                    if "parameter" in args:
+                        parameter['children']['parameter'] = self.populateTree(
+                        'parameter', text=args['parameter'], children={})
                 else:
                     raise KeyError("Parameter type not supported (yet).")
-            else:
-                raise KeyError("Parameter type not given.")
-        else:
-            raise KeyError("No parameter name given.")

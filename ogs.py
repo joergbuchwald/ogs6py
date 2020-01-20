@@ -17,6 +17,7 @@ class OGS(object):
         self.media = media.MEDIA()
         self.timeloop = timeloop.TIMELOOP()
         self.parameters = parameters.PARAMETERS()
+        self.curves = curves.CURVES()
         self.processvars = processvars.PROCESSVARS()
         self.linsolvers = linsolvers.LINSOLVERS()
         self.nonlinsolvers = nonlinsolvers.NONLINSOLVERS()
@@ -96,6 +97,8 @@ class OGS(object):
             self.dict2xml(self.root, self.media.tree)
         self.dict2xml(self.root, self.timeloop.tree)
         self.dict2xml(self.root, self.parameters.tree)
+        if len(self.curves.tree['curves']['children']) > 0:
+            self.dict2xml(self.root, self.curves.tree)
         self.dict2xml(self.root, self.processvars.tree)
         self.dict2xml(self.root, self.nonlinsolvers.tree)
         self.dict2xml(self.root, self.linsolvers.tree)
