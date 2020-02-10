@@ -86,6 +86,21 @@ class OGS(object):
             if len(dictionary[entry]['children']) > 0:
                 self.dict2xml(self.tag[-1], dictionary[entry]['children'])
 
+    def replaceTxt(self, ifile, value, xpath=".", occurance=-1):
+        tree = ET.parse(ifile)
+        root = tree.getroot()
+        find_xpath = root.findall(xpath)
+        for i, entry in enumerate(find_xpath):
+            if occurance < 0:
+                entry.text = str(value)
+            elif i == occurance:
+                entry.text = str(value)
+        tree.write(self.prjfile,
+                         encoding="ISO-8859-1",
+                         xml_declaration=True,
+                         pretty_print=True)
+        return True
+
     def writeInput(self):
         self.root = ET.Element("OpenGeoSysProject")
         self.dict2xml(self.root, self.geo.tree)
