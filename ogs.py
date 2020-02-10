@@ -77,14 +77,14 @@ class OGS(object):
         with cf.ThreadPoolExecutor() as executor:
             results = executor.map(run,procs)
 
-    def dict2xml(self, parent, dictionary):
+    def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
             self.tag.append(ET.SubElement(parent, dictionary[entry]['tag']))
             self.tag[-1].text = dictionary[entry]['text']
             for attr in dictionary[entry]['attr']:
                 self.tag[-1].set(attr, dictionary[entry]['attr'][attr])
             if len(dictionary[entry]['children']) > 0:
-                self.dict2xml(self.tag[-1], dictionary[entry]['children'])
+                self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
     def replaceTxt(self, ifile, value, xpath=".", occurance=-1):
         tree = ET.parse(ifile)
@@ -103,20 +103,20 @@ class OGS(object):
 
     def writeInput(self):
         self.root = ET.Element("OpenGeoSysProject")
-        self.dict2xml(self.root, self.geo.tree)
-        self.dict2xml(self.root, self.mesh.tree)
+        self.__dict2xml(self.root, self.geo.tree)
+        self.__dict2xml(self.root, self.mesh.tree)
         if len(self.pyscript.tree['pythonscript']['text'])>0:
-            self.dict2xml(self.root, self.pyscript.tree)
-        self.dict2xml(self.root, self.processes.tree)
+            self.__dict2xml(self.root, self.pyscript.tree)
+        self.__dict2xml(self.root, self.processes.tree)
         if len(self.media.tree['media']['children']) > 0:
-            self.dict2xml(self.root, self.media.tree)
-        self.dict2xml(self.root, self.timeloop.tree)
-        self.dict2xml(self.root, self.parameters.tree)
+            self.__dict2xml(self.root, self.media.tree)
+        self.__dict2xml(self.root, self.timeloop.tree)
+        self.__dict2xml(self.root, self.parameters.tree)
         if len(self.curves.tree['curves']['children']) > 0:
-            self.dict2xml(self.root, self.curves.tree)
-        self.dict2xml(self.root, self.processvars.tree)
-        self.dict2xml(self.root, self.nonlinsolvers.tree)
-        self.dict2xml(self.root, self.linsolvers.tree)
+            self.__dict2xml(self.root, self.curves.tree)
+        self.__dict2xml(self.root, self.processvars.tree)
+        self.__dict2xml(self.root, self.nonlinsolvers.tree)
+        self.__dict2xml(self.root, self.linsolvers.tree)
         # Reparsing for pretty_print to work properly
         parser = ET.XMLParser(remove_blank_text=True)
         self.tree_string = ET.tostring(self.root, pretty_print=True)
