@@ -23,12 +23,17 @@ class OGS(object):
         self.nonlinsolvers = nonlinsolvers.NONLINSOLVERS()
         sys.setrecursionlimit(10000)
         self.tag = []
+        self.tree = None
         ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
         else:
             print("PROJECT_FILE not given. Calling it default.prj.")
             self.prjfile = "default.prj"
+        if "INPUT_FILE" in args:
+            self.inputfile = args['INPUT_FILE']
+        else:
+            self.inputfile = "default.prj"
         if "ogs_mode" in args:
             self.ogs_mode = args["ogs_mode"]
         else:
@@ -86,46 +91,49 @@ class OGS(object):
             if len(dictionary[entry]['children']) > 0:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
-    def replaceTxt(self, ifile, value, xpath=".", occurance=-1):
-        tree = ET.parse(ifile)
-        root = tree.getroot()
+    def replaceTxt(self, value, xpath=".", occurance=-1):
+        if not self.tree:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
             if occurance < 0:
                 entry.text = str(value)
             elif i == occurance:
                 entry.text = str(value)
-        tree.write(self.prjfile,
-                         encoding="ISO-8859-1",
-                         xml_declaration=True,
-                         pretty_print=True)
-        return True
 
     def writeInput(self):
-        self.root = ET.Element("OpenGeoSysProject")
-        self.__dict2xml(self.root, self.geo.tree)
-        self.__dict2xml(self.root, self.mesh.tree)
-        if len(self.pyscript.tree['pythonscript']['text'])>0:
-            self.__dict2xml(self.root, self.pyscript.tree)
-        self.__dict2xml(self.root, self.processes.tree)
-        if len(self.media.tree['media']['children']) > 0:
-            self.__dict2xml(self.root, self.media.tree)
-        self.__dict2xml(self.root, self.timeloop.tree)
-        self.__dict2xml(self.root, self.parameters.tree)
-        if len(self.curves.tree['curves']['children']) > 0:
-            self.__dict2xml(self.root, self.curves.tree)
-        self.__dict2xml(self.root, self.processvars.tree)
-        self.__dict2xml(self.root, self.nonlinsolvers.tree)
-        self.__dict2xml(self.root, self.linsolvers.tree)
-        # Reparsing for pretty_print to work properly
-        parser = ET.XMLParser(remove_blank_text=True)
-        self.tree_string = ET.tostring(self.root, pretty_print=True)
-        self.tree = ET.fromstring(self.tree_string, parser=parser)
-        self.tree_ = ET.ElementTree(self.tree)
-        self.tree_.write(self.prjfile,
+        if self.tree:
+            self.tree.write(self.prjfile,
+                            encoding="ISO-8859-1",
+                            xml_declaration=True,
+                            pretty_print=True)
+            return True
+        else:
+            self.root = ET.Element("OpenGeoSysProject")
+            self.__dict2xml(self.root, self.geo.tree)
+            self.__dict2xml(self.root, self.mesh.tree)
+            if len(self.pyscript.tree['pythonscript']['text'])>0:
+                self.__dict2xml(self.root, self.pyscript.tree)
+            self.__dict2xml(self.root, self.processes.tree)
+            if len(self.media.tree['media']['children']) > 0:
+                self.__dict2xml(self.root, self.media.tree)
+            self.__dict2xml(self.root, self.timeloop.tree)
+            self.__dict2xml(self.root, self.parameters.tree)
+            if len(self.curves.tree['curves']['children']) > 0:
+                self.__dict2xml(self.root, self.curves.tree)
+            self.__dict2xml(self.root, self.processvars.tree)
+            self.__dict2xml(self.root, self.nonlinsolvers.tree)
+            self.__dict2xml(self.root, self.linsolvers.tree)
+            # Reparsing for pretty_print to work properly
+            parser = ET.XMLParser(remove_blank_text=True)
+            self.tree_string = ET.tostring(self.root, pretty_print=True)
+            self.tree = ET.fromstring(self.tree_string, parser=parser)
+            self.tree_ = ET.ElementTree(self.tree)
+            self.tree_.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
                          pretty_print=True)
-        return True
+            return True
 
 
