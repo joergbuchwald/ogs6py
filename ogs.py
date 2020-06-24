@@ -40,10 +40,12 @@ class OGS(object):
             self.ogs_mode = "silent"
 
     def runModel(self, **args):
+        if "path" in args:
+            self.ogs_name = args["path"] + "/"
         if sys.platform == "win32":
-            self.ogs_name = "ogs.exe"
+            self.ogs_name = self.ogs_name + "ogs.exe"
         else:
-            self.ogs_name = "ogs"
+            self.ogs_name = self.ogs_name + "ogs"
         procs = [0,1]
         def run(proc):
             running = True
