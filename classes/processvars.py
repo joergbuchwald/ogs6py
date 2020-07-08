@@ -234,7 +234,7 @@ class PROCESSVARS(object):
                 elif "mesh" in args:
                     source_terms['children'][args['mesh']] = self.populateTree(
                         'source_term', children={})
-                    source_term = boundary_conditions['children'][args['mesh']]
+                    source_term = source_terms['children'][args['mesh']]
                     source_term['children']['type'] = self.populateTree(
                         'type', text=args['type'], children={})
                     source_term['children']['mesh'] = self.populateTree(
