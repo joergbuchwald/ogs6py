@@ -232,7 +232,7 @@ class PROCESSVARS(object):
                     else:
                         raise KeyError("You need to provide a geometry.")
                 elif "mesh" in args:
-                    source_term['children'][args['mesh']] = self.populateTree(
+                    source_terms['children'][args['mesh']] = self.populateTree(
                         'source_term', children={})
                     source_term = boundary_conditions['children'][args['mesh']]
                     source_term['children']['type'] = self.populateTree(
