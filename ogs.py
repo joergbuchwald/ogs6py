@@ -24,7 +24,7 @@ class OGS(object):
         sys.setrecursionlimit(10000)
         self.tag = []
         self.tree = None
-        ogs_name = ""
+        self.ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
         else:
