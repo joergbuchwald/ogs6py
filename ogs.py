@@ -114,15 +114,17 @@ class OGS(object):
             return True
         else:
             self.root = ET.Element("OpenGeoSysProject")
-            self.__dict2xml(self.root, self.geo.tree)
+            if len(self.geo.tree['geometry']['text']) > 0:
+                self.__dict2xml(self.root, self.geo.tree)
             self.__dict2xml(self.root, self.mesh.tree)
-            if len(self.pyscript.tree['pythonscript']['text'])>0:
+            if len(self.pyscript.tree['pythonscript']['text']) > 0:
                 self.__dict2xml(self.root, self.pyscript.tree)
             self.__dict2xml(self.root, self.processes.tree)
             if len(self.media.tree['media']['children']) > 0:
                 self.__dict2xml(self.root, self.media.tree)
             self.__dict2xml(self.root, self.timeloop.tree)
-            self.__dict2xml(self.root, self.local_coordinate_system.tree)
+            if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
+                self.__dict2xml(self.root, self.local_coordinate_system.tree)
             self.__dict2xml(self.root, self.parameters.tree)
             if len(self.curves.tree['curves']['children']) > 0:
                 self.__dict2xml(self.root, self.curves.tree)
