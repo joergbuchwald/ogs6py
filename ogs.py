@@ -16,6 +16,7 @@ class OGS(object):
         self.processes = processes.PROCESSES()
         self.media = media.MEDIA()
         self.timeloop = timeloop.TIMELOOP()
+        self.local_coordinate_system = local_coordinate_system.LOCAL_COORDINATE_SYSTEM()
         self.parameters = parameters.PARAMETERS()
         self.curves = curves.CURVES()
         self.processvars = processvars.PROCESSVARS()
@@ -121,6 +122,7 @@ class OGS(object):
             if len(self.media.tree['media']['children']) > 0:
                 self.__dict2xml(self.root, self.media.tree)
             self.__dict2xml(self.root, self.timeloop.tree)
+            self.__dict2xml(self.root, self.local_coordinate_system.tree)
             self.__dict2xml(self.root, self.parameters.tree)
             if len(self.curves.tree['curves']['children']) > 0:
                 self.__dict2xml(self.root, self.curves.tree)
