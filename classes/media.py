@@ -127,3 +127,11 @@ class MEDIA(object):
                     'attr': {},
                     'children': {}
                 }
+            elif args['type'] == "Parameter":
+                phase[args['name']]['children']['parameter'] = {
+                      'tag': 'parameter_name',
+                      'text': args['parameter_name'],
+                      'attr': {},
+                      'children': {}
+                  }
+
