@@ -52,5 +52,29 @@ class PARAMETERS(object):
                     if "parameter" in args:
                         parameter['children']['parameter'] = self.populateTree(
                         'parameter', text=args['parameter'], children={})
+                elif args["type"] == "TimeDependentHeterogeneousParameter":
+                    if "time" in args:
+                        if "parameter_name" in args:
+                            if len(args["time"]) == len(args["parameter_name"]):
+                                parameter['children']['time_series'] = self.populateTree('time_series', children={})
+                                ts_pair = parameter['children']['time_series']['children']
+                                for i, repeat in enumerate(args["parameter_name"]):
+                                    ts_pair['pair' + str(i)] = self.populateTree('pair',
+                                                             children={})
+                                    ts_pair['pair' + str(i)]['children']['time'] = self.populateTree(
+                                        'time', text=str(args["time"][i]), children={})
+                                    ts_pair['pair' + str(i)]['children']['parameter_name'] = self.populateTree(
+                                                        'parameter_name', text=args["parameter_name"][i],
+                                        children={})
+                            else:
+                                raise KeyError("parameter_name and time lists have different length.")
+                        else:
+                            raise KeyError("Parameter name missing.")
+                    else:
+                        raise KeyError("time missing.")
                 else:
                     raise KeyError("Parameter type not supported (yet).")
+                if "use_local_coordinate_system" in args:
+                    if (args["use_local_coordinate_system"] == "true") or (args["use_local_coordinate_system"] == True):
+                        parameter['children']['use_local_coordinate_system'] = self.populateTree(
+                      'use_local_coordinate_system', text='true', children={})
