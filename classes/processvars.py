@@ -123,11 +123,15 @@ class PROCESSVARS(object):
                     else:
                         raise KeyError("You need to provide a geometry.")
                 elif "mesh" in args:
+                    if "component" in args:
+                        cpnts = args['component']
+                    else:
+                        cpnts = "0"
                     boundary_conditions['children'][
-                        args['mesh']] = self.populateTree('boundary_condition',
+                        args['mesh']+cpnts] = self.populateTree('boundary_condition',
                                                           children={})
                     boundary_condition = boundary_conditions['children'][
-                        args['mesh']]
+                        args['mesh']+cpnts]
                     boundary_condition['children']['type'] = self.populateTree(
                         'type', text=args['type'], children={})
                     boundary_condition['children']['mesh'] = self.populateTree(
