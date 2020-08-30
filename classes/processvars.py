@@ -55,9 +55,11 @@ class PROCESSVARS(object):
             if "type" in args:
                 if args['process_variable_name'] in self.tree[
                         'process_variables']['children']:
-                    self.tree['process_variables']['children'][
-                        args['process_variable_name']]['children'][
-                            'boundary_conditions'] = self.populateTree(
+                    if not "boundary_conditions" in self.tree['process_variables']['children'][
+                            args['process_variable_name']]['children']:
+                        self.tree['process_variables']['children'][
+                            args['process_variable_name']]['children'][
+                                'boundary_conditions'] = self.populateTree(
                                 'boundary_conditions', children={})
                     boundary_conditions = self.tree['process_variables'][
                         'children'][args['process_variable_name']]['children'][
