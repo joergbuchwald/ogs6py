@@ -13,10 +13,21 @@ class PROCESSVARS(object):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def setIC(self, **args):
-        if "process_variable_name" in args:
-            if "components" in args:
-                if "order" in args:
-                    if "initial_condition" in args:
+        if not "process_variable_name" in args:
+            raise KeyError("No process_variable_name given")
+        else:
+            if not "components" in args:
+                raise KeyError("Please provide the number of components \
+                            of the given process variable.")
+            else:
+                if not "order" in args:
+                    raise KeyError(
+                        "Out of order. Please specify the polynomial order \
+                                of the process variable's shape functions.")
+                else:
+                    if not "initial_condition" in args:
+                        raise KeyError("No initial_condition specified.")
+                    else:
                         self.tree['process_variables']['children'][
                             args['process_variable_name']] = self.populateTree(
                                 'process_variable', children={})
@@ -38,23 +49,21 @@ class PROCESSVARS(object):
                                 'initial_condition',
                                 text=args['initial_condition'],
                                 children={})
-                    else:
-                        raise KeyError("No initial_condition specified.")
-                else:
-                    raise KeyError(
-                        "Out of order. Please specify the polynomial order \
-                                of the process variable's shape functions.")
-            else:
-                raise KeyError("Please provide the number of components \
-                            of the given process variable.")
-        else:
-            raise KeyError("No process_variable_name given")
+     
 
     def addBC(self, **args):
-        if "process_variable_name" in args:
-            if "type" in args:
+        if not "process_variable_name" in args:
+            raise KeyError("No process variable name specified.")
+        else:
+            if not "type" in args:
+                raise KeyError("No type given.")
+            else:
                 if args['process_variable_name'] in self.tree[
                         'process_variables']['children']:
+                    raise KeyError(
+                        "You need to set initial condition for that process variable first."
+                    )
+                else:
                     if not "boundary_conditions" in self.tree['process_variables']['children'][
                             args['process_variable_name']]['children']:
                         self.tree['process_variables']['children'][
@@ -64,12 +73,10 @@ class PROCESSVARS(object):
                     boundary_conditions = self.tree['process_variables'][
                         'children'][args['process_variable_name']]['children'][
                             'boundary_conditions']
-                else:
-                    raise KeyError(
-                        "You need to set initial condition for that process variable first."
-                    )
                 if "geometrical_set" in args:
-                    if "geometry" in args:
+                    if not "geometry" in args:
+                        raise KeyError("You need to provide a geometry.")
+                    else:
                         if "component" in args:
                             cpnts = args['component']
                         else:
@@ -120,8 +127,6 @@ class PROCESSVARS(object):
                             raise KeyError(
                                 "Please provide the parameter for Dirichlet \
                                         or Neumann BC/bc_object for Python BC")
-                    else:
-                        raise KeyError("You need to provide a geometry.")
                 elif "mesh" in args:
                     if "component" in args:
                         cpnts = args['component']
@@ -168,16 +173,18 @@ class PROCESSVARS(object):
                     raise KeyError(
                         "You should provide either a geometrical set \
                                 or a mesh to define BC for.")
-            else:
-                raise KeyError("No type given.")
-        else:
-            raise KeyError("No process variable name specified.")
-
     def addST(self, **args):
-        if "process_variable_name" in args:
-            if "type" in args:
-                if args['process_variable_name'] in self.tree[
+        if not "process_variable_name" in args:
+            raise KeyError("No process variable name specified.")
+        else:
+            if not "type" in args:
+                raise KeyError("No type given.")
+            else:
+                if not args['process_variable_name'] in self.tree[
                         'process_variables']['children']:
+                    raise KeyError(
+                        "You need to set initial condition for that process variable first.")
+                else:
                     self.tree['process_variables']['children'][
                         args['process_variable_name']]['children'][
                             'source_terms'] = self.populateTree('source_terms',
@@ -185,10 +192,6 @@ class PROCESSVARS(object):
                     source_terms = self.tree['process_variables']['children'][
                         args['process_variable_name']]['children'][
                             'source_terms']
-                else:
-                    raise KeyError(
-                        "You need to set initial condition for that process variable first."
-                    )
                 if "geometrical_set" in args:
                     if "geometry" in args:
                         source_terms['children'][
@@ -277,7 +280,3 @@ class PROCESSVARS(object):
                     raise KeyError(
                         "You should provide either a geometrical set \
                                 or a mesh to define BC for.")
-            else:
-                raise KeyError("No type given.")
-        else:
-            raise KeyError("No process variable name specified.")
