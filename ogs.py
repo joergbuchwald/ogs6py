@@ -25,6 +25,8 @@ class OGS(object):
         sys.setrecursionlimit(10000)
         self.tag = []
         self.tree = None
+        self.loadmkl = None
+        #self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
         self.ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
@@ -52,7 +54,11 @@ class OGS(object):
             running = True
             if proc == 0:
                 print("OGS running...")
-                returncode = subprocess.run([self.ogs_name + " " + self.prjfile + " >out"], shell=True)
+                if not self.loadmkl:
+                    cmd = self.ogs_name + " " + self.prjfile + " >out"
+                else:
+                    cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
+                returncode = subprocess.run([cmd], shell=True)
                 if returncode.returncode == 0:
                     print("OGS finished")
                     return True
