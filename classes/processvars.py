@@ -49,7 +49,6 @@ class PROCESSVARS(object):
                                 'initial_condition',
                                 text=args['initial_condition'],
                                 children={})
-     
 
     def addBC(self, **args):
         if not "process_variable_name" in args:
@@ -58,7 +57,7 @@ class PROCESSVARS(object):
             if not "type" in args:
                 raise KeyError("No type given.")
             else:
-                if args['process_variable_name'] in self.tree[
+                if not args['process_variable_name'] in self.tree[
                         'process_variables']['children']:
                     raise KeyError(
                         "You need to set initial condition for that process variable first."

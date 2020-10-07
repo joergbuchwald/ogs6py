@@ -144,13 +144,21 @@ class TIMELOOP(object):
             self.process[args['process']]['t_deltat'] = []
         else:
             raise KeyError("No process referenced")
-        if "nonlinear_solver_name" in args:
+        if not "nonlinear_solver_name" in args:
+            raise KeyError("Please specify a name (nonlinear_solver_name) \
+                        for the nonlinear solver.")
+        else:
             self.process[args['process']]['nonlinear_solver'] = args[
                 'nonlinear_solver_name']
-            if "convergence_type" in args:
+            if not "convergence_type" in args:
+                raise KeyError("No convergence criterion given. \
+                            Specify convergence_type.")
+            else:
                 if args["convergence_type"] == "DeltaX":
                     # print("CONVERGENCE_TYPE:",args["convergence_type"])
-                    if "norm_type" in args:
+                    if not "norm_type" in args:
+                        raise KeyError("No norm_type given.")
+                    else:
                         self.process[args['process']][
                             'convergence_type'] = args["convergence_type"]
                         self.process[
@@ -161,8 +169,6 @@ class TIMELOOP(object):
                         if "reltol" in args:
                             self.process[
                                 args['process']]['reltol'] = args["reltol"]
-                    else:
-                        raise KeyError("No norm_type given.")
                 elif args["convergence_type"] == "PerComponentDeltaX":
                     if "norm_type" in args:
                         self.process[args['process']][
@@ -187,24 +193,19 @@ class TIMELOOP(object):
                     pass
                 else:
                     raise KeyError("Invalid convergence_type.")
-            else:
-                raise KeyError("No convergence criterion given. \
-                            Specify convergence_type.")
             if "time_discretization" in args:
                 self.process[args['process']]['time_discretization'] = args[
                     "time_discretization"]
             else:
                 raise KeyError("No time_discretization specified.")
-        else:
-            raise KeyError("Please specify a name (nonlinear_solver_name) \
-                        for the nonlinear solver.")
-
     def setStepping(self, **args):
         if "process" in args:
             pass
         else:
             raise KeyError("Process reference missing")
-        if "type" in args:
+        if not "type" in args:
+            raise KeyError("No type given.")
+        else:
             if args["type"] == "FixedTimeStepping":
                 self.process[
                     args['process']]['time_stepping'] = "FixedTimeStepping"
@@ -222,13 +223,20 @@ class TIMELOOP(object):
                 self.process[args['process']]['time_stepping'] = "SingleStep"
             else:
                 raise KeyError("Specified time stepping scheme not valid.")
-        else:
-            raise KeyError("No type given.")
 
     def addOutput(self, **args):
-        if "type" in args:
-            if "prefix" in args:
-                if "variables" in args:
+        if not "type" in args:
+            raise KeyError("If you want to specify an output method, \
+                        you need to provide type, \
+                        prefix and a list of variables.")
+        else:
+            if not "prefix" in args:
+                raise KeyError("No prefix given.")
+            else:
+                if not "variables" in args:
+                    raise KeyError(
+                        "Please provide a list with output variables.")
+                else:
                     self.outputtype = args["type"]
                     self.outputprefix = args["prefix"]
                     self.outputvariables = args["variables"]
@@ -240,15 +248,6 @@ class TIMELOOP(object):
                             raise KeyError("each_steps is a required tag.")
                     else:
                         pass
-                else:
-                    raise KeyError(
-                        "Please provide a list with output variables.")
-            else:
-                raise KeyError("No prefix given.")
-        else:
-            raise KeyError("If you want to specify an output method, \
-                        you need to provide type, \
-                        prefix and a list of variables.")
 
     def addTimeSteppingPair(self, **args):
         if "process" in args:
