@@ -3,7 +3,12 @@ class MESH(object):
         self.meshfiles = []
         self.axially_symmetric = []
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def addMesh(self, **args):
+        self._convertargs(args)
         if not "filename" in args:
             raise KeyError("No filename given")
         else:

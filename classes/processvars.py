@@ -9,10 +9,15 @@ class PROCESSVARS(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def setIC(self, **args):
+        self._convertargs(args)
         if not "process_variable_name" in args:
             raise KeyError("No process_variable_name given")
         else:
@@ -51,6 +56,7 @@ class PROCESSVARS(object):
                                 children={})
 
     def addBC(self, **args):
+        self._convertargs(args)
         if not "process_variable_name" in args:
             raise KeyError("No process variable name specified.")
         else:
@@ -173,6 +179,7 @@ class PROCESSVARS(object):
                         "You should provide either a geometrical set \
                                 or a mesh to define BC for.")
     def addST(self, **args):
+        self._convertargs(args)
         if not "process_variable_name" in args:
             raise KeyError("No process variable name specified.")
         else:

@@ -35,10 +35,15 @@ class PROCESSES(object):
             'children': {}
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addProcessVariable(self, **args):
+        self._convertargs(args)
         if "process_variable" in args:
             if not "process_variable_name" in args:
                 raise KeyError("process_variable_name missing.")
@@ -70,6 +75,7 @@ class PROCESSES(object):
                 }
 
     def setProcess(self, **args):
+        self._convertargs(args)
         if "name" in args:
             if "type" in args:
                 if "integration_order" in args:
@@ -86,6 +92,7 @@ class PROCESSES(object):
             raise KeyError("No process name given.")
 
     def setConstitutiveRelation(self, **args):
+        self._convertargs(args)
         self.tree['processes']['children']['process']['children'][
             'constitutive_relation'] = self.constreltree
         for key in args:

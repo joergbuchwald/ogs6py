@@ -9,7 +9,12 @@ class LOCAL_COORDINATE_SYSTEM(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def addBasisVec(self, **args):
+        self._convertargs(args)
         if "basis_vector_0" in args:
             self.tree['local_coordinate_system']['children'] = {
                 'basis_vector_0': {

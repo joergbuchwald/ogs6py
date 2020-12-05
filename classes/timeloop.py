@@ -15,6 +15,10 @@ class TIMELOOP(object):
         self.output_repeat = []
         self.output_each_steps = []
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
@@ -138,6 +142,7 @@ class TIMELOOP(object):
         return self.baum
 
     def addProcess(self, **args):
+        self._convertargs(args)
         if "process" in args:
             self.process = {args["process"]: {}}
             self.process[args['process']]['t_repeat'] = []
@@ -198,7 +203,9 @@ class TIMELOOP(object):
                     "time_discretization"]
             else:
                 raise KeyError("No time_discretization specified.")
+
     def setStepping(self, **args):
+        self._convertargs(args)
         if "process" in args:
             pass
         else:
@@ -225,6 +232,7 @@ class TIMELOOP(object):
                 raise KeyError("Specified time stepping scheme not valid.")
 
     def addOutput(self, **args):
+        self._convertargs(args)
         if not "type" in args:
             raise KeyError("If you want to specify an output method, \
                         you need to provide type, \
@@ -250,6 +258,7 @@ class TIMELOOP(object):
                         pass
 
     def addTimeSteppingPair(self, **args):
+        self._convertargs(args)
         if "process" in args:
             pass
         else:
@@ -262,6 +271,7 @@ class TIMELOOP(object):
                         define additional time stepping pairs.")
 
     def addOutputPair(self, **args):
+        self._convertargs(args)
         if "repeat" in args and "each_steps" in args:
             self.output_repeat.append(args["repeat"])
             self.output_each_steps.append(args["each_steps"])

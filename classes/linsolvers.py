@@ -9,11 +9,18 @@ class LINSOLVERS(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addLinSolver(self, **args):
-        if "name" in args:
+        self._convertargs(args)
+        if not "name" in args:
+            raise KeyError("You need to provide a name for the linear solver.")
+        else:
             if not args['name'] in self.tree['linear_solvers']['children']:
                 self.tree['linear_solvers']['children'][
                     args['name']] = self.populateTree('linear_solver',
@@ -24,11 +31,22 @@ class LINSOLVERS(object):
                 linear_solver['name'] = self.populateTree('name',
                                                           text=args['name'],
                                                           children={})
-            if "kind" in args:
-                if "solver_type" in args:
-                    if "precon_type" in args:
+            if not "kind" in args:
+                raise KeyError("No kind given. Please specify the linear \
+                            solver library (e.g.: eigen, petsc, lis).")
+            else:
+                if not "solver_type" in args:
+                    raise KeyError("No solver_type given.")
+                else:
+                    if not "precon_type" in args:
+                        raise KeyError("No precon_type given.")
+                    else:
                         if "max_iteration_step" in args:
-                            if "error_tolerance" in args:
+                            raise KeyError("No max_iteration_step given.")
+                        else:
+                            if not "error_tolerance" in args:
+                                raise KeyError("No error_tolerance given.")
+                            else:
                                 if args['kind'] == "eigen":
                                     linear_solver['eigen'] = self.populateTree(
                                         'eigen', children={})
@@ -85,17 +103,4 @@ class LINSOLVERS(object):
                                             'parameters',
                                             text=string,
                                             children={})
-                            else:
-                                raise KeyError("No error_tolerance given.")
-                        else:
-                            raise KeyError("No max_iteration_step given.")
-                    else:
-                        raise KeyError("No precon_type given.")
-                else:
-                    raise KeyError("No solver_type given.")
 
-            else:
-                raise KeyError("No kind given. Please specify the linear \
-                            solver library (e.g.: eigen, petsc, lis).")
-        else:
-            raise KeyError("You need to provide a name for the linear solver.")

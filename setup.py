@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 setup(name="ogs6py",
-      version=0.26,
+      version=0.27,
       maintainer="Jörg Buchwald",
       maintainer_email="joerg_buchwald@ufz.de",
       author="Jörg Buchwald",

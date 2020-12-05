@@ -9,10 +9,15 @@ class MEDIA(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addProperty(self, **args):
+        self._convertargs(args)
         if "medium_id" in args:
             try:
                 medium = self.tree['media']['children'][args['medium_id']]

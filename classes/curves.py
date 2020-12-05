@@ -9,10 +9,15 @@ class CURVES(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addCurve(self, **args):
+        self._convertargs(args)
         if not "name" in args:
             raise KeyError("No curve name given.")
         if not "coords" in args:

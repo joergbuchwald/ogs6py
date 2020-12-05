@@ -9,14 +9,29 @@ class NONLINSOLVERS(object):
             }
         }
 
+    def _convertargs(self, args):
+        for item in args:
+            args[item] = str(args[item])
+
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addNonlinSolver(self, **args):
-        if "name" in args:
-            if "type" in args:
-                if "max_iter" in args:
-                    if "linear_solver" in args:
+        self._convertargs(args)
+        if not "name" in args:
+            raise KeyError("Missing name of the nonlinear solver.")
+        else:
+            if not "type" in args:
+                raise KeyError(
+                    "Please specify the type of the nonlinear solver.")
+            else:
+                if not "max_iter" in args:
+                    raise KeyError("Please provide the maximum number \
+                                of iterations (max_iter).")
+                else:
+                    if not "linear_solver" in args:
+                        raise KeyError("No linear_solver specified.")
+                    else:
                         self.tree['nonlinear_solvers']['children'][
                             args['name']] = self.populateTree(
                                 'nonlinear_solver', children={})
@@ -33,13 +48,3 @@ class NONLINSOLVERS(object):
                         if "damping" in args:
                             nonlin_solver['damping'] = self.populateTree(
                                 'damping', text=args['damping'], children={})
-                    else:
-                        raise KeyError("No linear_solver specified.")
-                else:
-                    raise KeyError("Please provide the maximum number \
-                                of iterations (max_iter).")
-            else:
-                raise KeyError(
-                    "Please specify the type of the nonlinear solver.")
-        else:
-            raise KeyError("Missing name of the nonlinear solver.")
