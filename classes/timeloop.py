@@ -232,7 +232,6 @@ class TIMELOOP(object):
                 raise KeyError("Specified time stepping scheme not valid.")
 
     def addOutput(self, **args):
-        self._convertargs(args)
         if not "type" in args:
             raise KeyError("If you want to specify an output method, \
                         you need to provide type, \
