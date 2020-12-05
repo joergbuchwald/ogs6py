@@ -41,7 +41,7 @@ class LINSOLVERS(object):
                     if not "precon_type" in args:
                         raise KeyError("No precon_type given.")
                     else:
-                        if "max_iteration_step" in args:
+                        if not "max_iteration_step" in args:
                             raise KeyError("No max_iteration_step given.")
                         else:
                             if not "error_tolerance" in args:
