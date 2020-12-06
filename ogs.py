@@ -45,6 +45,8 @@ class OGS(object):
     def runModel(self, **args):
         if "path" in args:
             self.ogs_name = args["path"] + "/"
+        else:
+            self.ogs_name = ""
         if sys.platform == "win32":
             self.ogs_name = self.ogs_name + "ogs.exe"
         else:
@@ -101,7 +103,7 @@ class OGS(object):
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
     def replaceTxt(self, value, xpath=".", occurance=-1):
-        if not self.tree:
+        if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         find_xpath = root.findall(xpath)
@@ -111,8 +113,83 @@ class OGS(object):
             elif i == occurance:
                 entry.text = str(value)
 
+    def replaceParameter(self, name=None, value=None, parametertype=None):
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        xpathname = "./parameters/parameter/name"
+        xpathtype = "./parameters/parameter/type"
+        #TODO: values also valid
+        xpathvalue = "./parameters/parameter/value"
+        foundname = root.findall(xpathname)
+        foundvalue = root.findall(xpathvalue)
+        foundtype = root.findall(xpathtype)
+        counter = None
+        for i, item in enumerate(foundname):
+            if item.text == name:
+                counter = i
+        if not counter == None:
+            if not value is None:
+                foundvalue[counter].text = str(value)
+            if not parametertype is None:
+                foundtype[counter].text = str(parametertype)
+
+    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None):
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        xpathmedia = "./media/medium"
+        media = root.findall(xpathmedia)
+        mediumpointer = None
+        for medium in media:
+            if medium.attrib['id'] == str(mediumid):
+                mediumpointer = medium
+        phases = mediumpointer.findall("./phases/phase")
+        phasetypes = mediumpointer.findall("./phases/phase/type")
+        phasecounter = None
+        for i, phasetype in enumerate(phasetypes):
+            if phasetype.text == phase:
+                phasecounter = i
+        phasepointer = phases[i]
+        foundname = phasepointer.findall("./properties/property/name")
+        foundvalue = phasepointer.findall("./properties/property/value")
+        foundtype = phasepointer.findall("./properties/property/type")
+        counter = None
+        for i, item in enumerate(foundname):
+            if item.text == name:
+                counter = i
+        if not counter == None:
+            if not value is None:
+                foundvalue[counter].text = str(value)
+            if not propertytype is None:
+                foundtype[counter].text = str(propertytype)        
+
+    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None):
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        xpathmedia = "./media/medium"
+        media = root.findall(xpathmedia)
+        mediumpointer = None
+        for medium in media:
+            if medium.attrib['id'] == str(mediumid):
+                mediumpointer = medium
+        foundname = mediumpointer.findall("./properties/property/name")
+        foundvalue = mediumpointer.findall("./properties/property/value")
+        foundtype = mediumpointer.findall("./properties/property/type")
+        counter = None
+        for i, item in enumerate(foundname):
+            if item.text == name:
+                counter = i
+        if not counter == None:
+            if not value is None:
+                foundvalue[counter].text = str(value)
+            if not propertytype is None:
+                foundtype[counter].text = str(propertytype)  
+
+
     def writeInput(self):
-        if self.tree:
+        if not self.tree is None:
             self.tree.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
