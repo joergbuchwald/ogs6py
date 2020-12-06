@@ -39,4 +39,5 @@ Generally, this xpath is not uniquely defined. As the file is read in from top t
 ```
 model.replaceTxt(42, xpath="./parameters/parameter/value", occurance=0)
 ```
-For an application oriented example, where this method is used within a loop, see example_replace.py.
+Alternatively, it is also possibliy to change parameter and medium/phase values via specific functions".
+For further examples, see example_replace.py.
