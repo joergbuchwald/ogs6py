@@ -113,80 +113,73 @@ class OGS(object):
             elif i == occurance:
                 entry.text = str(value)
 
-    def replaceParameter(self, name=None, value=None, parametertype=None):
+    def _getParameterPointer(self, root, name, xpath):
+        xpathparameter = xpath
+        parameters = root.findall(xpathparameter)
+        parameterpointer = None
+        for parameter in parameters:
+            for paramproperty in parameter:
+                if paramproperty.tag == "name":
+                    if paramproperty.text == name:
+                        parameterpointer = parameter
+        return parameterpointer
+
+    def _getMediumPointer(self, root):
+        xpathmedia = "./media/medium"
+        media = root.findall(xpathmedia)
+        mediumpointer = None
+        for medium in media:
+            if medium.attrib['id'] == str(mediumid):
+                mediumpointer = medium
+        return mediumpointer
+
+    def _getPhasePointer(self, root):
+        phases = root.findall("./phases/phase")
+        phasetypes = root.findall("./phases/phase/type")
+        phasecounter = None 
+        for i, phasetype in enumerate(phasetypes):
+            if phasetype.text == phase:
+                phasecounter = i
+        phasepointer = phases[i]
+
+    def _setTypeValue(self, parameterpointer, value, values, parametertype):
+        for paramproperty in parameterpointer:
+            if paramproperty.tag == "value":
+                if not value is None:
+                    paramproperty.text = str(value)
+            elif paramproperty.tag == "values":
+                if not value is None:
+                    paramproperty.text = str(values)
+            elif paramproperty.tag == "type":
+                if not parametertype is None:
+                    paramproperty.text = str(parametertype)
+
+    def replaceParameter(self, name=None, value=None, values=None, parametertype=None):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        xpathname = "./parameters/parameter/name"
-        xpathtype = "./parameters/parameter/type"
-        #TODO: values also valid
-        xpathvalue = "./parameters/parameter/value"
-        foundname = root.findall(xpathname)
-        foundvalue = root.findall(xpathvalue)
-        foundtype = root.findall(xpathtype)
-        counter = None
-        for i, item in enumerate(foundname):
-            if item.text == name:
-                counter = i
-        if not counter == None:
-            if not value is None:
-                foundvalue[counter].text = str(value)
-            if not parametertype is None:
-                foundtype[counter].text = str(parametertype)
+        parameterpath = "./parameters/parameter"
+        parameterpointer = self._getParameterPointer(root, name, parameterpath)
+        self._setTypeValue(parameterpointer, value, values, parametertype)
 
     def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        xpathmedia = "./media/medium"
-        media = root.findall(xpathmedia)
-        mediumpointer = None
-        for medium in media:
-            if medium.attrib['id'] == str(mediumid):
-                mediumpointer = medium
-        phases = mediumpointer.findall("./phases/phase")
-        phasetypes = mediumpointer.findall("./phases/phase/type")
-        phasecounter = None
-        for i, phasetype in enumerate(phasetypes):
-            if phasetype.text == phase:
-                phasecounter = i
-        phasepointer = phases[i]
-        foundname = phasepointer.findall("./properties/property/name")
-        foundvalue = phasepointer.findall("./properties/property/value")
-        foundtype = phasepointer.findall("./properties/property/type")
-        counter = None
-        for i, item in enumerate(foundname):
-            if item.text == name:
-                counter = i
-        if not counter == None:
-            if not value is None:
-                foundvalue[counter].text = str(value)
-            if not propertytype is None:
-                foundtype[counter].text = str(propertytype)        
+        mediumpointer = self._getMediumPointer(root)
+        phasepointer = self._getPhasePointer(mediumpointer)
+        xpathparameter = "./properties/property"
+        parameterpointer = self._getParameterPointer(root, name, xpathparameter)
+        self._setTypeValue(parameterpointer, value, values, propertytype)
 
     def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        xpathmedia = "./media/medium"
-        media = root.findall(xpathmedia)
-        mediumpointer = None
-        for medium in media:
-            if medium.attrib['id'] == str(mediumid):
-                mediumpointer = medium
-        foundname = mediumpointer.findall("./properties/property/name")
-        foundvalue = mediumpointer.findall("./properties/property/value")
-        foundtype = mediumpointer.findall("./properties/property/type")
-        counter = None
-        for i, item in enumerate(foundname):
-            if item.text == name:
-                counter = i
-        if not counter == None:
-            if not value is None:
-                foundvalue[counter].text = str(value)
-            if not propertytype is None:
-                foundtype[counter].text = str(propertytype)  
-
+        mediumpointer = self._getMediumPointer(root)
+        xpathparameter = "./properties/property"
+        parameterpointer = self._getParameterPointer(root, name, xpathparameter)
+        self._setTypeValue(parameterpointer, value, values, propertytype)
 
     def writeInput(self):
         if not self.tree is None:
