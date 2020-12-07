@@ -114,33 +114,42 @@ class OGS(object):
                 entry.text = str(value)
 
     def _getParameterPointer(self, root, name, xpath):
-        xpathparameter = xpath
-        parameters = root.findall(xpathparameter)
+        parameters = root.findall(xpath)
         parameterpointer = None
         for parameter in parameters:
             for paramproperty in parameter:
                 if paramproperty.tag == "name":
                     if paramproperty.text == name:
                         parameterpointer = parameter
+        if parameterpointer is None:
+            print("Parameter/Property not found")
+            raise RuntimeError
         return parameterpointer
 
-    def _getMediumPointer(self, root):
+    def _getMediumPointer(self, root, mediumid):
         xpathmedia = "./media/medium"
         media = root.findall(xpathmedia)
         mediumpointer = None
         for medium in media:
             if medium.attrib['id'] == str(mediumid):
                 mediumpointer = medium
+        if mediumpointer is None:
+            print("Medium not found")
+            raise RuntimeError
         return mediumpointer
 
-    def _getPhasePointer(self, root):
+    def _getPhasePointer(self, root, phase):
         phases = root.findall("./phases/phase")
         phasetypes = root.findall("./phases/phase/type")
-        phasecounter = None 
+        phasecounter = None
         for i, phasetype in enumerate(phasetypes):
             if phasetype.text == phase:
                 phasecounter = i
-        phasepointer = phases[i]
+        phasepointer = phases[phasecounter]
+        if phasepointer is None:
+            print("Phase not found")
+            raise RuntimeError
+        return phasepointer
 
     def _setTypeValue(self, parameterpointer, value, values, parametertype):
         for paramproperty in parameterpointer:
@@ -166,20 +175,20 @@ class OGS(object):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self._getMediumPointer(root)
-        phasepointer = self._getPhasePointer(mediumpointer)
+        mediumpointer = self._getMediumPointer(root, mediumid)
+        phasepointer = self._getPhasePointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
-        parameterpointer = self._getParameterPointer(root, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, values, propertytype)
+        parameterpointer = self._getParameterPointer(phasepointer, name, xpathparameter)
+        self._setTypeValue(parameterpointer, value, None, propertytype)
 
     def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self._getMediumPointer(root)
+        mediumpointer = self._getMediumPointer(root, mediumid)
         xpathparameter = "./properties/property"
-        parameterpointer = self._getParameterPointer(root, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, values, propertytype)
+        parameterpointer = self._getParameterPointer(mediumpointer, name, xpathparameter)
+        self._setTypeValue(parameterpointer, value, None, propertytype)
 
     def writeInput(self):
         if not self.tree is None:
