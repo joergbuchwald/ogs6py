@@ -11,7 +11,8 @@ class CURVES(object):
 
     def _convertargs(self, args):
         for item in args:
-            args[item] = str(args[item])
+            if not (item == "coords" or item == "values"):
+                args[item] = str(args[item])
 
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
@@ -24,6 +25,7 @@ class CURVES(object):
             raise KeyError("No coordinates given.")
         if not "values" in args:
             raise KeyError("No values given.")
+        print(len(args["coords"]), len(args["values"]))
         if len(args["coords"]) != len(args["values"]):
             raise ValueError("Number of time coordinate points differs from number of values")
         else:
