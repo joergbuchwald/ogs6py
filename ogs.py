@@ -37,10 +37,6 @@ class OGS(object):
             self.inputfile = args['INPUT_FILE']
         else:
             self.inputfile = "default.prj"
-        if "ogs_mode" in args:
-            self.ogs_mode = args["ogs_mode"]
-        else:
-            self.ogs_mode = "silent"
 
     def runModel(self, **args):
         if "path" in args:
@@ -52,46 +48,16 @@ class OGS(object):
         else:
             self.ogs_name = self.ogs_name + "ogs"
         procs = [0,1]
-        def run(proc):
-            running = True
-            if proc == 0:
-                print("OGS running...")
-                if not self.loadmkl:
-                    cmd = self.ogs_name + " " + self.prjfile + " >out"
-                else:
-                    cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
-                returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
-                if returncode.returncode == 0:
-                    print("OGS finished")
-                    return True
-                else:
-                    print("OGS execution not successfull. Error code: ", returncode.returncode)
-                    raise RuntimeError
-            if proc == 1:
-                while running is True:
-                    if self.ogs_mode == "silent":
-                        running = False
-                    else:
-                        out=subprocess.check_output(["tail", "-10", "out"]).decode("ascii")
-                        out2=out.split("\n")
-                        for line in out2:
-                            if "timestep" in line:
-                                print("\r", line, end="")
-                            if "stepping" in line:
-                                print("\r", line, end="")
-                            if "Iteration" in line:
-                                print("\r", line, end="")
-                            if "terminated" in line:
-                                print("\r", line)
-                                running = False
-                            if "error:" in line:
-                                print("An error during OGS execution occurred")
-                                print("\r", line)
-                                raise RuntimeError
-                        time.sleep(0.5)
-                return
-        with cf.ThreadPoolExecutor() as executor:
-            results = executor.map(run,procs)
+        if not self.loadmkl:
+            cmd = self.ogs_name + " " + self.prjfile + " >out"
+        else:
+            cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
+        returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
+        if returncode.returncode == 0:
+            print("OGS finished")
+        else:
+            print("OGS execution not successfull. Error code: ", returncode.returncode)
+            raise RuntimeError
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
