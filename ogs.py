@@ -47,7 +47,6 @@ class OGS(object):
             self.ogs_name = self.ogs_name + "ogs.exe"
         else:
             self.ogs_name = self.ogs_name + "ogs"
-        procs = [0,1]
         if not self.loadmkl:
             cmd = self.ogs_name + " " + self.prjfile + " >out"
         else:
