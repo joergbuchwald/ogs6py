@@ -132,6 +132,8 @@ model.parameters.addParameter(name="temperature_bc_left",
 model.parameters.addParameter(name="temperature_source_term",
                               type="Constant",
                               value="150")
+model.curves.addCurve(name="time_curve", coords=[0.0, 1e6, 1.1e6, 5e6],
+                values=[1.0, 1.0, 2.0, 2.0])
 model.processvars.setIC(process_variable_name="displacement",
                         components="2",
                         order="2",

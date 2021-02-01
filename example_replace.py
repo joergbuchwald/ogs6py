@@ -4,7 +4,10 @@ for i in range(5):
     ofile="new_" + str(i) + ".prj"
     model = OGS(INPUT_FILE="test.prj", PROJECT_FILE=ofile, ogs_mode="silent")
     # general function for replacements
-    model.replaceTxt(i/42.1, xpath="./parameters/parameter/value", occurance=1)
+    model.replaceTxt(i/42.1, xpath="./parameters/parameter[name='nu']/value")
+    # is the same as:
+    #model.replaceTxt(i/42.1, xpath="./parameters/parameter/value", occurance=1)
+    # For MPL based processes, the following functions can be used
     # function for replacing parameter properties
     model.replaceParameter(name="E", value=2e9)
     # function for replacing phase properties
