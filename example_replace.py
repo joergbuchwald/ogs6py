@@ -2,7 +2,7 @@ from ogs import *
 
 for i in range(5):
     ofile="new_" + str(i) + ".prj"
-    model = OGS(INPUT_FILE="test.prj", PROJECT_FILE=ofile, ogs_mode="silent")
+    model = OGS(INPUT_FILE="test.prj", PROJECT_FILE=ofile)
     # general function for replacements
     model.replaceTxt(i/42.1, xpath="./parameters/parameter[name='nu']/value")
     # is the same as:

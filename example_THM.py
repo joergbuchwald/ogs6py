@@ -1,6 +1,6 @@
 from ogs import *
 
-model = OGS(PROJECT_FILE="thm_test/test.prj", ogs_mode="verbose")
+model = OGS(PROJECT_FILE="thm_test/test.prj")
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(
