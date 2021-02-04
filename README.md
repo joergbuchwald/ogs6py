@@ -6,7 +6,7 @@ Essentially, there are two methods for creating/altering input files.
 New files from scratch can be build using method calls for each property.
 First, the root class neeeds to be instantiaded:
 ```
-model = OGS(PROJECT_FILE="thm_test/test.prj", ogs_mode="verbose")
+model = OGS(PROJECT_FILE="thm_test/test.prj")
 ```
 The standard constructor then loads all sublasses defined in classes folder that are named after the root children elements in the prj file. These classes conatain the respective member functions needed to define a certain property.
 E.g.,
@@ -37,7 +37,7 @@ xpath="./parameters/parameter/value"
 ```
 Generally, this xpath is not uniquely defined. As the file is read in from top to bottom we can specify the exact path address by mentioning its occurance starting from 0:
 ```
-model.replaceTxt(42, xpath="./parameters/parameter/value", occurance=0)
+model.replaceTxt(42, xpath="./parameters/parameter/value", occurrence=0)
 ```
 Alternatively, it is also possibliy to change parameter and medium/phase values via specific functions".
 For further examples, see example_replace.py.
