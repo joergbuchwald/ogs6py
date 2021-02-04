@@ -25,8 +25,10 @@ class OGS(object):
         sys.setrecursionlimit(10000)
         self.tag = []
         self.tree = None
-        #self.loadmkl = None
-        self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
+        self.loadmkl = None
+        if "MKL" in args:
+            if args["MKL"] is True:
+                self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
         self.ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
@@ -47,7 +49,7 @@ class OGS(object):
             self.ogs_name = self.ogs_name + "ogs.exe"
         else:
             self.ogs_name = self.ogs_name + "ogs"
-        if not self.loadmkl:
+        if self.loadmkl is None:
             cmd = self.ogs_name + " " + self.prjfile + " >out"
         else:
             cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
@@ -67,15 +69,15 @@ class OGS(object):
             if len(dictionary[entry]['children']) > 0:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
-    def replaceTxt(self, value, xpath=".", occurance=-1):
+    def replaceTxt(self, value, xpath=".", occurrance=-1):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
-            if occurance < 0:
+            if occurrance < 0:
                 entry.text = str(value)
-            elif i == occurance:
+            elif i == occurrance:
                 entry.text = str(value)
 
     def _getParameterPointer(self, root, name, xpath):
@@ -116,9 +118,9 @@ class OGS(object):
             raise RuntimeError
         return phasepointer
 
-    def _setTypeValue(self, parameterpointer, value, values, parametertype):
+    def _setTypeValue(self, parameterpointer, value, values, parametertype, valuetag=None):
         for paramproperty in parameterpointer:
-            if paramproperty.tag == "value":
+            if paramproperty.tag == valuetag:
                 if not value is None:
                     paramproperty.text = str(value)
             elif paramproperty.tag == "values":
@@ -134,9 +136,9 @@ class OGS(object):
         root = self.tree.getroot()
         parameterpath = "./parameters/parameter"
         parameterpointer = self._getParameterPointer(root, name, parameterpath)
-        self._setTypeValue(parameterpointer, value, values, parametertype)
+        self._setTypeValue(parameterpointer, value, values, parametertype, valuetag="value")
 
-    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None):
+    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None, valuetag="value"):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -144,16 +146,16 @@ class OGS(object):
         phasepointer = self._getPhasePointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
         parameterpointer = self._getParameterPointer(phasepointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, None, propertytype)
+        self._setTypeValue(parameterpointer, value, None, propertytype, valuetag=valuetag)
 
-    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None):
+    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None, valuetag="value"):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         mediumpointer = self._getMediumPointer(root, mediumid)
         xpathparameter = "./properties/property"
         parameterpointer = self._getParameterPointer(mediumpointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, None, propertytype)
+        self._setTypeValue(parameterpointer, value, None, propertytype, valuetag=valuetag)
 
     def writeInput(self):
         if not self.tree is None:
