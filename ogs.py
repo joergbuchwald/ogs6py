@@ -69,15 +69,15 @@ class OGS(object):
             if len(dictionary[entry]['children']) > 0:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
-    def replaceTxt(self, value, xpath=".", occurrance=-1):
+    def replaceTxt(self, value, xpath=".", occurrence=-1):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
-            if occurrance < 0:
+            if occurrence < 0:
                 entry.text = str(value)
-            elif i == occurrance:
+            elif i == occurrence:
                 entry.text = str(value)
 
     def _getParameterPointer(self, root, name, xpath):
