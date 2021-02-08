@@ -1,22 +1,20 @@
 # ogs6py
 
-## ogs6py is a python-API for the OpenGeoSys finite element sofware.
-
-## Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
-
-## The package allows to streamline OGS-workflows with python or Julia entirely in jupyter or pluto notebooks as demonstrated in the following video:
+ogs6py is a python-API for the OpenGeoSys finite element sofware.
+Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
+The package allows to streamline OGS-workflows with python or Julia entirely in jupyter or pluto notebooks as demonstrated in the following video:
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
 
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
-    1. creating a new input files using python method calls
+    1. creating a new input file using python method calls
     2. altering existing input files
 
 ### 1. Creating a new input file
  
-The following example consists of a simle mechanics problem. The names of the method calls are based on the corresponing XML tags. The MKL=True option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
+The following example consists of a simle mechanics problem. The names of the method calls are based on the corresponing XML tags. The `MKL=True` option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
 
 
 ```python
@@ -123,9 +121,11 @@ model.runModel(path="~/github/ogs/build_mkl/bin")
     OGS finished
 
 
+An example using the MPL can be find in example_THM.py.
+
 ### 2. Alternatively it is possible to alter existing files using the available replace methods:
 
-E.g., to iterate over three Young's moduli on can use the replace parameter method:
+E.g., to iterate over three Young's moduli one can use the replace parameter method:
 
 
 ```python
@@ -144,7 +144,7 @@ for E in Es:
     OGS finished
 
 
-Instead of the `replaceParameter` method, the more general `replaceTxt` method cane be used
+Instead of the `replaceParameter` method, the more general `replaceTxt` method can be used
 
 
 ```python
