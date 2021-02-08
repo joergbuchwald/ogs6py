@@ -1,43 +1,180 @@
 # ogs6py
 
-ogs6py is a python-API for the OpenGeoSys finite element sofware.
+## ogs6py is a python-API for the OpenGeoSys finite element sofware.
 
-Essentially, there are two methods for creating/altering input files.
-New files from scratch can be build using method calls for each property.
-First, the root class neeeds to be instantiaded:
-```
-model = OGS(PROJECT_FILE="thm_test/test.prj")
-```
-The standard constructor then loads all sublasses defined in classes folder that are named after the root children elements in the prj file. These classes conatain the respective member functions needed to define a certain property.
-E.g.,
-```
+## Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
+
+## The package allows to streamline OGS-workflows with python or Julia entirely in jupyter or pluto notebooks as demonstrated in the following video:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
+
+
+To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
+
+    1. creating a new input files using python method calls
+    2. altering existing input files
+
+### 1. Creating a new input file
+ 
+The following example consists of a simle mechanics problem. The names of the method calls are based on the corresponing XML tags. The MKL=True option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
+
+
+```python
+from ogs import *
+
+model = OGS(PROJECT_FILE="simple_mechanics.prj", MKL=True)
 model.geo.addGeom(filename="square_1x1.gml")
-```
-After all required properties are definded the input file is writen to PROJECT_FILE via
-```
+model.mesh.addMesh(filename="square_1x1_quad_1e2.vtu")
+model.processes.setProcess(name="SD",
+                           type="SMALL_DEFORMATION",
+                           integration_order=2,
+                           solid_density="rho_sr",
+                           specific_body_force="0 0")
+model.processes.setConstitutiveRelation(type="LinearElasticIsotropic",
+                                        youngs_modulus="E",
+                                        poissons_ratio="nu")
+model.processes.addProcessVariable(process_variable="process_variable",
+                                   process_variable_name="displacement")
+model.processes.addProcessVariable(secondary_variable="sigma",
+                                   output_name="sigma")
+model.timeloop.addProcess(process="SD",
+                          nonlinear_solver_name="basic_newton",
+                          convergence_type="DeltaX",
+                          norm_type="NORM2",
+                          abstol=1e-15,
+                          time_discretization="BackwardEuler")
+model.timeloop.setStepping(process="SD", type="FixedTimeStepping",
+                           t_initial=0,
+                           t_end=1,
+                           repeat=4,
+                           delta_t=0.25)
+model.timeloop.addOutput(type="VTK",
+                         prefix="blubb",
+                         repeat=1,
+                         each_steps=10,
+                         variables=["displacement", "sigma"])
+model.parameters.addParameter(name="E", type="Constant", value=1)
+model.parameters.addParameter(name="nu", type="Constant", value=0.3)
+model.parameters.addParameter(name="rho_sr", type="Constant", value=1)
+model.parameters.addParameter(name="displacement0",
+                              type="Constant",
+                              values="0 0")
+model.parameters.addParameter(name="dirichlet0", type="Constant", value=0)
+model.parameters.addParameter(name="dirichlet1", type="Constant", value=0.05)
+model.processvars.setIC(process_variable_name="displacement",
+                        components=2,
+                        order=1,
+                        initial_condition="displacement0")
+model.processvars.addBC(process_variable_name="displacement",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="left",
+                        type="Dirichlet",
+                        component=0,
+                        parameter="dirichlet0")
+model.processvars.addBC(process_variable_name="displacement",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="bottom",
+                        type="Dirichlet",
+                        component=1,
+                        parameter="dirichlet0")
+model.processvars.addBC(process_variable_name="displacement",
+                        geometrical_set="square_1x1_geometry",
+                        geometry="top",
+                        type="Dirichlet",
+                        component=1,
+                        parameter="dirichlet1")
+model.nonlinsolvers.addNonlinSolver(name="basic_newton",
+                                    type="Newton",
+                                    max_iter=4,
+                                    linear_solver="general_linear_solver")
+model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="lis",
+                              solver_type="cg",
+                              precon_type="jacobi",
+                              max_iteration_step=10000,
+                              error_tolerance=1e-16)
+model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="eigen",
+                              solver_type="CG",
+                              precon_type="DIAGONAL",
+                              max_iteration_step=10000,
+                              error_tolerance=1e-16)
+model.linsolvers.addLinSolver(name="general_linear_solver",
+                              kind="petsc",
+                              solver_type="cg",
+                              precon_type="bjacobi",
+                              max_iteration_step=10000,
+                              error_tolerance=1e-16)
 model.writeInput()
 ```
-If ogs can be executed systemwide via the `ogs` command the model can be startet with the command:
+
+
+
+
+    True
+
+
+
+
+```python
+model.runModel(path="~/github/ogs/build_mkl/bin")
+```
+
+    OGS finished
+
+
+### 2. Alternatively it is possible to alter existing files using the available replace methods:
+
+E.g., to iterate over three Young's moduli on can use the replace parameter method:
+
+
+```python
+Es = [1,2,3]
+filename = "simple_mechanics.prj"
+for E in Es:
+    model = OGS(INPUT_FILE=filename, PROJECT_FILE=filename, MKL=True)
+    model.replaceParameter(name="E", value=E)
+    model.replaceTxt("out_E="+str(E), xpath="./time_loop/output/prefix")
+    model.writeInput()
+    model.runModel(path="~/github/ogs/build_mkl/bin")
+```
+
+    OGS finished
+    OGS finished
+    OGS finished
+
+
+Instead of the `replaceParameter` method, the more general `replaceTxt` method cane be used
+
+
+```python
+model.replaceTxt(E, xpath="./parameters/parameter[name='E']/value")
+```
+
+The Young's modulus in this file can also be accessed through 0'th occurrence of the place addressed by the xpath `./parameters/parameter/value`
+
+
+```python
+model.replaceTxt(E, xpath="./parameters/parameter/value", occurrence=0)
+```
+
+For MPL based processes, there exist specific functions to set phase and medium properties: E.g.,
+
+
+```python
+model.replacePhaseProperty(mediumid=0, phase="Solid", name="thermal_expansivity", value="42")
+```
+
+for a phse property and
+
+
+```python
+model.replaceMediumProperty(mediumid=0, name="porosity", value="0.24")
+```
+
+for a property that lives on the medium level.
+
+
+```python
 
 ```
-model.runModel()
-```
-For further details have a look at the following example:
-See example.py/example_THM.py.
-
-Often, it is much more appropriate to modify existing input files. This can be done using the replace method.
-Similar to the method described above the OGS class needs to be instanciated with and input and an ouptu file:
-
-```
-model = OGS(INPUT_FILE="inputfile.prj", PROJECT_FILE="outputfile.prj")
-```
-The tag-content can be addressed via an xpath, e.g.,
-```
-xpath="./parameters/parameter/value"
-```
-Generally, this xpath is not uniquely defined. As the file is read in from top to bottom we can specify the exact path address by mentioning its occurance starting from 0:
-```
-model.replaceTxt(42, xpath="./parameters/parameter/value", occurrence=0)
-```
-Alternatively, it is also possibliy to change parameter and medium/phase values via specific functions".
-For further examples, see example_replace.py.
