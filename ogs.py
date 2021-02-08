@@ -63,7 +63,7 @@ class OGS(object):
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
             self.tag.append(ET.SubElement(parent, dictionary[entry]['tag']))
-            self.tag[-1].text = dictionary[entry]['text']
+            self.tag[-1].text = str(dictionary[entry]['text'])
             for attr in dictionary[entry]['attr']:
                 self.tag[-1].set(attr, dictionary[entry]['attr'][attr])
             if len(dictionary[entry]['children']) > 0:
