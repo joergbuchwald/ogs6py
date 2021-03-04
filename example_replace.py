@@ -1,4 +1,9 @@
 from ogs import *
+"""
+This example is based on a future version of the project file
+created by example_THM.py in which the porosity is already
+a medium property.
+"""
 
 for i in range(5):
     ofile="new_" + str(i) + ".prj"
