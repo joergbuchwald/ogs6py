@@ -6,8 +6,9 @@
 #              http://www.opengeosys.org/project/license
 
 import re
+import sys
 from dataclasses import dataclass, field
-
+import pandas as pd
 
 @dataclass
 class ComponentConvergence(object):
@@ -233,26 +234,26 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
 
         if r := _tryMatch(line, *_re_time_step_solution_time):
             # r[0] is process number and is ignored for now.
-            if ts.number != r[2]:
-                raise RuntimeError(
-                    "Solution time for wrong time step", r[2], "current time step", ts
-                )
+#            if ts.number != r[2]:
+#                raise RuntimeError(
+#                    "Solution time for wrong time step", r[2], "current time step", ts
+#                )
             ts.solution_time = r[1]
             continue
 
         if r := _tryMatch(line, *_re_time_step_output):
-            if ts.number != r[0]:
-                raise RuntimeError(
-                    "Output time for wrong time step", r[0], "current time step", ts
-                )
+#            if ts.number != r[0]:
+#                raise RuntimeError(
+#                    "Output time for wrong time step", r[0], "current time step", ts
+#                )
             ts.output_time = r[1]
             continue
 
         if r := _tryMatch(line, *_re_time_step_finished):
-            if ts.number != r[0]:
-                raise RuntimeError(
-                    "Total time for wrong time step", r[0], "current time step", ts
-                )
+#            if ts.number != r[0]:
+#                raise RuntimeError(
+#                    "Total time for wrong time step", r[0], "current time step", ts
+#                )
             ts.cpu_time = r[1]
             continue
 
@@ -270,3 +271,9 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
     return Simulation(
         timesteps=tss, mesh_read_time=mesh_read_time, execution_time=execution_time
     )
+if __name__ == "__main__":
+    filename = sys.argv[1]
+    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None)
+    df = pd.DataFrame(data)
+    filename_prefix = filename.split('.')[0]
+    df.to_csv(f"{filename_prefix}.csv")
