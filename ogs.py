@@ -118,25 +118,22 @@ class OGS(object):
             raise RuntimeError
         return phasepointer
 
-    def _setTypeValue(self, parameterpointer, value, values, parametertype, valuetag=None):
+    def _setTypeValue(self, parameterpointer, value, parametertype, valuetag=None):
         for paramproperty in parameterpointer:
             if paramproperty.tag == valuetag:
                 if not value is None:
                     paramproperty.text = str(value)
-            elif paramproperty.tag == "values":
-                if not value is None:
-                    paramproperty.text = str(values)
             elif paramproperty.tag == "type":
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
-    def replaceParameter(self, name=None, value=None, values=None, parametertype=None):
+    def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         parameterpath = "./parameters/parameter"
         parameterpointer = self._getParameterPointer(root, name, parameterpath)
-        self._setTypeValue(parameterpointer, value, values, parametertype, valuetag="value")
+        self._setTypeValue(parameterpointer, value, parametertype, valuetag=valuetag)
 
     def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None, valuetag="value"):
         if self.tree is None:
@@ -146,7 +143,7 @@ class OGS(object):
         phasepointer = self._getPhasePointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
         parameterpointer = self._getParameterPointer(phasepointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, None, propertytype, valuetag=valuetag)
+        self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
 
     def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None, valuetag="value"):
         if self.tree is None:
@@ -155,7 +152,7 @@ class OGS(object):
         mediumpointer = self._getMediumPointer(root, mediumid)
         xpathparameter = "./properties/property"
         parameterpointer = self._getParameterPointer(mediumpointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, None, propertytype, valuetag=valuetag)
+        self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
 
     def writeInput(self):
         if not self.tree is None:
