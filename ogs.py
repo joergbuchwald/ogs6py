@@ -6,7 +6,8 @@ from classes import *
 import subprocess
 import time
 import concurrent.futures as cf
-
+import log_parser.log_parser as parser
+import pandas as pd
 
 class OGS(object):
     def __init__(self, **args):
@@ -191,4 +192,11 @@ class OGS(object):
                          pretty_print=True)
             return True
 
+    def parseOut(self, outfile="out.log",
+            maximum_timesteps=None,
+            maximum_lines=None):
+        data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
+                maximum_lines=maximum_lines)
+        df = pd.DataFrame(data)
+        return df
 
