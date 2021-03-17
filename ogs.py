@@ -56,9 +56,9 @@ class OGS(object):
             cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         if returncode.returncode == 0:
-            print("OGS finished")
+            print(f"OGS finished with project file {self.prjfile}.")
         else:
-            print("OGS execution not successfull. Error code: ", returncode.returncode)
+            print(f"OGS execution not successfull. Error code: {returncode.returncode}")
             raise RuntimeError
 
     def __dict2xml(self, parent, dictionary):
