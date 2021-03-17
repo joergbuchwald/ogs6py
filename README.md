@@ -174,7 +174,259 @@ model.replaceMediumProperty(mediumid=0, name="porosity", value="0.24")
 
 for a property that lives on the medium level.
 
+## 3. Log-Parser
+To parse the output that is piped into a file named `out.log` you can simply do:
+
 
 ```python
-
+df = model.parseOut("out.log")
 ```
+
+
+```python
+df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>execution_time</th>
+      <th>time_step/number</th>
+      <th>time_step/t</th>
+      <th>time_step/dt</th>
+      <th>time_step/cpu_time</th>
+      <th>time_step/output_time</th>
+      <th>time_step/iteration/number</th>
+      <th>time_step/iteration/assembly_time</th>
+      <th>time_step/iteration/dirichlet_bc_time</th>
+      <th>time_step/iteration/linear_solver_time</th>
+      <th>time_step/iteration/cpu_time</th>
+      <th>time_step/iteration/component_convergence/number</th>
+      <th>time_step/iteration/component_convergence/dx</th>
+      <th>time_step/iteration/component_convergence/x</th>
+      <th>time_step/iteration/component_convergence/dx_relative</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>None</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0.309836</td>
+      <td>0.037808</td>
+      <td>1</td>
+      <td>0.074155</td>
+      <td>0.004871</td>
+      <td>0.101103</td>
+      <td>0.183431</td>
+      <td>0</td>
+      <td>1.055600e-01</td>
+      <td>2.448300e+04</td>
+      <td>4.311400e-06</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>None</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0.309836</td>
+      <td>0.037808</td>
+      <td>1</td>
+      <td>0.074155</td>
+      <td>0.004871</td>
+      <td>0.101103</td>
+      <td>0.183431</td>
+      <td>1</td>
+      <td>9.003300e+04</td>
+      <td>5.112200e+09</td>
+      <td>1.761100e-05</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>None</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0.309836</td>
+      <td>0.037808</td>
+      <td>2</td>
+      <td>0.066655</td>
+      <td>0.003866</td>
+      <td>0.076766</td>
+      <td>0.150649</td>
+      <td>0</td>
+      <td>1.793800e-09</td>
+      <td>2.448300e+04</td>
+      <td>7.327000e-14</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>None</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0.309836</td>
+      <td>0.037808</td>
+      <td>2</td>
+      <td>0.066655</td>
+      <td>0.003866</td>
+      <td>0.076766</td>
+      <td>0.150649</td>
+      <td>1</td>
+      <td>1.354300e+02</td>
+      <td>5.112200e+09</td>
+      <td>2.649100e-08</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>None</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>0.309836</td>
+      <td>0.037808</td>
+      <td>1</td>
+      <td>0.065019</td>
+      <td>0.003825</td>
+      <td>0.074051</td>
+      <td>0.146153</td>
+      <td>0</td>
+      <td>1.007800e-01</td>
+      <td>2.448300e+04</td>
+      <td>4.116300e-06</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1105</th>
+      <td>None</td>
+      <td>133</td>
+      <td>12476400.0</td>
+      <td>226448.0</td>
+      <td>0.639850</td>
+      <td>0.042357</td>
+      <td>2</td>
+      <td>0.066762</td>
+      <td>0.003108</td>
+      <td>0.079635</td>
+      <td>0.152886</td>
+      <td>1</td>
+      <td>2.171600e+06</td>
+      <td>6.487700e+09</td>
+      <td>3.347300e-04</td>
+    </tr>
+    <tr>
+      <th>1106</th>
+      <td>None</td>
+      <td>133</td>
+      <td>12476400.0</td>
+      <td>226448.0</td>
+      <td>0.639850</td>
+      <td>0.042357</td>
+      <td>3</td>
+      <td>0.068605</td>
+      <td>0.003232</td>
+      <td>0.080462</td>
+      <td>0.155698</td>
+      <td>0</td>
+      <td>3.006000e-02</td>
+      <td>2.672600e+04</td>
+      <td>1.124700e-06</td>
+    </tr>
+    <tr>
+      <th>1107</th>
+      <td>None</td>
+      <td>133</td>
+      <td>12476400.0</td>
+      <td>226448.0</td>
+      <td>0.639850</td>
+      <td>0.042357</td>
+      <td>3</td>
+      <td>0.068605</td>
+      <td>0.003232</td>
+      <td>0.080462</td>
+      <td>0.155698</td>
+      <td>1</td>
+      <td>1.116500e+05</td>
+      <td>6.487600e+09</td>
+      <td>1.721000e-05</td>
+    </tr>
+    <tr>
+      <th>1108</th>
+      <td>None</td>
+      <td>133</td>
+      <td>12476400.0</td>
+      <td>226448.0</td>
+      <td>0.639850</td>
+      <td>0.042357</td>
+      <td>4</td>
+      <td>0.069614</td>
+      <td>0.003289</td>
+      <td>0.080768</td>
+      <td>0.157063</td>
+      <td>0</td>
+      <td>2.538300e-03</td>
+      <td>2.672600e+04</td>
+      <td>9.497500e-08</td>
+    </tr>
+    <tr>
+      <th>1109</th>
+      <td>None</td>
+      <td>133</td>
+      <td>12476400.0</td>
+      <td>226448.0</td>
+      <td>0.639850</td>
+      <td>0.042357</td>
+      <td>4</td>
+      <td>0.069614</td>
+      <td>0.003289</td>
+      <td>0.080768</td>
+      <td>0.157063</td>
+      <td>1</td>
+      <td>6.094500e+03</td>
+      <td>6.487600e+09</td>
+      <td>9.394000e-07</td>
+    </tr>
+  </tbody>
+</table>
+<p>1110 rows × 15 columns</p>
+</div>
+
+
