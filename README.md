@@ -12,6 +12,16 @@ To alter and execute OGS input, e.g., for looping over parameter ranges, two app
     1. creating a new input file using python method calls
     2. altering existing input files
 
+### 0. Installation
+
+clone the repository and use pip to install the package
+
+```shell
+# git clone https://github.com/joergbuchwald/ogs6py.git
+# cd ogs6py
+# pip install --user .
+```
+
 ### 1. Creating a new input file
  
 The following example consists of a simle mechanics problem. The names of the method calls are based on the corresponing XML tags. The `MKL=True` option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
