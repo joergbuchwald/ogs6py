@@ -9,6 +9,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 import pandas as pd
+from typing import List
 
 @dataclass
 class ComponentConvergence(object):
@@ -34,7 +35,7 @@ class Iteration(object):
     dirichlet_bc_time: float  # seconds
     linear_solver_time: float  # seconds
     cpu_time: float  # seconds
-    component_convergence: list[ComponentConvergence] = field(default_factory=list)
+    component_convergence: List[ComponentConvergence] = field(default_factory=list)
     index_name: str = "iteration/"
 
     def _dict(self, prefix):
@@ -57,7 +58,7 @@ class TimeStep(object):
     number: int
     t: float  # simulation time
     dt: float  # simulation time increment
-    iterations: list[Iteration] = field(default_factory=list)
+    iterations: List[Iteration] = field(default_factory=list)
     cpu_time: float = None  # seconds
     output_time: float = None  # seconds
     index_name: str = "time_step/"
@@ -79,7 +80,7 @@ class TimeStep(object):
 
 @dataclass
 class Simulation(object):
-    timesteps: list[TimeStep] = field(default_factory=list)
+    timesteps: List[TimeStep] = field(default_factory=list)
     mesh_read_time: float = None  # seconds
     execution_time: float = None  # seconds
 
