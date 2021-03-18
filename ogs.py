@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
-from lxml import etree as ET
-from classes import *
 import subprocess
 import time
-import concurrent.futures as cf
-import log_parser.log_parser as parser
 import pandas as pd
+from lxml import etree as ET
+from classes import *
+import log_parser.log_parser as parser
 
 class OGS(object):
     def __init__(self, **args):
@@ -57,9 +55,13 @@ class OGS(object):
             cmd = self.ogs_name + " " + self.prjfile + " >out"
         else:
             cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
+        startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
+        stopt = time.time()
+        difft = stopt - startt
         if returncode.returncode == 0:
             print(f"OGS finished with project file {self.prjfile}.")
+            print(f"Execution took {difft} s")
         else:
             print(f"OGS execution not successfull. Error code: {returncode.returncode}")
             raise RuntimeError
