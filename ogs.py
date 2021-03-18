@@ -40,6 +40,9 @@ class OGS(object):
             self.inputfile = args['INPUT_FILE']
         else:
             self.inputfile = "default.prj"
+        if "XMLSTRING" in args:
+            root = ET.fromstring(args['XMLSTRING'])
+            self.tree = ET.ElementTree(root)
 
     def runModel(self, **args):
         if "path" in args:
