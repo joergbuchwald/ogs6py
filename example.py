@@ -1,6 +1,6 @@
 from ogs import *
 
-model = OGS(PROJECT_FILE="test.prj")
+model = OGS(PROJECT_FILE="test.prj", MKL=True)
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="square_1x1_quad_1e2.vtu")
 model.processes.setProcess(name="SD",
@@ -84,5 +84,5 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.writeInput()
-model.runModel()
+model.runModel(LOGFILE="test.log")
 #model.runModel(path="/path_to_ogs_bin_dir/")

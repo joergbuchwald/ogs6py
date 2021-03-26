@@ -47,14 +47,18 @@ class OGS(object):
             self.ogs_name = args["path"] + "/"
         else:
             self.ogs_name = ""
+        if "LOGFILE" in args:
+            self.logfile = args["LOGFILE"]
+        else:
+            self.logfile = "out"
         if sys.platform == "win32":
             self.ogs_name = self.ogs_name + "ogs.exe"
         else:
             self.ogs_name = self.ogs_name + "ogs"
         if self.loadmkl is None:
-            cmd = self.ogs_name + " " + self.prjfile + " >out"
+            cmd = f"{self.ogs_name} {self.prjfile} > {self.logfile}"
         else:
-            cmd = self.loadmkl + " && " + self.ogs_name + " " + self.prjfile + " >out"
+            cmd = f"{self.loadmkl}  && {self.ogs_name} {self.prjfile} > {self.logfile}"
         startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()
