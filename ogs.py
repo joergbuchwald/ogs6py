@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import os
 import subprocess
 import time
 import pandas as pd
@@ -27,7 +28,10 @@ class OGS(object):
         self.loadmkl = None
         if "MKL" in args:
             if args["MKL"] is True:
-                self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
+                if "MKL_SCRIPT" in args:
+                    self.loadmkl = args["MKL_SCRIPT"]
+                else:
+                    self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
         self.ogs_name = ""
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
@@ -44,7 +48,7 @@ class OGS(object):
 
     def runModel(self, **args):
         if "path" in args:
-            self.ogs_name = args["path"] + "/"
+            self.ogs_name = args["path"]
         else:
             self.ogs_name = ""
         if "LOGFILE" in args:
@@ -52,9 +56,9 @@ class OGS(object):
         else:
             self.logfile = "out"
         if sys.platform == "win32":
-            self.ogs_name = self.ogs_name + "ogs.exe"
+            self.ogs_name = os.path.join(self.ogs_name, "ogs.exe")
         else:
-            self.ogs_name = self.ogs_name + "ogs"
+            self.ogs_name = os.path.join(self.ogs_name, "ogs")
         if self.loadmkl is None:
             cmd = f"{self.ogs_name} {self.prjfile} > {self.logfile}"
         else:
