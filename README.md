@@ -21,6 +21,10 @@ clone the repository and use pip to install the package
 # cd ogs6py
 # pip install --user .
 ```
+or with root permissions:
+```shell
+# pip install --user .
+```
 
 ### 1. Creating a new input file
  
