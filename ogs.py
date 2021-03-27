@@ -137,6 +137,20 @@ class OGS(object):
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
+    def addEntry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        parent = root.findall(parent_xpath)
+        if not tag is None:
+            newelement = []
+            for i, entry in enumerate(parent):
+                newelement.append(ET.SubElement(entry, tag))
+                if not text is None:
+                    newelement[i].text = str(text)
+                if (attrib is not None and attrib_value is not None):
+                    newelement[i].set(attrib, attrib_value)
+
     def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
