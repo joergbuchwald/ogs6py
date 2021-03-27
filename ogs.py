@@ -180,7 +180,12 @@ class OGS(object):
 
     def writeInput(self):
         if not self.tree is None:
-            self.tree.write(self.prjfile,
+            root = self.tree.getroot()
+            parser = ET.XMLParser(remove_blank_text=True)
+            self.tree_string = ET.tostring(root, pretty_print=True)
+            self.tree = ET.fromstring(self.tree_string, parser=parser)
+            self.tree_ = ET.ElementTree(self.tree)
+            self.tree_.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
                             pretty_print=True)
