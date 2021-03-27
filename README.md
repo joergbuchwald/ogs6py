@@ -23,7 +23,7 @@ clone the repository and use pip to install the package
 ```
 or with root permissions:
 ```shell
-# pip install --user .
+# pip install .
 ```
 
 ### 1. Creating a new input file
