@@ -33,6 +33,10 @@ class OGS(object):
                 else:
                     self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
         self.ogs_name = ""
+        if "OMP_NUM_THREADS" in args:
+            self.threads = args["OMP_NUM_THREADS"]
+        else:
+            self.threads = None
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
         else:
@@ -47,10 +51,12 @@ class OGS(object):
             self.tree = ET.ElementTree(root)
 
     def runModel(self, **args):
-        if "path" in args:
-            self.ogs_name = args["path"]
-        else:
+        if self.threads is None:
             self.ogs_name = ""
+        else:
+            self.ogs_name = f"export OMP_NUM_THREADS={self.threads} && "
+        if "path" in args:
+            self.ogs_name = self.ogs_name + args["path"]
         if "LOGFILE" in args:
             self.logfile = args["LOGFILE"]
         else:
