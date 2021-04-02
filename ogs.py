@@ -32,7 +32,6 @@ class OGS(object):
                     self.loadmkl = args["MKL_SCRIPT"]
                 else:
                     self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
-        self.ogs_name = ""
         if "OMP_NUM_THREADS" in args:
             self.threads = args["OMP_NUM_THREADS"]
         else:
@@ -51,24 +50,25 @@ class OGS(object):
             self.tree = ET.ElementTree(root)
 
     def runModel(self, **args):
+        ogs_path = ""
         if self.threads is None:
-            self.ogs_name = ""
+            env_export = ""
         else:
-            self.ogs_name = f"export OMP_NUM_THREADS={self.threads} && "
+            env_export = f"export OMP_NUM_THREADS={self.threads} && "
         if "path" in args:
-            self.ogs_name = self.ogs_name + args["path"]
+            ogs_path = ogs_path + args["path"]
         if "LOGFILE" in args:
-            self.logfile = args["LOGFILE"]
+            logfile = args["LOGFILE"]
         else:
-            self.logfile = "out"
+            logfile = "out"
         if sys.platform == "win32":
-            self.ogs_name = os.path.join(self.ogs_name, "ogs.exe")
+            ogs_path = os.path.join(ogs_path, "ogs.exe")
         else:
-            self.ogs_name = os.path.join(self.ogs_name, "ogs")
-        if self.loadmkl is None:
-            cmd = f"{self.ogs_name} {self.prjfile} > {self.logfile}"
-        else:
-            cmd = f"{self.loadmkl}  && {self.ogs_name} {self.prjfile} > {self.logfile}"
+            ogs_path = os.path.join(ogs_path, "ogs")
+        cmd = env_export
+        if self.loadmkl is not None:
+            cmd += self.loadmkl + " && "
+        cmd += f"{ogs_path} {self.prjfile} > {logfile}"
         startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()

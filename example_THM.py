@@ -1,6 +1,6 @@
 from ogs import *
 
-model = OGS(PROJECT_FILE="thm_test/test.prj")
+model = OGS(PROJECT_FILE="thm_test/test.prj", MKL=True, OMP_NUM_THREADS=4)
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(
@@ -52,12 +52,10 @@ model.media.addProperty(medium_id="0",
                             type="Constant",
                             value="1.e-3")
 model.media.addProperty(medium_id="0",
-                            phase_type="Solid",
                             name="permeability",
                             type="Constant",
                             value="2e-20 0 0 2e-20")
 model.media.addProperty(medium_id="0",
-                            phase_type="Solid",
                             name="porosity",
                             type="Constant",
                             value="0.16")
@@ -82,7 +80,6 @@ model.media.addProperty(medium_id="0",
                             type="Constant",
                             value="917.654")
 model.media.addProperty(medium_id="0",
-                            phase_type="Solid",
                             name="biot_coefficient",
                             type="Constant",
                             value="1.0")
@@ -187,7 +184,7 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               error_tolerance="1e-16")
 model.linsolvers.addLinSolver(name="general_linear_solver",
                               kind="eigen",
-                              solver_type="SparseLU",
+                              solver_type="PardisoLU",
                               precon_type="DIAGONAL",
                               max_iteration_step="10000",
                               error_tolerance="1e-8",
@@ -199,4 +196,4 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.writeInput()
-#model.runModel()
+model.runModel()
