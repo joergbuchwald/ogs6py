@@ -16,8 +16,9 @@ class TIMELOOP(object):
         self.output_each_steps = []
 
     def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
+        for item, value in args.items():
+            if not type(value) is list:
+                args[item] = str(value)
 
     def populateTree(self, tag, text='', attr={}, children={}):
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
@@ -30,89 +31,47 @@ class TIMELOOP(object):
         self.baum['time_loop']['children']['output'] = self.populateTree(
             'output', children={})
         output = self.baum['time_loop']['children']['output']['children']
+        def popConvCrit():
+            conv_crit_ = {}
+            for entry, value in self.process[processname]["conv_crit"].items():
+                conv_crit_[entry] = self.populateTree(entry, text=value, children={})
+            return conv_crit_
+        def popTimeStepping():
+            ts = {}
+            for entry, value in self.process[processname]['time_stepping'].items():
+                if not ((entry == "t_repeat") or (entry == "t_deltat")):
+                    ts[entry] = self.populateTree(entry, text=value, children={})
+            return ts
+
         for processname in self.process:
-            process[processname] = self.populateTree('process',
-                                                     attr={'ref': processname},
-                                                     children={})
-            process[processname]['children'][
-                'nonlinear_solver'] = self.populateTree(
-                    'nonlinear_solver',
-                    text=self.process[processname]['nonlinear_solver'],
-                    children={})
-            process[processname]['children'][
-                'convergence_criterion'] = self.populateTree(
-                    'convergence_criterion', children={})
-            conv_crit = process[processname]['children'][
-                'convergence_criterion']['children']
-            conv_crit['type'] = self.populateTree(
-                'type',
-                text=self.process[processname]['convergence_type'],
+            process[processname] = self.populateTree('process', attr={'ref': processname}, children={})
+            process[processname]['children']['nonlinear_solver'] = self.populateTree(
+                    'nonlinear_solver', text=self.process[processname]['nonlinear_solver'], children={})
+
+            process[processname]['children']['convergence_criterion'] = self.populateTree('convergence_criterion', children={})
+            conv_crit = process[processname]['children']['convergence_criterion']
+            conv_crit['children'] = popConvCrit()
+
+            process[processname]['children']['time_discretization'] = self.populateTree('time_discretization', children={})
+            time_discr = process[processname]['children']['time_discretization']['children']
+            time_discr['type'] = self.populateTree('type',text=self.process[processname]['time_discretization'],
                 children={})
-            conv_crit['norm_type'] = self.populateTree(
-                'norm_type',
-                text=self.process[processname]['norm_type'],
-                children={})
-            if 'abstol' in self.process[processname]:
-                conv_crit['abstol'] = self.populateTree(
-                    'abstol',
-                    text=self.process[processname]['abstol'],
-                    children={})
-            elif 'abstols' in self.process[processname]:
-                conv_crit['abstols'] = self.populateTree(
-                    'abstols',
-                    text=self.process[processname]['abstols'],
-                    children={})
-            elif 'reltol' in self.process[processname]:
-                conv_crit['reltol'] = self.populateTree(
-                    'reltol',
-                    text=self.process[processname]['reltol'],
-                    children={})
-            elif 'reltol' in self.process[processname]:
-                conv_crit['reltols'] = self.populateTree(
-                    'reltols',
-                    text=self.process[processname]['reltols'],
-                    children={})
-            process[processname]['children'][
-                'time_discretization'] = self.populateTree(
-                    'time_discretization', children={})
-            time_discr = process[processname]['children'][
-                'time_discretization']['children']
-            time_discr['type'] = self.populateTree(
-                'type',
-                text=self.process[processname]['time_discretization'],
-                children={})
-            process[processname]['children'][
-                'time_stepping'] = self.populateTree('time_stepping',
-                                                     children={})
-            time_stepping = process[processname]['children']['time_stepping'][
-                'children']
-            time_stepping['type'] = self.populateTree(
-                'type',
-                text=self.process[processname]['time_stepping'],
-                children={})
-            if 't_initial' in self.process[processname]:
-                time_stepping['t_initial'] = self.populateTree(
-                    't_initial',
-                    text=self.process[processname]['t_initial'],
-                    children={})
-                time_stepping['t_end'] = self.populateTree(
-                    't_end',
-                    text=self.process[processname]['t_end'],
-                    children={})
-            time_stepping['timesteps'] = self.populateTree('timesteps',
+
+            process[processname]['children']['time_stepping'] = self.populateTree('time_stepping', children={})
+            time_stepping = process[processname]['children']['time_stepping']
+            time_stepping["children"] = popTimeStepping()
+
+            if 't_repeat' in self.process[processname]['time_stepping']:
+                time_stepping["children"]['timesteps'] = self.populateTree('timesteps',
                                                            children={})
-            time_pair = time_stepping['timesteps']['children']
-            for i, repeat in enumerate(self.process[processname]['t_repeat']):
-                time_pair['pair' + str(i)] = self.populateTree('pair',
-                                                               children={})
-                time_pair['pair' +
-                          str(i)]['children']['repeat'] = self.populateTree(
+                time_pair = time_stepping["children"]['timesteps']['children']
+                for i, repeat in enumerate(self.process[processname]["time_stepping"]['t_repeat']):
+                    time_pair['pair' + str(i)] = self.populateTree('pair', children={})
+                    time_pair['pair' + str(i)]['children']['repeat'] = self.populateTree(
                               'repeat', text=repeat, children={})
-                time_pair['pair' +
-                          str(i)]['children']['delta_t'] = self.populateTree(
+                    time_pair['pair' + str(i)]['children']['delta_t'] = self.populateTree(
                               'delta_t',
-                              text=self.process[processname]['t_deltat'][i],
-                              children={})
+                              text=self.process[processname]["time_stepping"]['t_deltat'][i], children={})
         output['type'] = self.populateTree('type',
                                            text=self.outputtype,
                                            children={})
@@ -142,11 +101,46 @@ class TIMELOOP(object):
         return self.baum
 
     def addProcess(self, **args):
+        def readConvCrit():
+            self.process[args['process']]["conv_crit"] = {}
+            if args["convergence_type"] == "DeltaX":
+                if not "norm_type" in args:
+                    raise KeyError("No norm_type given.")
+                else:
+                    self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
+                    self.process[args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
+                    if "abstol" in args:
+                        self.process[args['process']]["conv_crit"]['abstol'] = args["abstol"]
+                    if "reltol" in args:
+                        self.process[
+                                args['process']]["conv_crit"]['reltol'] = args["reltol"]
+            elif args["convergence_type"] == "PerComponentDeltaX":
+                if "norm_type" in args:
+                    self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
+                    self.process[
+                            args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
+                    if "abstols" in args:
+                        self.process[
+                                args['process']]["conv_crit"]['abstols'] = args["abstols"]
+                    if "reltols" in args:
+                        self.process[
+                                args['process']]["conv_crit"]['reltols'] = args["reltols"]
+                    if ("abstol" in args) or ("reltol" in args):
+                        raise KeyError("Convergence type \
+                                    PerComponentDeltaX requires \
+                                    plural s for the tolerances.")
+                else:
+                    raise KeyError("No norm_type given")
+            elif args["convergence_type"] == "PercpomponentResidual":
+                pass
+            elif args["convergence_type"] == "Residual":
+                pass
+            else:
+                raise KeyError("Invalid convergence_type.")
+
         self._convertargs(args)
         if "process" in args:
             self.process = {args["process"]: {}}
-            self.process[args['process']]['t_repeat'] = []
-            self.process[args['process']]['t_deltat'] = []
         else:
             raise KeyError("No process referenced")
         if not "nonlinear_solver_name" in args:
@@ -159,45 +153,7 @@ class TIMELOOP(object):
                 raise KeyError("No convergence criterion given. \
                             Specify convergence_type.")
             else:
-                if args["convergence_type"] == "DeltaX":
-                    # print("CONVERGENCE_TYPE:",args["convergence_type"])
-                    if not "norm_type" in args:
-                        raise KeyError("No norm_type given.")
-                    else:
-                        self.process[args['process']][
-                            'convergence_type'] = args["convergence_type"]
-                        self.process[
-                            args['process']]['norm_type'] = args["norm_type"]
-                        if "abstol" in args:
-                            self.process[
-                                args['process']]['abstol'] = args["abstol"]
-                        if "reltol" in args:
-                            self.process[
-                                args['process']]['reltol'] = args["reltol"]
-                elif args["convergence_type"] == "PerComponentDeltaX":
-                    if "norm_type" in args:
-                        self.process[args['process']][
-                            'convergence_type'] = args["convergence_type"]
-                        self.process[
-                            args['process']]['norm_type'] = args["norm_type"]
-                        if "abstols" in args:
-                            self.process[
-                                args['process']]['abstols'] = args["abstols"]
-                        if "reltols" in args:
-                            self.process[
-                                args['process']]['reltols'] = args["reltols"]
-                        if ("abstol" in args) or ("reltol" in args):
-                            raise KeyError("Convergence type \
-                                    PerComponentDeltaX requires \
-                                    plural s for the tolerances.")
-                    else:
-                        raise KeyError("No norm_type given")
-                elif args["convergence_type"] == "PercpomponentResidual":
-                    pass
-                elif args["convergence_type"] == "Residual":
-                    pass
-                else:
-                    raise KeyError("Invalid convergence_type.")
+                readConvCrit()
             if "time_discretization" in args:
                 self.process[args['process']]['time_discretization'] = args[
                     "time_discretization"]
@@ -206,28 +162,49 @@ class TIMELOOP(object):
 
     def setStepping(self, **args):
         self._convertargs(args)
-        if "process" in args:
-            pass
-        else:
+        if not "process" in args:
             raise KeyError("Process reference missing")
         if not "type" in args:
             raise KeyError("No type given.")
         else:
+            self.process[args['process']]['time_stepping'] = {}
             if args["type"] == "FixedTimeStepping":
-                self.process[
-                    args['process']]['time_stepping'] = "FixedTimeStepping"
-                self.process[args['process']]['t_initial'] = args["t_initial"]
-                self.process[args['process']]['t_end'] = args["t_end"]
+                self.process[args['process']]['time_stepping']["type"] = "FixedTimeStepping"
+                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+                self.process[args['process']]['time_stepping']['t_repeat'] = []
+                self.process[args['process']]['time_stepping']['t_deltat'] = []
                 if "repeat" in args and "delta_t" in args:
-                    self.process[args['process']]['t_repeat'].append(
-                        args["repeat"])
-                    self.process[args['process']]['t_deltat'].append(
-                        args["delta_t"])
+                    self.process[args['process']]['time_stepping']['t_repeat'].append(args["repeat"])
+                    self.process[args['process']]['time_stepping']['t_deltat'].append(args["delta_t"])
                 else:
                     raise KeyError("No proper time stepping defined. \
                                 Please specify repeat and delta_t.")
             elif args["type"] == "SingleStep":
-                self.process[args['process']]['time_stepping'] = "SingleStep"
+                self.process[args['process']]['time_stepping']["type"] = "SingleStep"
+            elif args["type"] == "IterationNumberBasedTimeStepping":
+                self.process[args['process']]['time_stepping']["type"] = "IterationNumberBasedTimeStepping"
+                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+                self.process[args['process']]['time_stepping']['initial_dt'] = args["initial_dt"]
+                self.process[args['process']]['time_stepping']['minimum_dt'] = args["minimum_dt"]
+                self.process[args['process']]['time_stepping']['maximum_dt'] = args["maximum_dt"]
+                numit_list = args["number_iterations"]
+                multi_list = args["multiplier"]
+                self.process[args['process']]['time_stepping']['number_iterations'] = " ".join(map(str, numit_list))
+                self.process[args['process']]['time_stepping']['multiplier'] = " ".join(map(str, multi_list))
+            elif args["type"] == "EvolutionaryPIDcontroller":
+                self.process[
+                    args['process']]['time_stepping']["type"] = "EvolutionaryPIDcontroller"
+                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+                self.process[args['process']]['time_stepping']['dt_guess'] = args["dt_guess"]
+                self.process[args['process']]['time_stepping']['dt_min'] = args["dt_min"]
+                self.process[args['process']]['time_stepping']['dt_max'] = args["dt_max"]
+                self.process[args['process']]['time_stepping']['rel_dt_max'] = args["rel_dt_max"]
+                self.process[args['process']]['time_stepping']['rel_dt_min'] = args["rel_dt_min"]
+                self.process[args['process']]['time_stepping']['tol'] = args["tol"]
+
             else:
                 raise KeyError("Specified time stepping scheme not valid.")
 
@@ -263,8 +240,8 @@ class TIMELOOP(object):
         else:
             raise KeyError("No process referenced")
         if "repeat" in args and "delta_t" in args:
-            self.process[args['process']]['t_repeat'].append(args["repeat"])
-            self.process[args['process']]['t_deltat'].append(args["delta_t"])
+            self.process[args['process']]['time_stepping']['t_repeat'].append(args["repeat"])
+            self.process[args['process']]['time_stepping']['t_deltat'].append(args["delta_t"])
         else:
             raise KeyError("You muss provide repeat and delta_t attributes to \
                         define additional time stepping pairs.")

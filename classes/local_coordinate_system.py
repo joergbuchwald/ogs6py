@@ -10,8 +10,9 @@ class LOCAL_COORDINATE_SYSTEM(object):
         }
 
     def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
+        for item, value in args.items():
+            if not type(value) is list:
+                args[item] = str(value)
 
     def addBasisVec(self, **args):
         self._convertargs(args)
