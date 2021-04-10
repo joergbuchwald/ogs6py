@@ -13,7 +13,11 @@ class MESH(object):
                 axsym = args["axially_symmetric"]
         return axsym
 
-    def populateTree(self, tag, text='', attr={}, children={}):
+    def populateTree(self, tag, text='', attr=None, children=None):
+        if attr is None:
+            attr = {}
+        if children is None:
+            children = {}
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addMesh(self, **args):

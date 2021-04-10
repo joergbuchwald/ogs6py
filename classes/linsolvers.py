@@ -13,7 +13,11 @@ class LINSOLVERS(object):
         for item in args:
             args[item] = str(args[item])
 
-    def populateTree(self, tag, text='', attr={}, children={}):
+    def populateTree(self, tag, text='', attr=None, children=None):
+        if attr is None:
+            attr = {}
+        if children is None:
+            children = {}
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addLinSolver(self, **args):
