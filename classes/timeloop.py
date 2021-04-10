@@ -9,6 +9,7 @@ class TIMELOOP(object):
                 'children': {}
             }
         }
+        self.output = {}
         self.outputtype = ""
         self.outputprefix = ""
         self.outputvariables = []
@@ -30,7 +31,7 @@ class TIMELOOP(object):
         process = self.baum['time_loop']['children']['processes2']['children']
         self.baum['time_loop']['children']['output'] = self.populateTree(
             'output', children={})
-        output = self.baum['time_loop']['children']['output']['children']
+        output = self.baum['time_loop']['children']['output']
         def popConvCrit():
             conv_crit_ = {}
             for entry, value in self.process[processname]["conv_crit"].items():
@@ -42,6 +43,29 @@ class TIMELOOP(object):
                 if not ((entry == "t_repeat") or (entry == "t_deltat")):
                     ts[entry] = self.populateTree(entry, text=value, children={})
             return ts
+        def popOutput():
+            output = {}
+            for key, val in self.output.items():
+                if type(val) is str:
+                    output[key] = self.populateTree(key, text=val, children={})
+                else:
+                    output['timesteps'] = self.populateTree('timesteps', children={})
+                    output_pair = output['timesteps']['children']
+                    for i, repeat in enumerate(self.output["repeat"]):
+                        output_pair['pair' + str(i)] = self.populateTree('pair', children={})
+                        output_pair['pair' + str(i)]['children']['repeat'] = self.populateTree(
+                                'repeat', text=repeat, children={})
+                        output_pair['pair' + str(i)]['children']['each_steps'] = self.populateTree(
+                                'each_steps',text=self.output["each_steps"][i], children={})
+                    output['variables'] = self.populateTree('variables', children={})
+                    for i, variable in enumerate(self.output["variables"]):
+                        output['variables']['children']['variable'+str(i)] = self.populateTree(
+                                                'variable',text=variable, children={})
+                    if 'meshes' in self.output:
+                        output['meshes'] = self.populateTree('meshes', children={})
+                        for i, mesh in enumerate(self.output["meshes"]):
+                            output['meshes']['children']['mesh'+str(i)] = self.populateTree('mesh',text=mesh,children={})
+            return output
 
         for processname in self.process:
             process[processname] = self.populateTree('process', attr={'ref': processname}, children={})
@@ -72,32 +96,7 @@ class TIMELOOP(object):
                     time_pair['pair' + str(i)]['children']['delta_t'] = self.populateTree(
                               'delta_t',
                               text=self.process[processname]["time_stepping"]['t_deltat'][i], children={})
-        output['type'] = self.populateTree('type',
-                                           text=self.outputtype,
-                                           children={})
-        output['prefix'] = self.populateTree('prefix',
-                                             text=self.outputprefix,
-                                             children={})
-        output['timesteps'] = self.populateTree('timesteps', children={})
-        output_pair = output['timesteps']['children']
-        for i, repeat in enumerate(self.output_repeat):
-            output_pair['pair' + str(i)] = self.populateTree('pair',
-                                                             children={})
-            output_pair['pair' +
-                        str(i)]['children']['repeat'] = self.populateTree(
-                            'repeat', text=repeat, children={})
-            output_pair['pair' +
-                        str(i)]['children']['each_steps'] = self.populateTree(
-                            'each_steps',
-                            text=self.output_each_steps[i],
-                            children={})
-        output['variables'] = self.populateTree('variables', children={})
-        for i, variable in enumerate(self.outputvariables):
-            output['variables']['children']['variable' +
-                                            str(i)] = self.populateTree(
-                                                'variable',
-                                                text=variable,
-                                                children={})
+        output['children'] = popOutput()
         return self.baum
 
     def addProcess(self, **args):
@@ -221,17 +220,35 @@ class TIMELOOP(object):
                     raise KeyError(
                         "Please provide a list with output variables.")
                 else:
-                    self.outputtype = args["type"]
-                    self.outputprefix = args["prefix"]
-                    self.outputvariables = args["variables"]
+                    self.output["type"] = args["type"]
+                    self.output["prefix"] = args["prefix"]
+                    if type(args["variables"]) is list:
+                        self.output["variables"] = args["variables"]
+                    else:
+                        self.output["variables"] = [args["variables"]]
+                    if "data_mode" in args:
+                        self.output["data_mode"] = args["data_mode"]
+                    if "compress_output" in args:
+                        if type(args["compress_output"]) is bool:
+                            if args["compress_output"] is True:
+                                args["compress_output"] = "true"
+                            else:
+                                args["compress_output"] = "false"
+                        self.output["compress_output"] = args["compress_output"]
+                    if "meshes" in args:
+                        self.output["meshes"] = args["meshes"]
                     if "repeat" in args:
                         if "each_steps" in args:
-                            self.output_repeat.append(args["repeat"])
-                            self.output_each_steps.append(args["each_steps"])
+                            if type(args["repeat"]) is list:
+                                self.output["repeat"] = args["repeat"]
+                            else:
+                                self.output["repeat"] = [args["repeat"]]
+                            if type(args["each_steps"]) is list:
+                                self.output["each_steps"] = args["each_steps"]
+                            else:
+                                self.output["each_steps"] = [args["each_steps"]]
                         else:
-                            raise KeyError("each_steps is a required tag.")
-                    else:
-                        pass
+                            raise KeyError("each_steps is a required tag if repeat is given.")
 
     def addTimeSteppingPair(self, **args):
         self._convertargs(args)
@@ -249,8 +266,8 @@ class TIMELOOP(object):
     def addOutputPair(self, **args):
         self._convertargs(args)
         if "repeat" in args and "each_steps" in args:
-            self.output_repeat.append(args["repeat"])
-            self.output_each_steps.append(args["each_steps"])
+            self.output["repeat"].append(args["repeat"])
+            self.output["each_steps"].append(args["each_steps"])
         else:
             raise KeyError("You muss provide repeat and each_steps attributes \
                         to define additional output pairs.")
