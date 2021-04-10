@@ -3,71 +3,42 @@ class MESH(object):
         self.meshfiles = []
         self.axially_symmetric = []
 
-    def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
+    def checkAxSym(self,args):
+        axsym = "false"
+        if "axially_symmetric" in args:
+            if type(args["axially_symmetric"]) is bool:
+                if args["axially_symmetric"] is True:
+                    axsym = "true"
+            else:
+                axsym = args["axially_symmetric"]
+        return axsym
+
+    def populateTree(self, tag, text='', attr={}, children={}):
+        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addMesh(self, **args):
-        self._convertargs(args)
         if not "filename" in args:
             raise KeyError("No filename given")
         else:
-            self.meshfiles.append(args["filename"])
-            if "axially_symmetric" in args:
-                self.axially_symmetric.append(args["axially_symmetric"])
-            else:
-                self.axially_symmetric.append("false")
+            self.meshfiles.append((args["filename"], self.checkAxSym(args)))
+
 
     @property
     def tree(self):
+        baum = {'meshes': {}}
         if len(self.meshfiles) == 1:
-            if self.axially_symmetric[0] == "false":
-                baum = {
-                    'mesh': {
-                        'tag': 'mesh',
-                        'text': self.meshfiles[0],
-                        'attr': {},
-                        'children': {}
-                    }
-                }
+            if self.meshfiles[0][1] == "false":
+                baum['meshes'] = self.populateTree('mesh', text=self.meshfiles[0][0])
             else:
-                baum = {
-                    'mesh': {
-                        'tag': 'mesh',
-                        'text': self.meshfiles[0],
-                        'attr': {
-                            'axially_symmetric': 'true'
-                        },
-                        'children': {}
-                    }
-                }
-        if len(self.meshfiles) > 1:
-            baum = {
-                'meshes': {
-                    'tag': 'meshes',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-            }
+                baum['meshes'] = self.populateTree('mesh', text=self.meshfiles[0][0],
+                        attr={'axially_symmetric': 'true'})
+        else:
+            baum['meshes'] = self.populateTree('meshes')
             for i, meshfile in enumerate(self.meshfiles):
-                if self.axially_symmetric[i] == "false":
-                    baum['meshes']['children'][meshfile] = {
-                        'tag': 'mesh',
-                        'text': meshfile,
-                        'attr': {},
-                        'children': {}
-                    }
+                if meshfile[1] == "false":
+                    baum['meshes']['children'][i] = self.populateTree('mesh', text=meshfile[0], children={})
                 else:
-                    baum['meshes']['children'][meshfile] = {
-                        'tag': 'mesh',
-                        'text': meshfile,
-                        'attr': {
-                            'axially_symmetric': 'true'
-                        },
-                        'children': {}
-                    }
+                    baum['meshes']['children'][i] = self.populateTree('mesh', text=meshfile[0],
+                            attr={'axially_symmetric': 'true'}, children={})
         return baum
 
-    def getMesh(self, **args):
-        return self.meshfiles
