@@ -235,6 +235,13 @@ class TIMELOOP(object):
                             else:
                                 args["compress_output"] = "false"
                         self.output["compress_output"] = args["compress_output"]
+                    if "output_iteration_results" in args:
+                        if type(args["output_iteration_results"]) is bool:
+                            if args["output_iteration_results"] is True:
+                                args["output_iteration_results"] = "true"
+                            else:
+                                args["output_iteration_results"] = "false"
+                        self.output["output_iteration_results"] = args["output_iteration_results"]
                     if "meshes" in args:
                         self.output["meshes"] = args["meshes"]
                     if "repeat" in args:
