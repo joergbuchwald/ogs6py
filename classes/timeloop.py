@@ -256,6 +256,12 @@ class TIMELOOP(object):
                                 self.output["each_steps"] = [args["each_steps"]]
                         else:
                             raise KeyError("each_steps is a required tag if repeat is given.")
+                    if "fixed_output_times" in args:
+                        if type(args["fixed_output_times"]) is list:
+                                self.output["fixed_output_times"] = ' '.join([str(item) for item in args["fixed_output_times"]])
+                        else:
+                            self.output["fixed_output_times"] = str(args["fixed_output_times"])
+
 
     def addTimeSteppingPair(self, **args):
         self._convertargs(args)
