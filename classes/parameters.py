@@ -62,9 +62,15 @@ class PARAMETERS(object):
                         parameter['children']['parameter'] = self.populateTree(
                         'parameter', text=args['parameter'], children={})
                 elif args["type"] == "TimeDependentHeterogeneousParameter":
-                    if "time" in args:
-                        if "parameter_name" in args:
-                            if len(args["time"]) == len(args["parameter_name"]):
+                    if not "time" in args:
+                        raise KeyError("time missing.")
+                    else:
+                        if not "parameter_name" in args:
+                            raise KeyError("Parameter name missing.")
+                        else:
+                            if not len(args["time"]) == len(args["parameter_name"]):
+                                raise KeyError("parameter_name and time lists have different length.")
+                            else:
                                 parameter['children']['time_series'] = self.populateTree('time_series', children={})
                                 ts_pair = parameter['children']['time_series']['children']
                                 for i, repeat in enumerate(args["parameter_name"]):
@@ -75,12 +81,6 @@ class PARAMETERS(object):
                                     ts_pair['pair' + str(i)]['children']['parameter_name'] = self.populateTree(
                                                         'parameter_name', text=args["parameter_name"][i],
                                         children={})
-                            else:
-                                raise KeyError("parameter_name and time lists have different length.")
-                        else:
-                            raise KeyError("Parameter name missing.")
-                    else:
-                        raise KeyError("time missing.")
                 else:
                     raise KeyError("Parameter type not supported (yet).")
                 if "use_local_coordinate_system" in args:
