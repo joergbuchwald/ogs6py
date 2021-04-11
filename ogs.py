@@ -24,6 +24,7 @@ class OGS(object):
         self.nonlinsolvers = nonlinsolvers.NONLINSOLVERS()
         sys.setrecursionlimit(10000)
         self.tag = []
+        self.logfile = "out.log"
         self.tree = None
         self.loadmkl = None
         if "MKL" in args:
@@ -58,9 +59,9 @@ class OGS(object):
         if "path" in args:
             ogs_path = ogs_path + args["path"]
         if "LOGFILE" in args:
-            logfile = args["LOGFILE"]
+            self.logfile = args["LOGFILE"]
         else:
-            logfile = "out"
+            self.logfile = "out"
         if sys.platform == "win32":
             ogs_path = os.path.join(ogs_path, "ogs.exe")
         else:
@@ -68,7 +69,7 @@ class OGS(object):
         cmd = env_export
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
-        cmd += f"{ogs_path} {self.prjfile} > {logfile}"
+        cmd += f"{ogs_path} {self.prjfile} > {self.logfile}"
         startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()
@@ -230,7 +231,7 @@ class OGS(object):
                          pretty_print=True)
             return True
 
-    def parseOut(self, outfile="out.log",
+    def parseOut(self, outfile=self.logfile,
             maximum_timesteps=None,
             maximum_lines=None):
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
