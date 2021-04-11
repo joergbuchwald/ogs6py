@@ -1,4 +1,6 @@
-class CURVES(object):
+from classes import build_tree
+
+class CURVES(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'curves': {
@@ -9,20 +11,7 @@ class CURVES(object):
             }
         }
 
-    def _convertargs(self, args):
-        for item in args:
-            if not (item == "coords" or item == "values"):
-                args[item] = str(args[item])
-
-    def populateTree(self, tag, text='', attr=None, children=None):
-        if attr is None:
-            attr = {}
-        if children is None:
-            children = {}
-        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
-
     def addCurve(self, **args):
-        self._convertargs(args)
         if not "name" in args:
             raise KeyError("No curve name given.")
         if not "coords" in args:

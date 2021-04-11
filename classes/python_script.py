@@ -1,4 +1,6 @@
-class PYTHON_SCRIPT(object):
+from classes import build_tree
+
+class PYTHON_SCRIPT(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'pythonscript': {
@@ -8,10 +10,6 @@ class PYTHON_SCRIPT(object):
                 'children': {}
             }
         }
-
-    def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
 
     def setPyscript(self, **args):
         self._convertargs(args)

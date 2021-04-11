@@ -1,4 +1,6 @@
-class LOCAL_COORDINATE_SYSTEM(object):
+from classes import build_tree
+
+class LOCAL_COORDINATE_SYSTEM(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'local_coordinate_system': {
@@ -9,14 +11,11 @@ class LOCAL_COORDINATE_SYSTEM(object):
             }
         }
 
-    def _convertargs(self, args):
-        for item, value in args.items():
-            if not type(value) is list:
-                args[item] = str(value)
-
     def addBasisVec(self, **args):
         self._convertargs(args)
-        if "basis_vector_0" in args:
+        if not "basis_vector_0" in args:
+            raise KeyError("no vector given")
+        else:
             self.tree['local_coordinate_system']['children'] = {
                 'basis_vector_0': {
                 'tag': 'basis_vector_0',
@@ -35,5 +34,3 @@ class LOCAL_COORDINATE_SYSTEM(object):
                 'text': args["basis_vector_2"],
                 'attr': {},
                 'children': {}}
-        else:
-            raise KeyError("no vector given")

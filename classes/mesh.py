@@ -1,4 +1,6 @@
-class MESH(object):
+from classes import build_tree
+
+class MESH(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.meshfiles = []
         self.axially_symmetric = []
@@ -12,13 +14,6 @@ class MESH(object):
             else:
                 axsym = args["axially_symmetric"]
         return axsym
-
-    def populateTree(self, tag, text='', attr=None, children=None):
-        if attr is None:
-            attr = {}
-        if children is None:
-            children = {}
-        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addMesh(self, **args):
         if not "filename" in args:

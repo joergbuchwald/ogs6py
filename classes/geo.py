@@ -1,4 +1,6 @@
-class GEO(object):
+from classes import build_tree
+
+class GEO(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'geometry': {
@@ -8,10 +10,6 @@ class GEO(object):
                 'children': {}
             }
         }
-
-    def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
 
     def addGeom(self, **args):
         self._convertargs(args)

@@ -1,4 +1,6 @@
-class LINSOLVERS(object):
+from classes import build_tree
+
+class LINSOLVERS(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'linear_solvers': {
@@ -8,17 +10,6 @@ class LINSOLVERS(object):
                 'children': {}
             }
         }
-
-    def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
-
-    def populateTree(self, tag, text='', attr=None, children=None):
-        if attr is None:
-            attr = {}
-        if children is None:
-            children = {}
-        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addLinSolver(self, **args):
         self._convertargs(args)

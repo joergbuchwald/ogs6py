@@ -1,4 +1,6 @@
-class PROCESSES(object):
+from classes import build_tree
+
+class PROCESSES(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.tree = {
             'processes': {
@@ -34,17 +36,6 @@ class PROCESSES(object):
             'attr': {},
             'children': {}
         }
-
-    def _convertargs(self, args):
-        for item in args:
-            args[item] = str(args[item])
-
-    def populateTree(self, tag, text='', attr=None, children=None):
-        if attr is None:
-            attr = {}
-        if children is None:
-            children = {}
-        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     def addProcessVariable(self, **args):
         self._convertargs(args)

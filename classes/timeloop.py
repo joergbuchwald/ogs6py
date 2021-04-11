@@ -1,4 +1,6 @@
-class TIMELOOP(object):
+from classes import build_tree
+
+class TIMELOOP(build_tree.BUILD_TREE):
     def __init__(self, **args):
         self.process = {}
         self.baum = {
@@ -15,18 +17,6 @@ class TIMELOOP(object):
         self.outputvariables = []
         self.output_repeat = []
         self.output_each_steps = []
-
-    def _convertargs(self, args):
-        for item, value in args.items():
-            if not type(value) is list:
-                args[item] = str(value)
-
-    def populateTree(self, tag, text='', attr=None, children=None):
-        if attr is None:
-            attr = {}
-        if children is None:
-            children = {}
-        return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
 
     @property
     def tree(self):
