@@ -231,11 +231,13 @@ class OGS(object):
                          pretty_print=True)
             return True
 
-    def parseOut(self, outfile=self.logfile,
+    def parseOut(self, outfile="",
             maximum_timesteps=None,
             maximum_lines=None):
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
                 maximum_lines=maximum_lines)
+        if outfile=="":
+            outfile=self.logfile
         df = pd.DataFrame(data)
         return df
 
