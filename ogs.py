@@ -211,6 +211,7 @@ class OGS(object):
             self.tree_string = ET.tostring(root, pretty_print=True)
             self.tree = ET.fromstring(self.tree_string, parser=parser)
             self.tree_ = ET.ElementTree(self.tree)
+            ET.indent(self.tree_, space="    ")
             self.tree_.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
@@ -240,6 +241,7 @@ class OGS(object):
             self.tree_string = ET.tostring(self.root, pretty_print=True)
             self.tree = ET.fromstring(self.tree_string, parser=parser)
             self.tree_ = ET.ElementTree(self.tree)
+            ET.indent(self.tree_, space="    ")
             self.tree_.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
