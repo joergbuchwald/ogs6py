@@ -162,6 +162,21 @@ class OGS(object):
                 if (attrib is not None and attrib_value is not None):
                     newelement[i].set(attrib, attrib_value)
 
+    def addBlock(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        parent = root.findall(parent_xpath)
+        if not blocktag is None:
+            newelement = []
+            for i, entry in enumerate(parent):
+                newelement.append(ET.SubElement(entry, blocktag))
+        subtaglist = []
+        for blocktagentry in newelement:
+            for i, taglistentry in enumerate(taglist):
+                subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
+                subtaglist[i].text = str(textlist[i])
+
     def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
