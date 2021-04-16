@@ -1,6 +1,6 @@
 # ogs6py
 
-ogs6py is available on [GitHub](https://github.com/joergbuchwald/ogs5py)
+ogs6py is available on [GitHub](https://github.com/joergbuchwald/ogs6py)
 and was created by following people.
 
 
