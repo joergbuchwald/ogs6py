@@ -7,24 +7,12 @@ The package allows to streamline OGS-workflows with python or Julia entirely in 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
 
+<span style="color:blue"># Please note: due to changes in the file structure ogs6py is now imported by `from ogs6py.ogs import OGS`</span>
+
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
     1. creating a new input file using python method calls
     2. altering existing input files
-
-### 0. Installation
-
-clone the repository and use pip to install the package
-
-```shell
-# git clone https://github.com/joergbuchwald/ogs6py.git
-# cd ogs6py
-# pip install --user .
-```
-or with root permissions:
-```shell
-# pip install .
-```
 
 ### 1. Creating a new input file
  
@@ -32,7 +20,7 @@ The following example consists of a simle mechanics problem. The names of the me
 
 
 ```python
-from ogs import *
+from ogs6py.ogs import OGS
 
 model = OGS(PROJECT_FILE="simple_mechanics.prj", MKL=True)
 model.geo.addGeom(filename="square_1x1.gml")
@@ -132,7 +120,8 @@ model.writeInput()
 model.runModel(path="~/github/ogs/build_mkl/bin")
 ```
 
-    OGS finished
+    OGS finished with project file simple_mechanics.prj.
+    Execution took 0.0639185905456543 s
 
 
 An example using the MPL can be find in example_THM.py.
@@ -153,9 +142,12 @@ for E in Es:
     model.runModel(path="~/github/ogs/build_mkl/bin")
 ```
 
-    OGS finished
-    OGS finished
-    OGS finished
+    OGS finished with project file simple_mechanics.prj.
+    Execution took 0.06496095657348633 s
+    OGS finished with project file simple_mechanics.prj.
+    Execution took 0.05861473083496094 s
+    OGS finished with project file simple_mechanics.prj.
+    Execution took 0.056302547454833984 s
 
 
 Instead of the `replaceParameter` method, the more general `replaceTxt` method can be used
@@ -193,7 +185,7 @@ To parse the output that is piped into a file named `out.log` you can simply do:
 
 
 ```python
-df = model.parseOut("out.log")
+df = model.parseOut("out_thm.log")
 ```
 
 
@@ -201,6 +193,23 @@ df = model.parseOut("out.log")
 df
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -225,93 +234,93 @@ df
   <tbody>
     <tr>
       <th>0</th>
-      <td>None</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.309836</td>
-      <td>0.037808</td>
+      <td>25.2781</td>
       <td>1</td>
-      <td>0.074155</td>
-      <td>0.004871</td>
-      <td>0.101103</td>
-      <td>0.183431</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.478990</td>
+      <td>0.013315</td>
+      <td>1</td>
+      <td>0.035883</td>
+      <td>0.004113</td>
+      <td>0.091469</td>
+      <td>0.132779</td>
       <td>0</td>
-      <td>1.055600e-01</td>
-      <td>2.448300e+04</td>
-      <td>4.311400e-06</td>
+      <td>1.884600e+04</td>
+      <td>2.091500e+04</td>
+      <td>9.010800e-01</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>None</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.309836</td>
-      <td>0.037808</td>
+      <td>25.2781</td>
       <td>1</td>
-      <td>0.074155</td>
-      <td>0.004871</td>
-      <td>0.101103</td>
-      <td>0.183431</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.478990</td>
+      <td>0.013315</td>
       <td>1</td>
-      <td>9.003300e+04</td>
-      <td>5.112200e+09</td>
-      <td>1.761100e-05</td>
+      <td>0.035883</td>
+      <td>0.004113</td>
+      <td>0.091469</td>
+      <td>0.132779</td>
+      <td>1</td>
+      <td>8.858200e+09</td>
+      <td>8.858200e+09</td>
+      <td>1.000000e+00</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>None</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.309836</td>
-      <td>0.037808</td>
+      <td>25.2781</td>
+      <td>1</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.478990</td>
+      <td>0.013315</td>
+      <td>1</td>
+      <td>0.035883</td>
+      <td>0.004113</td>
+      <td>0.091469</td>
+      <td>0.132779</td>
       <td>2</td>
-      <td>0.066655</td>
-      <td>0.003866</td>
-      <td>0.076766</td>
-      <td>0.150649</td>
-      <td>0</td>
-      <td>1.793800e-09</td>
-      <td>2.448300e+04</td>
-      <td>7.327000e-14</td>
+      <td>4.439300e-04</td>
+      <td>4.439300e-04</td>
+      <td>1.000000e+00</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>None</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.309836</td>
-      <td>0.037808</td>
-      <td>2</td>
-      <td>0.066655</td>
-      <td>0.003866</td>
-      <td>0.076766</td>
-      <td>0.150649</td>
+      <td>25.2781</td>
       <td>1</td>
-      <td>1.354300e+02</td>
-      <td>5.112200e+09</td>
-      <td>2.649100e-08</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.478990</td>
+      <td>0.013315</td>
+      <td>1</td>
+      <td>0.035883</td>
+      <td>0.004113</td>
+      <td>0.091469</td>
+      <td>0.132779</td>
+      <td>3</td>
+      <td>4.579000e-04</td>
+      <td>4.579000e-04</td>
+      <td>1.000000e+00</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>None</td>
-      <td>0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.309836</td>
-      <td>0.037808</td>
+      <td>25.2781</td>
       <td>1</td>
-      <td>0.065019</td>
-      <td>0.003825</td>
-      <td>0.074051</td>
-      <td>0.146153</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>2.478990</td>
+      <td>0.013315</td>
+      <td>2</td>
+      <td>0.033763</td>
+      <td>0.003531</td>
+      <td>0.064117</td>
+      <td>0.102725</td>
       <td>0</td>
-      <td>1.007800e-01</td>
-      <td>2.448300e+04</td>
-      <td>4.116300e-06</td>
+      <td>4.063800e+03</td>
+      <td>2.458900e+04</td>
+      <td>1.652700e-01</td>
     </tr>
     <tr>
       <th>...</th>
@@ -332,97 +341,128 @@ df
       <td>...</td>
     </tr>
     <tr>
-      <th>1105</th>
-      <td>None</td>
-      <td>133</td>
-      <td>12476400.0</td>
-      <td>226448.0</td>
-      <td>0.639850</td>
-      <td>0.042357</td>
+      <th>995</th>
+      <td>25.2781</td>
+      <td>31</td>
+      <td>50000.0</td>
+      <td>4514.0</td>
+      <td>0.581043</td>
+      <td>0.014266</td>
+      <td>5</td>
+      <td>0.035133</td>
+      <td>0.002944</td>
+      <td>0.055049</td>
+      <td>0.094542</td>
+      <td>3</td>
+      <td>3.180600e-17</td>
+      <td>7.074400e-03</td>
+      <td>4.496000e-15</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>25.2781</td>
+      <td>31</td>
+      <td>50000.0</td>
+      <td>4514.0</td>
+      <td>0.581043</td>
+      <td>0.014266</td>
+      <td>6</td>
+      <td>0.036252</td>
+      <td>0.003204</td>
+      <td>0.055754</td>
+      <td>0.096534</td>
+      <td>0</td>
+      <td>6.841200e-12</td>
+      <td>4.005500e+04</td>
+      <td>1.708000e-16</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>25.2781</td>
+      <td>31</td>
+      <td>50000.0</td>
+      <td>4514.0</td>
+      <td>0.581043</td>
+      <td>0.014266</td>
+      <td>6</td>
+      <td>0.036252</td>
+      <td>0.003204</td>
+      <td>0.055754</td>
+      <td>0.096534</td>
+      <td>1</td>
+      <td>8.289800e-07</td>
+      <td>5.261000e+08</td>
+      <td>1.575700e-15</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>25.2781</td>
+      <td>31</td>
+      <td>50000.0</td>
+      <td>4514.0</td>
+      <td>0.581043</td>
+      <td>0.014266</td>
+      <td>6</td>
+      <td>0.036252</td>
+      <td>0.003204</td>
+      <td>0.055754</td>
+      <td>0.096534</td>
       <td>2</td>
-      <td>0.066762</td>
-      <td>0.003108</td>
-      <td>0.079635</td>
-      <td>0.152886</td>
-      <td>1</td>
-      <td>2.171600e+06</td>
-      <td>6.487700e+09</td>
-      <td>3.347300e-04</td>
+      <td>4.418700e-18</td>
+      <td>7.150300e-03</td>
+      <td>6.179700e-16</td>
     </tr>
     <tr>
-      <th>1106</th>
-      <td>None</td>
-      <td>133</td>
-      <td>12476400.0</td>
-      <td>226448.0</td>
-      <td>0.639850</td>
-      <td>0.042357</td>
+      <th>999</th>
+      <td>25.2781</td>
+      <td>31</td>
+      <td>50000.0</td>
+      <td>4514.0</td>
+      <td>0.581043</td>
+      <td>0.014266</td>
+      <td>6</td>
+      <td>0.036252</td>
+      <td>0.003204</td>
+      <td>0.055754</td>
+      <td>0.096534</td>
       <td>3</td>
-      <td>0.068605</td>
-      <td>0.003232</td>
-      <td>0.080462</td>
-      <td>0.155698</td>
-      <td>0</td>
-      <td>3.006000e-02</td>
-      <td>2.672600e+04</td>
-      <td>1.124700e-06</td>
-    </tr>
-    <tr>
-      <th>1107</th>
-      <td>None</td>
-      <td>133</td>
-      <td>12476400.0</td>
-      <td>226448.0</td>
-      <td>0.639850</td>
-      <td>0.042357</td>
-      <td>3</td>
-      <td>0.068605</td>
-      <td>0.003232</td>
-      <td>0.080462</td>
-      <td>0.155698</td>
-      <td>1</td>
-      <td>1.116500e+05</td>
-      <td>6.487600e+09</td>
-      <td>1.721000e-05</td>
-    </tr>
-    <tr>
-      <th>1108</th>
-      <td>None</td>
-      <td>133</td>
-      <td>12476400.0</td>
-      <td>226448.0</td>
-      <td>0.639850</td>
-      <td>0.042357</td>
-      <td>4</td>
-      <td>0.069614</td>
-      <td>0.003289</td>
-      <td>0.080768</td>
-      <td>0.157063</td>
-      <td>0</td>
-      <td>2.538300e-03</td>
-      <td>2.672600e+04</td>
-      <td>9.497500e-08</td>
-    </tr>
-    <tr>
-      <th>1109</th>
-      <td>None</td>
-      <td>133</td>
-      <td>12476400.0</td>
-      <td>226448.0</td>
-      <td>0.639850</td>
-      <td>0.042357</td>
-      <td>4</td>
-      <td>0.069614</td>
-      <td>0.003289</td>
-      <td>0.080768</td>
-      <td>0.157063</td>
-      <td>1</td>
-      <td>6.094500e+03</td>
-      <td>6.487600e+09</td>
-      <td>9.394000e-07</td>
+      <td>4.490900e-18</td>
+      <td>7.074400e-03</td>
+      <td>6.348100e-16</td>
     </tr>
   </tbody>
 </table>
+<p>1000 rows × 15 columns</p>
+</div>
 
 
 
+
+```python
+import matplotlib.pyplot as plt
+```
+
+
+```python
+plt.plot(df["time_step/iteration/number"])
+plt.xlabel("iterations")
+plt.ylabel("iterations per time step")
+```
+
+
+
+
+    Text(0, 0.5, 'iterations per time step')
+
+
+
+
+    
+![png](output_19_1.png)
+    
+
+
+
+```python
+
+```

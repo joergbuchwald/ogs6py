@@ -1,4 +1,4 @@
-from classes import build_tree
+from ogs6py.classes import build_tree
 
 class CURVES(build_tree.BUILD_TREE):
     def __init__(self, **args):
@@ -18,7 +18,6 @@ class CURVES(build_tree.BUILD_TREE):
             raise KeyError("No coordinates given.")
         if not "values" in args:
             raise KeyError("No values given.")
-        print(len(args["coords"]), len(args["values"]))
         if len(args["coords"]) != len(args["values"]):
             raise ValueError("Number of time coordinate points differs from number of values")
         else:

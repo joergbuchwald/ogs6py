@@ -5,8 +5,9 @@ import subprocess
 import time
 import pandas as pd
 from lxml import etree as ET
-from classes import *
-import log_parser.log_parser as parser
+from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop, local_coordinate_system,
+        parameters, curves, processvars, linsolvers, nonlinsolvers)
+import ogs6py.log_parser.log_parser as parser
 
 class OGS(object):
     def __init__(self, **args):
@@ -209,10 +210,10 @@ class OGS(object):
             root = self.tree.getroot()
             parser = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(root, pretty_print=True)
-            self.tree = ET.fromstring(self.tree_string, parser=parser)
-            self.tree_ = ET.ElementTree(self.tree)
-            ET.indent(self.tree_, space="    ")
-            self.tree_.write(self.prjfile,
+            self.tree_ = ET.fromstring(self.tree_string, parser=parser)
+            self.tree = ET.ElementTree(self.tree_)
+            ET.indent(self.tree, space="    ")
+            self.tree.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
                             pretty_print=True)
@@ -239,10 +240,10 @@ class OGS(object):
             # Reparsing for pretty_print to work properly
             parser = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(self.root, pretty_print=True)
-            self.tree = ET.fromstring(self.tree_string, parser=parser)
-            self.tree_ = ET.ElementTree(self.tree)
-            ET.indent(self.tree_, space="    ")
-            self.tree_.write(self.prjfile,
+            self.tree_ = ET.fromstring(self.tree_string, parser=parser)
+            self.tree = ET.ElementTree(self.tree_)
+            ET.indent(self.tree, space="    ")
+            self.tree.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
                          pretty_print=True)
