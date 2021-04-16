@@ -4,6 +4,8 @@ ogs6py is a python-API for the OpenGeoSys finite element sofware.
 Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
 The package allows to streamline OGS-workflows with python or Julia entirely in jupyter or pluto notebooks as demonstrated in the following video:
 
+Cite ogs6py: [![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372)
+
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
 
