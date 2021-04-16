@@ -1,4 +1,4 @@
-from classes import build_tree
+from ogs6py.classes import build_tree
 
 class PROCESSES(build_tree.BUILD_TREE):
     def __init__(self, **args):

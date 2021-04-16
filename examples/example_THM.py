@@ -1,7 +1,7 @@
-from ogs import *
+from ogs6py.ogs import OGS
 
-model = OGS(PROJECT_FILE="thm_test/test.prj", MKL=True, OMP_NUM_THREADS=4)
-model.geo.addGeom(filename="square_1x1.gml")
+model = OGS(PROJECT_FILE="thm_test.prj", MKL=True, OMP_NUM_THREADS=4)
+model.geo.addGeom(filename="square_1x1_thm.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(
     name="THERMO_HYDRO_MECHANICS",
@@ -105,7 +105,8 @@ model.timeloop.addOutput(
     prefix="blubb",
     repeat="1",
     each_steps="10",
-    variables=["displacement", "pressure", "temperature", "sigma", "epsilon"])
+    variables=["displacement", "pressure", "temperature", "sigma", "epsilon"],
+    fixed_output_times=[1,2,3])
 model.timeloop.addTimeSteppingPair(process="THERMO_HYDRO_MECHANICS", repeat="15", delta_t="32")
 model.timeloop.addOutputPair(repeat="12", each_steps="11")
 model.parameters.addParameter(name="E", type="Constant", value="5000000000")
@@ -196,4 +197,4 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.writeInput()
-model.runModel()
+model.runModel(LOGFILE="out_thm.log")

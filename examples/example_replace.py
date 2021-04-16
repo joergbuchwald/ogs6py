@@ -1,4 +1,4 @@
-from ogs import *
+from ogs6py.ogs import OGS
 """
 This example is based on a future version of the project file
 created by example_THM.py in which the porosity is already
