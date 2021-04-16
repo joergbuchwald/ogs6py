@@ -71,20 +71,31 @@ class PROCESSES(build_tree.BUILD_TREE):
 
     def setProcess(self, **args):
         self._convertargs(args)
-        if "name" in args:
-            if "type" in args:
-                if "integration_order" in args:
-                    for key in args:
-                        self.tree['processes']['children']['process'][
-                            'children'][key] = self.populateTree(
+        if not "name" in args:
+            raise KeyError("No process name given.")
+        else:
+            if not "type" in args:
+                raise KeyError("type missing.")
+            else:
+                if not "integration_order" in args:
+                    raise KeyError("integration_order missing.")
+                else:
+                    if "darcy_gravity" in args:
+                        for i, entry in enumerate(args["darcy_gravity"]):
+                            if entry != 0.0:
+                                self.tree['processes']['children']['process'][
+                                    'children']['darcy_gravity'] = self.populateTree('darcy_gravity')
+                                darcy_vel = self.tree['processes']['children']['process'][
+                                    'children']['darcy_gravity']
+                                darcy_vel['children']['axis'] = self.populateTree('axis_id', text=str(i))
+                                darcy_vel['children']['g'] = self.populateTree('g', text=str(entry))
+
+                    for key, value in args.items():
+                        if type(value) == str:
+                            self.tree['processes']['children']['process'][
+                                'children'][key] = self.populateTree(
                                 key, text=args[key])
 
-                else:
-                    raise KeyError("integration_order missing.")
-            else:
-                raise KeyError("type missing.")
-        else:
-            raise KeyError("No process name given.")
 
     def setConstitutiveRelation(self, **args):
         self._convertargs(args)

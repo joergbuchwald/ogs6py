@@ -216,6 +216,8 @@ class TIMELOOP(build_tree.BUILD_TREE):
                 else:
                     self.output["type"] = args["type"]
                     self.output["prefix"] = args["prefix"]
+                    if "suffix" in args:
+                        self.output["suffix"] = args["suffix"]
                     if type(args["variables"]) is list:
                         self.output["variables"] = args["variables"]
                     else:

@@ -80,7 +80,10 @@ class LINSOLVERS(build_tree.BUILD_TREE):
                                         'lis', text=string, children={})
 
                                 elif args['kind'] == "petsc":
-                                    prefix = 'sd'
+                                    if 'prefix' in args:
+                                        prefix = args['prefix']
+                                    else:
+                                        KeyError("No prefix given.")
                                     linear_solver['petsc'] = self.populateTree(
                                         'petsc', children={})
                                     linear_solver['petsc']['children'][

@@ -4,7 +4,7 @@ class BUILD_TREE(object):
 
     def _convertargs(self, args):
         for item, value in args.items():
-            if not (type(value) is list) or not (type(value) is dict):
+            if not ((type(value) is list) or (type(value) is dict)):
                 args[item] = str(value)
 
     def populateTree(self, tag, text='', attr=None, children=None):
