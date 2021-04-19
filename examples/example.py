@@ -1,6 +1,6 @@
 from ogs6py import ogs
 
-model = ogs.OGS(PROJECT_FILE="test.prj", MKL=True)
+model = ogs.OGS(PROJECT_FILE="test.prj", MKL=False)
 model.geo.addGeom(filename="square_1x1.gml")
 model.mesh.addMesh(filename="square_1x1_quad_1e2.vtu")
 model.processes.setProcess(name="SD",
