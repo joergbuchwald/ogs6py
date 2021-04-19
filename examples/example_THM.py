@@ -192,6 +192,7 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               scaling="1")
 model.linsolvers.addLinSolver(name="general_linear_solver",
                               kind="petsc",
+                              prefix="sd",
                               solver_type="cg",
                               precon_type="bjacobi",
                               max_iteration_step="10000",

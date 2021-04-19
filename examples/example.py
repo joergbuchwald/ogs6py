@@ -79,6 +79,7 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               error_tolerance="1e-16")
 model.linsolvers.addLinSolver(name="general_linear_solver",
                               kind="petsc",
+                              prefix="sd",
                               solver_type="cg",
                               precon_type="bjacobi",
                               max_iteration_step="10000",
