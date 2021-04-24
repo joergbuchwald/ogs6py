@@ -10,6 +10,27 @@ from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop
 import ogs6py.log_parser.log_parser as parser
 
 class OGS(object):
+     """Class for an OGS6 model.
+
+    In this class everything for an OGS5 model can be specified.
+
+    Parameters
+    ----------
+    PROJECT_FILE : :class:`str`, optional
+        Filename of the output project file
+        Default: default.prj
+    INPUT_FILE : :class:`str`, optional
+        Filename of the input project file
+    XMLSTRING : :class:`str`,optional
+    MKL : :class:`boolean`, optional
+        Executes the MKL environment script
+        Default: False
+    MKL_SCRIPT : :class:`str`,optional
+        MKL Environment command
+        Default: source /opt/intel/mkl/bin/mklvars.sh intel64
+    OMP_NUM_THREADS : :class:`int`, optional
+        Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
+    """
     def __init__(self, **args):
         self.geo = geo.GEO()
         self.mesh = mesh.MESH()
@@ -52,6 +73,18 @@ class OGS(object):
             self.tree = ET.ElementTree(root)
 
     def runModel(self, **args):
+        """Command to run OGS.
+
+        Runs OGS with the project file specified as PROJECT_FILE
+
+        Parameters
+        ----------
+        LOGFILE : :class:`str`, optional
+            Name of the file to write STDOUT of ogs
+            Default: out
+        path : :class:`str`, optional
+            Path of the directory in which the ogs executable can be found
+        """
         ogs_path = ""
         if self.threads is None:
             env_export = ""
@@ -92,6 +125,20 @@ class OGS(object):
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
     def replaceTxt(self, value, xpath=".", occurrence=-1):
+        """General method for replacing text between obening and closing tags
+
+
+        Parameters
+        ----------
+        value : :class:`str`/`any`
+            Text
+        xpath : :class:`str`, optional
+            XPath of the tag
+        occurrence : :class:`int`, optional
+            Easy way to adress nonunique XPath addresses by their occurece
+            from the top of the XML file
+            Default: -1
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -150,6 +197,23 @@ class OGS(object):
                     paramproperty.text = str(parametertype)
 
     def addEntry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
+        """General method to add an Entry
+
+        Entry contains of a single tag containing 'text', attributes and anttribute values
+
+        Parameters
+        ----------
+        parent_xpath : :class:`str`, optional
+            XPath of the parent tag
+        tag : :class:`str`
+            tag name
+        text : :class:`str`
+            content
+        attrib : :class:`str`
+            attribute keyword
+        attrib_value : :class:`str`
+            value of the attribute keyword
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -164,6 +228,21 @@ class OGS(object):
                     newelement[i].set(attrib, attrib_value)
 
     def addBlock(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
+        """General method to add a Block
+
+        A block consists of an enclosing tag containing a number of subtags retaining a key-value structure
+
+        Parameters
+        ----------
+        blocktag : :class:`str`
+            name of the enclosing tag
+        parent_xpath : :class:`str`, optional
+            XPath of the parent tag
+        taglist : :class:`list`
+            list of strings containing the keys
+        textlist : :class:`list`
+            list of strings retaining the corresponding values
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -179,6 +258,20 @@ class OGS(object):
                 subtaglist[i].text = str(textlist[i])
 
     def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
+        """Replacing parametertypes and values
+
+        Parameters
+        ----------
+        name : :class:`str`
+            parametername
+        value : :class:`str`
+            value
+        parametertype : :class:`str`
+            parameter type
+        valuetag : :class:`str`, optional
+            name of the tag containing the value, e.g., values
+            Default: value
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -187,6 +280,24 @@ class OGS(object):
         self._setTypeValue(parameterpointer, value, parametertype, valuetag=valuetag)
 
     def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None, valuetag="value"):
+        """Replaces properties in medium phases
+
+        Parameters
+        ----------
+        mediumid : :class:`int`
+            id of the medium
+        phase : :class:`str`
+            name of the phase
+        name : :class:`str`
+            property name
+        value : :class:`str`/any
+            value
+        propertytype : :class:`str`
+            type of the property
+        valuetag : :class:`str`/any
+            name of the tag containing the value, e.g., values
+            Default: value
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -197,6 +308,22 @@ class OGS(object):
         self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
 
     def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None, valuetag="value"):
+        """Replaces properties in medium (not belonging to any phase)
+
+        Parameters
+        ----------
+        mediumid : :class:`int`
+            id of the medium
+        name : :class:`str`
+            property name
+        value : :class:`str`/any
+            value
+        propertytype : :class:`str`
+            type of the property
+        valuetag : :class:`str`/any
+            name of the tag containing the value, e.g., values
+            Default: value
+        """
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
@@ -206,6 +333,7 @@ class OGS(object):
         self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
 
     def writeInput(self):
+        """Writes the projectfile to disk"""
         if not self.tree is None:
             root = self.tree.getroot()
             parser = ET.XMLParser(remove_blank_text=True)
@@ -249,9 +377,19 @@ class OGS(object):
                          pretty_print=True)
             return True
 
-    def parseOut(self, outfile="",
-            maximum_timesteps=None,
-            maximum_lines=None):
+    def parseOut(self, outfile="", maximum_timesteps=None, maximum_lines=None):
+        """Parses the logfile
+
+        Parameters
+        ----------
+        outfile : :class:`str`, optional
+            name of the log file
+            Default: File specified already as logfile by runmodel
+        maximum_timesteps : :class:`int`
+            maximum number of timesteps to be taken into account
+        maximum_lines : :class:`int`
+            maximum number of lines to be evaluated
+        """
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
                 maximum_lines=maximum_lines)
         if outfile=="":
