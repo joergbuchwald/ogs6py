@@ -17,11 +17,11 @@ import subprocess
 import time
 import pandas as pd
 from lxml import etree as ET
-from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop, local_coordinate_system,
-        parameters, curves, processvars, linsolvers, nonlinsolvers)
+from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop,
+        local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 
-class OGS(object):
+class OGS:
     """Class for an OGS6 model.
 
     In this class everything for an OGS5 model can be specified.
@@ -43,6 +43,7 @@ class OGS(object):
     OMP_NUM_THREADS : :class:`int`, optional
         Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
     """
+    # TODO: substitute wildcard by arguments
     def __init__(self, **args):
         self.geo = geo.GEO()
         self.mesh = mesh.MESH()
@@ -161,10 +162,11 @@ class OGS(object):
             elif i == occurrence:
                 entry.text = str(value)
 
-    def _getParameterPointer(self, root, name, xpath):
-        parameters = root.findall(xpath)
+    @classmethod
+    def _getParameterPointer(cls, root, name, xpath):
+        params = root.findall(xpath)
         parameterpointer = None
-        for parameter in parameters:
+        for parameter in params:
             for paramproperty in parameter:
                 if paramproperty.tag == "name":
                     if paramproperty.text == name:
@@ -174,7 +176,8 @@ class OGS(object):
             raise RuntimeError
         return parameterpointer
 
-    def _getMediumPointer(self, root, mediumid):
+    @classmethod
+    def _getMediumPointer(cls, root, mediumid):
         xpathmedia = "./media/medium"
         media = root.findall(xpathmedia)
         mediumpointer = None
@@ -186,7 +189,8 @@ class OGS(object):
             raise RuntimeError
         return mediumpointer
 
-    def _getPhasePointer(self, root, phase):
+    @classmethod
+    def _getPhasePointer(cls, root, phase):
         phases = root.findall("./phases/phase")
         phasetypes = root.findall("./phases/phase/type")
         phasecounter = None
@@ -199,7 +203,8 @@ class OGS(object):
             raise RuntimeError
         return phasepointer
 
-    def _setTypeValue(self, parameterpointer, value, parametertype, valuetag=None):
+    @classmethod
+    def _setTypeValue(cls, parameterpointer, value, parametertype, valuetag=None):
         for paramproperty in parameterpointer:
             if paramproperty.tag == valuetag:
                 if not value is None:
@@ -211,7 +216,8 @@ class OGS(object):
     def addEntry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
-        Entry contains of a single tag containing 'text', attributes and anttribute values
+        Entry contains of a single tag containing 'text',
+        attributes and anttribute values
 
         Parameters
         ----------
@@ -242,7 +248,8 @@ class OGS(object):
     def addBlock(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
 
-        A block consists of an enclosing tag containing a number of subtags retaining a key-value structure
+        A block consists of an enclosing tag containing a number of
+        subtags retaining a key-value structure
 
         Parameters
         ----------
@@ -291,7 +298,8 @@ class OGS(object):
         parameterpointer = self._getParameterPointer(root, name, parameterpath)
         self._setTypeValue(parameterpointer, value, parametertype, valuetag=valuetag)
 
-    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None, propertytype=None, valuetag="value"):
+    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
+            propertytype=None, valuetag="value"):
         """Replaces properties in medium phases
 
         Parameters
@@ -319,7 +327,8 @@ class OGS(object):
         parameterpointer = self._getParameterPointer(phasepointer, name, xpathparameter)
         self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None, valuetag="value"):
+    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None,
+            valuetag="value"):
         """Replaces properties in medium (not belonging to any phase)
 
         Parameters
@@ -408,4 +417,3 @@ class OGS(object):
             outfile=self.logfile
         df = pd.DataFrame(data)
         return df
-
