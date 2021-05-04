@@ -179,9 +179,9 @@ class OGS:
     @classmethod
     def _getMediumPointer(cls, root, mediumid):
         xpathmedia = "./media/medium"
-        media = root.findall(xpathmedia)
+        mediae = root.findall(xpathmedia)
         mediumpointer = None
-        for medium in media:
+        for medium in mediae:
             if medium.attrib['id'] == str(mediumid):
                 mediumpointer = medium
         if mediumpointer is None:
@@ -357,9 +357,9 @@ class OGS:
         """Writes the projectfile to disk"""
         if not self.tree is None:
             root = self.tree.getroot()
-            parser = ET.XMLParser(remove_blank_text=True)
+            parse = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(root, pretty_print=True)
-            self.tree_ = ET.fromstring(self.tree_string, parser=parser)
+            self.tree_ = ET.fromstring(self.tree_string, parser=parse)
             self.tree = ET.ElementTree(self.tree_)
             ET.indent(self.tree, space="    ")
             self.tree.write(self.prjfile,
@@ -387,9 +387,9 @@ class OGS:
             self.__dict2xml(self.root, self.nonlinsolvers.tree)
             self.__dict2xml(self.root, self.linsolvers.tree)
             # Reparsing for pretty_print to work properly
-            parser = ET.XMLParser(remove_blank_text=True)
+            parse = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(self.root, pretty_print=True)
-            self.tree_ = ET.fromstring(self.tree_string, parser=parser)
+            self.tree_ = ET.fromstring(self.tree_string, parser=parse)
             self.tree = ET.ElementTree(self.tree_)
             ET.indent(self.tree, space="    ")
             self.tree.write(self.prjfile,
