@@ -22,7 +22,7 @@ from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop
 import ogs6py.log_parser.log_parser as parser
 
 class OGS(object):
-     """Class for an OGS6 model.
+    """Class for an OGS6 model.
 
     In this class everything for an OGS5 model can be specified.
 
