@@ -28,19 +28,19 @@ class OGS:
 
     Parameters
     ----------
-    PROJECT_FILE : :class:`str`, optional
+    PROJECT_FILE : `str`, optional
         Filename of the output project file
         Default: default.prj
-    INPUT_FILE : :class:`str`, optional
+    INPUT_FILE : `str`, optional
         Filename of the input project file
-    XMLSTRING : :class:`str`,optional
-    MKL : :class:`boolean`, optional
+    XMLSTRING : `str`,optional
+    MKL : `boolean`, optional
         Executes the MKL environment script
         Default: False
-    MKL_SCRIPT : :class:`str`,optional
+    MKL_SCRIPT : `str`,optional
         MKL Environment command
         Default: source /opt/intel/mkl/bin/mklvars.sh intel64
-    OMP_NUM_THREADS : :class:`int`, optional
+    OMP_NUM_THREADS : `int`, optional
         Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
     """
     # TODO: substitute wildcard by arguments
@@ -92,10 +92,10 @@ class OGS:
 
         Parameters
         ----------
-        LOGFILE : :class:`str`, optional
+        LOGFILE : `str`, optional
             Name of the file to write STDOUT of ogs
             Default: out
-        path : :class:`str`, optional
+        path : `str`, optional
             Path of the directory in which the ogs executable can be found
         """
         ogs_path = ""
@@ -143,11 +143,11 @@ class OGS:
 
         Parameters
         ----------
-        value : :class:`str`/`any`
+        value : `str`/`any`
             Text
-        xpath : :class:`str`, optional
+        xpath : `str`, optional
             XPath of the tag
-        occurrence : :class:`int`, optional
+        occurrence : `int`, optional
             Easy way to adress nonunique XPath addresses by their occurece
             from the top of the XML file
             Default: -1
@@ -221,15 +221,15 @@ class OGS:
 
         Parameters
         ----------
-        parent_xpath : :class:`str`, optional
+        parent_xpath : `str`, optional
             XPath of the parent tag
-        tag : :class:`str`
+        tag : `str`
             tag name
-        text : :class:`str`
+        text : `str`
             content
-        attrib : :class:`str`
+        attrib : `str`
             attribute keyword
-        attrib_value : :class:`str`
+        attrib_value : `str`
             value of the attribute keyword
         """
         if self.tree is None:
@@ -253,13 +253,13 @@ class OGS:
 
         Parameters
         ----------
-        blocktag : :class:`str`
+        blocktag : `str`
             name of the enclosing tag
-        parent_xpath : :class:`str`, optional
+        parent_xpath : `str`, optional
             XPath of the parent tag
-        taglist : :class:`list`
+        taglist : `list`
             list of strings containing the keys
-        textlist : :class:`list`
+        textlist : `list`
             list of strings retaining the corresponding values
         """
         if self.tree is None:
@@ -281,13 +281,13 @@ class OGS:
 
         Parameters
         ----------
-        name : :class:`str`
+        name : `str`
             parametername
-        value : :class:`str`
+        value : `str`
             value
-        parametertype : :class:`str`
+        parametertype : `str`
             parameter type
-        valuetag : :class:`str`, optional
+        valuetag : `str`, optional
             name of the tag containing the value, e.g., values
             Default: value
         """
@@ -304,17 +304,17 @@ class OGS:
 
         Parameters
         ----------
-        mediumid : :class:`int`
+        mediumid : `int`
             id of the medium
-        phase : :class:`str`
+        phase : `str`
             name of the phase
-        name : :class:`str`
+        name : `str`
             property name
-        value : :class:`str`/any
+        value : `str`/any
             value
-        propertytype : :class:`str`
+        propertytype : `str`
             type of the property
-        valuetag : :class:`str`/any
+        valuetag : `str`/any
             name of the tag containing the value, e.g., values
             Default: value
         """
@@ -333,15 +333,15 @@ class OGS:
 
         Parameters
         ----------
-        mediumid : :class:`int`
+        mediumid : `int`
             id of the medium
-        name : :class:`str`
+        name : `str`
             property name
-        value : :class:`str`/any
+        value : `str`/any
             value
-        propertytype : :class:`str`
+        propertytype : `str`
             type of the property
-        valuetag : :class:`str`/any
+        valuetag : `str`/any
             name of the tag containing the value, e.g., values
             Default: value
         """
@@ -402,12 +402,12 @@ class OGS:
 
         Parameters
         ----------
-        outfile : :class:`str`, optional
+        outfile : `str`, optional
             name of the log file
             Default: File specified already as logfile by runmodel
-        maximum_timesteps : :class:`int`
+        maximum_timesteps : `int`
             maximum number of timesteps to be taken into account
-        maximum_lines : :class:`int`
+        maximum_lines : `int`
             maximum number of lines to be evaluated
         """
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
