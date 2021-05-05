@@ -10,7 +10,10 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class TIMELOOP(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class managing the time loop in the project file
+    """
+    def __init__(self):
         self.process = {}
         self.baum = {
             'time_loop': {
@@ -35,21 +38,21 @@ class TIMELOOP(build_tree.BUILD_TREE):
         self.baum['time_loop']['children']['output'] = self.populateTree(
             'output', children={})
         output = self.baum['time_loop']['children']['output']
-        def popConvCrit():
+        def popConvCrit(processname):
             conv_crit_ = {}
             for entry, value in self.process[processname]["conv_crit"].items():
                 conv_crit_[entry] = self.populateTree(entry, text=value, children={})
             return conv_crit_
-        def popTimeStepping():
+        def popTimeStepping(processname):
             ts = {}
             for entry, value in self.process[processname]['time_stepping'].items():
-                if not ((entry == "t_repeat") or (entry == "t_deltat")):
+                if entry not in ('t_repeat', 't_deltat'):
                     ts[entry] = self.populateTree(entry, text=value, children={})
             return ts
         def popOutput():
             output = {}
             for key, val in self.output.items():
-                if type(val) is str:
+                if isinstance(val, str):
                     output[key] = self.populateTree(key, text=val, children={})
                 else:
                     output['timesteps'] = self.populateTree('timesteps', children={})
@@ -67,26 +70,32 @@ class TIMELOOP(build_tree.BUILD_TREE):
                     if 'meshes' in self.output:
                         output['meshes'] = self.populateTree('meshes', children={})
                         for i, mesh in enumerate(self.output["meshes"]):
-                            output['meshes']['children']['mesh'+str(i)] = self.populateTree('mesh',text=mesh,children={})
+                            output['meshes']['children']['mesh'+str(i)] = self.populateTree(
+                                    'mesh',text=mesh,children={})
             return output
 
         for processname in self.process:
-            process[processname] = self.populateTree('process', attr={'ref': processname}, children={})
+            process[processname] = self.populateTree('process', attr={'ref': processname},
+                    children={})
             process[processname]['children']['nonlinear_solver'] = self.populateTree(
-                    'nonlinear_solver', text=self.process[processname]['nonlinear_solver'], children={})
+                    'nonlinear_solver', text=self.process[processname]['nonlinear_solver'],
+                    children={})
 
-            process[processname]['children']['convergence_criterion'] = self.populateTree('convergence_criterion', children={})
+            process[processname]['children']['convergence_criterion'] = self.populateTree(
+                    'convergence_criterion', children={})
             conv_crit = process[processname]['children']['convergence_criterion']
-            conv_crit['children'] = popConvCrit()
+            conv_crit['children'] = popConvCrit(processname)
 
-            process[processname]['children']['time_discretization'] = self.populateTree('time_discretization', children={})
+            process[processname]['children']['time_discretization'] = self.populateTree(
+                    'time_discretization', children={})
             time_discr = process[processname]['children']['time_discretization']['children']
-            time_discr['type'] = self.populateTree('type',text=self.process[processname]['time_discretization'],
-                children={})
+            time_discr['type'] = self.populateTree('type',text=self.process[processname][
+                'time_discretization'], children={})
 
-            process[processname]['children']['time_stepping'] = self.populateTree('time_stepping', children={})
+            process[processname]['children']['time_stepping'] = self.populateTree('time_stepping',
+                    children={})
             time_stepping = process[processname]['children']['time_stepping']
-            time_stepping["children"] = popTimeStepping()
+            time_stepping["children"] = popTimeStepping(processname)
 
             if 't_repeat' in self.process[processname]['time_stepping']:
                 time_stepping["children"]['timesteps'] = self.populateTree('timesteps',
@@ -98,42 +107,52 @@ class TIMELOOP(build_tree.BUILD_TREE):
                               'repeat', text=repeat, children={})
                     time_pair['pair' + str(i)]['children']['delta_t'] = self.populateTree(
                               'delta_t',
-                              text=self.process[processname]["time_stepping"]['t_deltat'][i], children={})
+                              text=self.process[processname]["time_stepping"]['t_deltat'][i],
+                              children={})
         output['children'] = popOutput()
         return self.baum
 
     def addProcess(self, **args):
+        """
+        Add a process section to timeloop
+
+        Parameters
+        ----------
+        process : `str`
+        convergence_type : `str`
+        abstol : `str`
+        abstols : `str`
+        reltol : `str`
+        reltols : `str`
+        norm_type : `str`
+        nonlinear_solver_name : `str`
+        time_discretization : `str`
+        """
         def readConvCrit():
             self.process[args['process']]["conv_crit"] = {}
             if args["convergence_type"] == "DeltaX":
-                if not "norm_type" in args:
+                if "norm_type" not in args:
                     raise KeyError("No norm_type given.")
-                else:
-                    self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
-                    self.process[args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
-                    if "abstol" in args:
-                        self.process[args['process']]["conv_crit"]['abstol'] = args["abstol"]
-                    if "reltol" in args:
-                        self.process[
-                                args['process']]["conv_crit"]['reltol'] = args["reltol"]
+                self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
+                self.process[args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
+                if "abstol" in args:
+                    self.process[args['process']]["conv_crit"]['abstol'] = args["abstol"]
+                if "reltol" in args:
+                    self.process[args['process']]["conv_crit"]['reltol'] = args["reltol"]
             elif args["convergence_type"] == "PerComponentDeltaX":
-                if "norm_type" in args:
-                    self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
-                    self.process[
-                            args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
-                    if "abstols" in args:
-                        self.process[
-                                args['process']]["conv_crit"]['abstols'] = args["abstols"]
-                    if "reltols" in args:
-                        self.process[
-                                args['process']]["conv_crit"]['reltols'] = args["reltols"]
-                    if ("abstol" in args) or ("reltol" in args):
-                        raise KeyError("Convergence type \
+                if "norm_type" not in args:
+                    raise KeyError("No norm_type given")
+                self.process[args['process']]["conv_crit"]['type'] = args["convergence_type"]
+                self.process[args['process']]["conv_crit"]['norm_type'] = args["norm_type"]
+                if "abstols" in args:
+                    self.process[args['process']]["conv_crit"]['abstols'] = args["abstols"]
+                if "reltols" in args:
+                    self.process[args['process']]["conv_crit"]['reltols'] = args["reltols"]
+                if ("abstol" in args) or ("reltol" in args):
+                    raise KeyError("Convergence type \
                                     PerComponentDeltaX requires \
                                     plural s for the tolerances.")
-                else:
-                    raise KeyError("No norm_type given")
-            elif args["convergence_type"] == "PercpomponentResidual":
+            elif args["convergence_type"] == "PerComponentResidual":
                 pass
             elif args["convergence_type"] == "Residual":
                 pass
@@ -141,138 +160,176 @@ class TIMELOOP(build_tree.BUILD_TREE):
                 raise KeyError("Invalid convergence_type.")
 
         self._convertargs(args)
-        if "process" in args:
-            self.process = {args["process"]: {}}
-        else:
+        if "process" not in args:
             raise KeyError("No process referenced")
-        if not "nonlinear_solver_name" in args:
+        self.process = {args["process"]: {}}
+        if "nonlinear_solver_name" not in args:
             raise KeyError("Please specify a name (nonlinear_solver_name) \
                         for the nonlinear solver.")
-        else:
-            self.process[args['process']]['nonlinear_solver'] = args[
-                'nonlinear_solver_name']
-            if not "convergence_type" in args:
-                raise KeyError("No convergence criterion given. \
+        self.process[args['process']]['nonlinear_solver'] = args[
+            'nonlinear_solver_name']
+        if "convergence_type" not in args:
+            raise KeyError("No convergence criterion given. \
                             Specify convergence_type.")
-            else:
-                readConvCrit()
-            if "time_discretization" in args:
-                self.process[args['process']]['time_discretization'] = args[
-                    "time_discretization"]
-            else:
-                raise KeyError("No time_discretization specified.")
+        readConvCrit()
+        if "time_discretization" not in args:
+            raise KeyError("No time_discretization specified.")
+        self.process[args['process']]['time_discretization'] = args["time_discretization"]
 
     def setStepping(self, **args):
-        self._convertargs(args)
-        if not "process" in args:
-            raise KeyError("Process reference missing")
-        if not "type" in args:
-            raise KeyError("No type given.")
-        else:
-            self.process[args['process']]['time_stepping'] = {}
-            if args["type"] == "FixedTimeStepping":
-                self.process[args['process']]['time_stepping']["type"] = "FixedTimeStepping"
-                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
-                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
-                self.process[args['process']]['time_stepping']['t_repeat'] = []
-                self.process[args['process']]['time_stepping']['t_deltat'] = []
-                if "repeat" in args and "delta_t" in args:
-                    self.process[args['process']]['time_stepping']['t_repeat'].append(args["repeat"])
-                    self.process[args['process']]['time_stepping']['t_deltat'].append(args["delta_t"])
-                else:
-                    raise KeyError("No proper time stepping defined. \
-                                Please specify repeat and delta_t.")
-            elif args["type"] == "SingleStep":
-                self.process[args['process']]['time_stepping']["type"] = "SingleStep"
-            elif args["type"] == "IterationNumberBasedTimeStepping":
-                self.process[args['process']]['time_stepping']["type"] = "IterationNumberBasedTimeStepping"
-                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
-                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
-                self.process[args['process']]['time_stepping']['initial_dt'] = args["initial_dt"]
-                self.process[args['process']]['time_stepping']['minimum_dt'] = args["minimum_dt"]
-                self.process[args['process']]['time_stepping']['maximum_dt'] = args["maximum_dt"]
-                numit_list = args["number_iterations"]
-                multi_list = args["multiplier"]
-                self.process[args['process']]['time_stepping']['number_iterations'] = " ".join(map(str, numit_list))
-                self.process[args['process']]['time_stepping']['multiplier'] = " ".join(map(str, multi_list))
-            elif args["type"] == "EvolutionaryPIDcontroller":
-                self.process[
-                    args['process']]['time_stepping']["type"] = "EvolutionaryPIDcontroller"
-                self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
-                self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
-                self.process[args['process']]['time_stepping']['dt_guess'] = args["dt_guess"]
-                self.process[args['process']]['time_stepping']['dt_min'] = args["dt_min"]
-                self.process[args['process']]['time_stepping']['dt_max'] = args["dt_max"]
-                self.process[args['process']]['time_stepping']['rel_dt_max'] = args["rel_dt_max"]
-                self.process[args['process']]['time_stepping']['rel_dt_min'] = args["rel_dt_min"]
-                self.process[args['process']]['time_stepping']['tol'] = args["tol"]
+        """
+        Sets the time stepping
 
+        Parameters
+        ----------
+        type : `str`
+        process : `str`
+        t_initial : `int` or `str`
+        t_end : `int` or `str`
+        repeat : `int` or `str`
+        delta_t : `float` or `str`
+        minimum_dt : `float` or `str`
+        maximum_dt : `float` or `str`
+        number_iterations : `list`
+        multiplier : `list`
+        dt_guess : `float` or `str`
+        dt_min : `float` or `str`
+        dt_max : `float` or `str`
+        rel_dt_max : `float` or `str`
+        rel_dt_min : `float` or `str`
+        tol : `float` or `str`
+        """
+        self._convertargs(args)
+        if "process" not in args:
+            raise KeyError("Process reference missing")
+        if "type" not in args:
+            raise KeyError("No type given.")
+        self.process[args['process']]['time_stepping'] = {}
+        if args["type"] == "FixedTimeStepping":
+            self.process[args['process']]['time_stepping']["type"] = "FixedTimeStepping"
+            self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+            self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+            self.process[args['process']]['time_stepping']['t_repeat'] = []
+            self.process[args['process']]['time_stepping']['t_deltat'] = []
+            if "repeat" in args and "delta_t" in args:
+                self.process[args['process']]['time_stepping']['t_repeat'].append(args["repeat"])
+                self.process[args['process']]['time_stepping']['t_deltat'].append(args["delta_t"])
             else:
-                raise KeyError("Specified time stepping scheme not valid.")
+                raise KeyError("No proper time stepping defined. \
+                                Please specify repeat and delta_t.")
+        elif args["type"] == "SingleStep":
+            self.process[args['process']]['time_stepping']["type"] = "SingleStep"
+        elif args["type"] == "IterationNumberBasedTimeStepping":
+            self.process[args['process']]['time_stepping'][
+                    "type"] = "IterationNumberBasedTimeStepping"
+            self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+            self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+            self.process[args['process']]['time_stepping']['initial_dt'] = args["initial_dt"]
+            self.process[args['process']]['time_stepping']['minimum_dt'] = args["minimum_dt"]
+            self.process[args['process']]['time_stepping']['maximum_dt'] = args["maximum_dt"]
+            numit_list = args["number_iterations"]
+            multi_list = args["multiplier"]
+            self.process[args['process']]['time_stepping']['number_iterations'] = " ".join(
+                    map(str, numit_list))
+            self.process[args['process']]['time_stepping']['multiplier'] = " ".join(
+                    map(str, multi_list))
+        elif args["type"] == "EvolutionaryPIDcontroller":
+            self.process[args['process']]['time_stepping']["type"] = "EvolutionaryPIDcontroller"
+            self.process[args['process']]['time_stepping']['t_initial'] = args["t_initial"]
+            self.process[args['process']]['time_stepping']['t_end'] = args["t_end"]
+            self.process[args['process']]['time_stepping']['dt_guess'] = args["dt_guess"]
+            self.process[args['process']]['time_stepping']['dt_min'] = args["dt_min"]
+            self.process[args['process']]['time_stepping']['dt_max'] = args["dt_max"]
+            self.process[args['process']]['time_stepping']['rel_dt_max'] = args["rel_dt_max"]
+            self.process[args['process']]['time_stepping']['rel_dt_min'] = args["rel_dt_min"]
+            self.process[args['process']]['time_stepping']['tol'] = args["tol"]
+
+        else:
+            raise KeyError("Specified time stepping scheme not valid.")
 
     def addOutput(self, **args):
-        if not "type" in args:
+        """
+        Add output section.
+
+        Parameters
+        ----------
+        type : `str`
+        prefix : `str`
+        suffix : `str`
+        variables : `list` or `str`
+        data_mode : `str`
+        compress_output : `str`
+        output_iteration_results: `bool` or `str`
+        meshes : `str`
+        repeat : `list` or `str`
+        each_steps : `list` or `str`
+        fixed_output_times : `list` or `str`
+        """
+        if "type" not in args:
             raise KeyError("If you want to specify an output method, \
                         you need to provide type, \
                         prefix and a list of variables.")
+        if "prefix" not in args:
+            raise KeyError("No prefix given.")
+        if "variables" not in args:
+            raise KeyError("Please provide a list with output variables.")
+        self.output["type"] = args["type"]
+        self.output["prefix"] = args["prefix"]
+        if "suffix" in args:
+            self.output["suffix"] = args["suffix"]
+        if isinstance(args["variables"], list):
+            self.output["variables"] = args["variables"]
         else:
-            if not "prefix" in args:
-                raise KeyError("No prefix given.")
-            else:
-                if not "variables" in args:
-                    raise KeyError(
-                        "Please provide a list with output variables.")
+            self.output["variables"] = [args["variables"]]
+        if "data_mode" in args:
+            self.output["data_mode"] = args["data_mode"]
+        if "compress_output" in args:
+            if isinstance(args["compress_output"], bool):
+                if args["compress_output"] is True:
+                    args["compress_output"] = "true"
                 else:
-                    self.output["type"] = args["type"]
-                    self.output["prefix"] = args["prefix"]
-                    if "suffix" in args:
-                        self.output["suffix"] = args["suffix"]
-                    if type(args["variables"]) is list:
-                        self.output["variables"] = args["variables"]
-                    else:
-                        self.output["variables"] = [args["variables"]]
-                    if "data_mode" in args:
-                        self.output["data_mode"] = args["data_mode"]
-                    if "compress_output" in args:
-                        if type(args["compress_output"]) is bool:
-                            if args["compress_output"] is True:
-                                args["compress_output"] = "true"
-                            else:
-                                args["compress_output"] = "false"
-                        self.output["compress_output"] = args["compress_output"]
-                    if "output_iteration_results" in args:
-                        if type(args["output_iteration_results"]) is bool:
-                            if args["output_iteration_results"] is True:
-                                args["output_iteration_results"] = "true"
-                            else:
-                                args["output_iteration_results"] = "false"
-                        self.output["output_iteration_results"] = args["output_iteration_results"]
-                    if "meshes" in args:
-                        self.output["meshes"] = args["meshes"]
-                    if "repeat" in args:
-                        if "each_steps" in args:
-                            if type(args["repeat"]) is list:
-                                self.output["repeat"] = args["repeat"]
-                            else:
-                                self.output["repeat"] = [args["repeat"]]
-                            if type(args["each_steps"]) is list:
-                                self.output["each_steps"] = args["each_steps"]
-                            else:
-                                self.output["each_steps"] = [args["each_steps"]]
-                        else:
-                            raise KeyError("each_steps is a required tag if repeat is given.")
-                    if "fixed_output_times" in args:
-                        if type(args["fixed_output_times"]) is list:
-                                self.output["fixed_output_times"] = ' '.join([str(item) for item in args["fixed_output_times"]])
-                        else:
-                            self.output["fixed_output_times"] = str(args["fixed_output_times"])
+                    args["compress_output"] = "false"
+            self.output["compress_output"] = args["compress_output"]
+        if "output_iteration_results" in args:
+            if isinstance(args["output_iteration_results"], bool):
+                if args["output_iteration_results"] is True:
+                    args["output_iteration_results"] = "true"
+                else:
+                    args["output_iteration_results"] = "false"
+            self.output["output_iteration_results"] = args["output_iteration_results"]
+        if "meshes" in args:
+            self.output["meshes"] = args["meshes"]
+        if "repeat" in args:
+            if "each_steps" not in args:
+                raise KeyError("each_steps is a required tag if repeat is given.")
+            if isinstance(args["repeat"], list):
+                self.output["repeat"] = args["repeat"]
+            else:
+                self.output["repeat"] = [args["repeat"]]
+            if isinstance(args["each_steps"], list):
+                self.output["each_steps"] = args["each_steps"]
+            else:
+                self.output["each_steps"] = [args["each_steps"]]
+        if "fixed_output_times" in args:
+            if isinstance(args["fixed_output_times"], list):
+                self.output["fixed_output_times"] = ' '.join([str(item) for item in args[
+                    "fixed_output_times"]])
+            else:
+                self.output["fixed_output_times"] = str(args["fixed_output_times"])
 
 
     def addTimeSteppingPair(self, **args):
+        """
+        add a time stepping pair
+
+        Parameters
+        ----------
+        repeat : `int` or `str`
+        delta_t : `int` or `str`
+
+        """
         self._convertargs(args)
-        if "process" in args:
-            pass
-        else:
+        if "process" not in args:
             raise KeyError("No process referenced")
         if "repeat" in args and "delta_t" in args:
             self.process[args['process']]['time_stepping']['t_repeat'].append(args["repeat"])
@@ -282,6 +339,14 @@ class TIMELOOP(build_tree.BUILD_TREE):
                         define additional time stepping pairs.")
 
     def addOutputPair(self, **args):
+        """
+        add an output pair
+
+        Parameters
+        ----------
+        repeat : `int` or `str`
+        each_steps : `int` or `str`
+        """
         self._convertargs(args)
         if "repeat" in args and "each_steps" in args:
             self.output["repeat"].append(args["repeat"])

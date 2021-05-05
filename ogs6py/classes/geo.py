@@ -10,7 +10,10 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class GEO(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class containing the geometry file.
+    """
+    def __init__(self):
         self.tree = {
             'geometry': {
                 'tag': 'geometry',
@@ -20,9 +23,12 @@ class GEO(build_tree.BUILD_TREE):
             }
         }
 
-    def addGeom(self, **args):
-        self._convertargs(args)
-        if "filename" in args:
-            self.tree['geometry']['text'] = args['filename']
-        else:
-            raise KeyError("No filename given")
+    def addGeom(self, filename):
+        """
+        Adds a geometry file.
+
+        Parameters
+        ----------
+        filename : `str`
+        """
+        self.tree['geometry']['text'] = filename

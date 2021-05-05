@@ -10,7 +10,10 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class LOCAL_COORDINATE_SYSTEM(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class for defining a local coordinate system in the project file"
+    """
+    def __init__(self):
         self.tree = {
             'local_coordinate_system': {
                 'tag': 'local_coordinate_system',
@@ -21,24 +24,35 @@ class LOCAL_COORDINATE_SYSTEM(build_tree.BUILD_TREE):
         }
 
     def addBasisVec(self, **args):
+        """
+        Adds a basis
+
+        Parameters
+        ----------
+        basis_vector_0 : `str`
+                         name of the parameter containing the basis vector
+        basis_vector_1 : `str`
+                         name of the parameter containing the basis vector
+        basis_vector_2 : `str`
+                         name of the parameter containing the basis vector
+        """
         self._convertargs(args)
-        if not "basis_vector_0" in args:
+        if "basis_vector_0" not in args:
             raise KeyError("no vector given")
-        else:
-            self.tree['local_coordinate_system']['children'] = {
+        self.tree['local_coordinate_system']['children'] = {
                 'basis_vector_0': {
                 'tag': 'basis_vector_0',
                 'text': args["basis_vector_0"],
                 'attr': {},
                 'children': {}}}
-            if "basis_vector_1" in args:
-                self.tree['local_coordinate_system']['children']['basis_vector_1'] = {
+        if "basis_vector_1" in args:
+            self.tree['local_coordinate_system']['children']['basis_vector_1'] = {
                     'tag': 'basis_vector_1',
                     'text': args["basis_vector_1"],
                     'attr': {},
                     'children': {}}
-            if "basis_vector_2" in args:
-                self.tree['local_coordinate_system']['children']['basis_vector_2'] = {
+        if "basis_vector_2" in args:
+            self.tree['local_coordinate_system']['children']['basis_vector_2'] = {
                 'tag': 'basis_vector_2',
                 'text': args["basis_vector_2"],
                 'attr': {},

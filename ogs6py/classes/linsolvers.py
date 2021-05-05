@@ -10,6 +10,9 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class LINSOLVERS(build_tree.BUILD_TREE):
+    """
+    Class for defining a linear solvers in the project file"
+    """
     def __init__(self):
         self.tree = {
             'linear_solvers': {

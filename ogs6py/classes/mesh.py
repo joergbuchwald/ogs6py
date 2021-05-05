@@ -10,14 +10,18 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class MESH(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class for defining meshes in the project file.
+    """
+    def __init__(self):
         self.meshfiles = []
         self.axially_symmetric = []
 
-    def checkAxSym(self,args):
+    @classmethod
+    def _checkAxSym(cls, args):
         axsym = "false"
         if "axially_symmetric" in args:
-            if type(args["axially_symmetric"]) is bool:
+            if isinstance(args["axially_symmetric"], bool):
                 if args["axially_symmetric"] is True:
                     axsym = "true"
             else:
@@ -25,10 +29,17 @@ class MESH(build_tree.BUILD_TREE):
         return axsym
 
     def addMesh(self, **args):
-        if not "filename" in args:
+        """
+        adds a mesh to the project file
+
+        Parameters
+        ----------
+        filename : `str`
+        axially_syymetric : `bool` or `str`
+        """
+        if "filename" not in args:
             raise KeyError("No filename given")
-        else:
-            self.meshfiles.append((args["filename"], self.checkAxSym(args)))
+        self.meshfiles.append((args["filename"], self._checkAxSym(args)))
 
 
     @property
@@ -44,9 +55,9 @@ class MESH(build_tree.BUILD_TREE):
             baum['meshes'] = self.populateTree('meshes')
             for i, meshfile in enumerate(self.meshfiles):
                 if meshfile[1] == "false":
-                    baum['meshes']['children'][i] = self.populateTree('mesh', text=meshfile[0], children={})
+                    baum['meshes']['children'][i] = self.populateTree('mesh', text=meshfile[0],
+                            children={})
                 else:
                     baum['meshes']['children'][i] = self.populateTree('mesh', text=meshfile[0],
                             attr={'axially_symmetric': 'true'}, children={})
         return baum
-

@@ -8,19 +8,29 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 """
 
 # pylint: disable=C0103, R0902, R0914, R0913
-class BUILD_TREE(object):
-    def __init__(self, **args):
+class BUILD_TREE:
+    """ helper class to create a nested dictionary
+    representing the xml structure
+    """
+    def __init__(self):
         self.tree = {}
 
-    def _convertargs(self, args):
+    @classmethod
+    def _convertargs(cls, args):
+        """
+        convert arguments that are not lists or dictionaries to strings
+        """
         for item, value in args.items():
-            if not ((type(value) is list) or (type(value) is dict)):
+            if not isinstance(value, (list, dict)):
                 args[item] = str(value)
 
-    def populateTree(self, tag, text='', attr=None, children=None):
+    @classmethod
+    def populateTree(cls, tag, text='', attr=None, children=None):
+        """
+        method to create dictionary from an xml entity
+        """
         if attr is None:
             attr = {}
         if children is None:
             children = {}
         return {'tag': tag, 'text': text, 'attr': attr, 'children': children}
-

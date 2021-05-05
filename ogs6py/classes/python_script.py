@@ -10,7 +10,10 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class PYTHON_SCRIPT(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class managing python script in the project file
+    """
+    def __init__(self):
         self.tree = {
             'pythonscript': {
                 'tag': 'python_script',
@@ -21,8 +24,14 @@ class PYTHON_SCRIPT(build_tree.BUILD_TREE):
         }
 
     def setPyscript(self, **args):
+        """
+        Set a filename for a python script.
+
+        Parameters
+        ----------
+        filename : `str`
+        """
         self._convertargs(args)
-        if "filename" in args:
-            self.tree['pythonscript']['text'] = args['filename']
-        else:
+        if "filename" not in args:
             raise KeyError("No filename given")
+        self.tree['pythonscript']['text'] = args['filename']

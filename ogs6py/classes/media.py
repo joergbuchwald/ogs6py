@@ -10,7 +10,10 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 from ogs6py.classes import build_tree
 
 class MEDIA(build_tree.BUILD_TREE):
-    def __init__(self, **args):
+    """
+    Class for defining a media material properties."
+    """
+    def __init__(self):
         self.tree = {
             'media': {
                 'tag': 'media',
@@ -21,6 +24,22 @@ class MEDIA(build_tree.BUILD_TREE):
         }
 
     def addProperty(self, **args):
+        """
+        Adds a property to medium/phase
+
+        Parameters
+        ----------
+        medium_id : `int` or `str`
+        phase_type : `str`
+        name : `str`
+        type : `str`
+        value : `float` or `str`
+        independent_variable : `str`
+        reference_condition : `float` or `str`
+        reference_value : `float` or `str`
+        slope : `float` or `str`
+        parameter_name : `str`
+        """
         self._convertargs(args)
         if "medium_id" in args:
             try:
@@ -45,7 +64,7 @@ class MEDIA(build_tree.BUILD_TREE):
                 try:
                     phase_ = medium['children']['phases']['children'][
                         args['phase_type']]
-                except:
+                except KeyError:
                     medium['children']['phases']['children'][
                         args['phase_type']] = {
                             'tag': 'phase',
@@ -69,7 +88,7 @@ class MEDIA(build_tree.BUILD_TREE):
                     }
             else:
                 try:
-                    properies = medium['children']['properties']
+                    _ = medium['children']['properties']
                 except KeyError:
                     medium['children']['properties'] = {
                         'tag': 'properties',
@@ -143,4 +162,3 @@ class MEDIA(build_tree.BUILD_TREE):
                       'attr': {},
                       'children': {}
                   }
-
