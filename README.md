@@ -5,16 +5,23 @@ ogs6py is a python-API for the OpenGeoSys finite element sofware.
 Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
 The package allows to streamline OGS-workflows with python or Julia entirely in jupyter or pluto notebooks as demonstrated in the following video:
 
-
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
-
-<span style="color:red">*Please note: due to changes in the file structure ogs6py is now imported by `from ogs6py.ogs import OGS`*</span>
 
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
     1. creating a new input file using python method calls
     2. altering existing input files
+
+# 0. Installation
+
+clone the repository and use pip/pip3 to install the package.
+
+```shell
+# git clone https://github.com/joergbuchwald/VTUinterface.git
+# cd VTUinterface
+# pip install --user .
+```
 
 ### 1. Creating a new input file
  
@@ -103,6 +110,7 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               error_tolerance=1e-16)
 model.linsolvers.addLinSolver(name="general_linear_solver",
                               kind="petsc",
+                              prefix="sd",
                               solver_type="cg",
                               precon_type="bjacobi",
                               max_iteration_step=10000,
@@ -123,7 +131,7 @@ model.runModel(path="~/github/ogs/build_mkl/bin")
 ```
 
     OGS finished with project file simple_mechanics.prj.
-    Execution took 0.0639185905456543 s
+    Execution took 0.07627463340759277 s
 
 
 An example using the MPL can be find in example_THM.py.
@@ -145,11 +153,11 @@ for E in Es:
 ```
 
     OGS finished with project file simple_mechanics.prj.
-    Execution took 0.06496095657348633 s
+    Execution took 0.061337947845458984 s
     OGS finished with project file simple_mechanics.prj.
-    Execution took 0.05861473083496094 s
+    Execution took 0.056624412536621094 s
     OGS finished with project file simple_mechanics.prj.
-    Execution took 0.056302547454833984 s
+    Execution took 0.05991387367248535 s
 
 
 Instead of the `replaceParameter` method, the more general `replaceTxt` method can be used
@@ -187,7 +195,7 @@ To parse the output that is piped into a file named `out.log` you can simply do:
 
 
 ```python
-df = model.parseOut("out_thm.log")
+df = model.parseOut("examples/out_thm.log")
 ```
 
 
@@ -437,31 +445,6 @@ df
 <p>1000 rows × 15 columns</p>
 </div>
 
-
-
-
-```python
-import matplotlib.pyplot as plt
-```
-
-
-```python
-plt.plot(df["time_step/iteration/number"])
-plt.xlabel("iterations")
-plt.ylabel("iterations per time step")
-```
-
-
-
-
-    Text(0, 0.5, 'iterations per time step')
-
-
-
-
-    
-![png](output_19_1.png)
-    
 
 
 
