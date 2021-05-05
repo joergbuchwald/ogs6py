@@ -274,7 +274,7 @@ class OGS:
         for blocktagentry in newelement:
             for i, taglistentry in enumerate(taglist):
                 subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
-                subtaglist[i].text = str(textlist[i])
+                subtaglist[-1].text = str(textlist[i])
 
     def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         """Replacing parametertypes and values
@@ -367,36 +367,35 @@ class OGS:
                             xml_declaration=True,
                             pretty_print=True)
             return True
-        else:
-            self.root = ET.Element("OpenGeoSysProject")
-            if len(self.geo.tree['geometry']['text']) > 0:
-                self.__dict2xml(self.root, self.geo.tree)
-            self.__dict2xml(self.root, self.mesh.tree)
-            if len(self.pyscript.tree['pythonscript']['text']) > 0:
-                self.__dict2xml(self.root, self.pyscript.tree)
-            self.__dict2xml(self.root, self.processes.tree)
-            if len(self.media.tree['media']['children']) > 0:
-                self.__dict2xml(self.root, self.media.tree)
-            self.__dict2xml(self.root, self.timeloop.tree)
-            if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
-                self.__dict2xml(self.root, self.local_coordinate_system.tree)
-            self.__dict2xml(self.root, self.parameters.tree)
-            if len(self.curves.tree['curves']['children']) > 0:
-                self.__dict2xml(self.root, self.curves.tree)
-            self.__dict2xml(self.root, self.processvars.tree)
-            self.__dict2xml(self.root, self.nonlinsolvers.tree)
-            self.__dict2xml(self.root, self.linsolvers.tree)
-            # Reparsing for pretty_print to work properly
-            parse = ET.XMLParser(remove_blank_text=True)
-            self.tree_string = ET.tostring(self.root, pretty_print=True)
-            self.tree_ = ET.fromstring(self.tree_string, parser=parse)
-            self.tree = ET.ElementTree(self.tree_)
-            ET.indent(self.tree, space="    ")
-            self.tree.write(self.prjfile,
+        self.root = ET.Element("OpenGeoSysProject")
+        if len(self.geo.tree['geometry']['text']) > 0:
+            self.__dict2xml(self.root, self.geo.tree)
+        self.__dict2xml(self.root, self.mesh.tree)
+        if len(self.pyscript.tree['pythonscript']['text']) > 0:
+            self.__dict2xml(self.root, self.pyscript.tree)
+        self.__dict2xml(self.root, self.processes.tree)
+        if len(self.media.tree['media']['children']) > 0:
+            self.__dict2xml(self.root, self.media.tree)
+        self.__dict2xml(self.root, self.timeloop.tree)
+        if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
+            self.__dict2xml(self.root, self.local_coordinate_system.tree)
+        self.__dict2xml(self.root, self.parameters.tree)
+        if len(self.curves.tree['curves']['children']) > 0:
+            self.__dict2xml(self.root, self.curves.tree)
+        self.__dict2xml(self.root, self.processvars.tree)
+        self.__dict2xml(self.root, self.nonlinsolvers.tree)
+        self.__dict2xml(self.root, self.linsolvers.tree)
+        # Reparsing for pretty_print to work properly
+        parse = ET.XMLParser(remove_blank_text=True)
+        self.tree_string = ET.tostring(self.root, pretty_print=True)
+        self.tree_ = ET.fromstring(self.tree_string, parser=parse)
+        self.tree = ET.ElementTree(self.tree_)
+        ET.indent(self.tree, space="    ")
+        self.tree.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
                          pretty_print=True)
-            return True
+        return True
 
     def parseOut(self, outfile="", maximum_timesteps=None, maximum_lines=None):
         """Parses the logfile
