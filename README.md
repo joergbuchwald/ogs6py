@@ -8,6 +8,8 @@ The package allows to streamline OGS-workflows with python or Julia entirely in 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
 
+[Documentation reference](https://joergbuchwald.github.io/ogs6py-doc)
+
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
     1. creating a new input file using python method calls
