@@ -117,27 +117,8 @@ model.writeInput()
 model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log")
 ```
 
-    OGS execution not successfull. Error code: 1
-
-
-
-    ---------------------------------------------------------------------------
-
-    RuntimeError                              Traceback (most recent call last)
-
-    <ipython-input-11-e3981ca132b9> in <module>
-    ----> 1 model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log")
-    
-
-    /usr/local/lib/python3.9/dist-packages/ogs6py/ogs.py in runModel(self, **args)
-         81         else:
-         82             print(f"OGS execution not successfull. Error code: {returncode.returncode}")
-    ---> 83             raise RuntimeError
-         84 
-         85     def __dict2xml(self, parent, dictionary):
-
-
-    RuntimeError: 
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 78.41022038459778 s
 
 
 
@@ -159,6 +140,17 @@ triang = tri.Triangulation(last_ts_vtu.points[:,0],last_ts_vtu.points[:,1])
 ```python
 plt.tricontourf(triang,pressurefield)
 ```
+
+
+
+
+    <matplotlib.tri.tricontour.TriContourSet at 0x7f42ea517df0>
+
+
+
+
+![png](output_14_1.png)
+
 
 
 ```python
@@ -196,9 +188,23 @@ plt.legend()
 ```
 
 
+
+
+    <matplotlib.legend.Legend at 0x7f42ea4e2fd0>
+
+
+
+
+![png](output_20_1.png)
+
+
+
 ```python
 pvdfile = vtuIO.PVDIO(".","square_1e0_lin.pvd", dim=2)
 ```
+
+    ./square_1e0_lin.pvd
+
 
 
 ```python
@@ -217,6 +223,10 @@ for pt in points:
 ```
 
 
+![png](output_24_0.png)
+
+
+
 ```python
 phi_dist = {"low": 0.12, "mid": 0.3, "high": 0.36} 
 ```
@@ -230,11 +240,33 @@ for i in range(10):
     phi.append(np.random.triangular(phi_dist["low"], phi_dist["mid"],phi_dist["high"]))
     model.replaceMediumProperty(mediumid=0, name="porosity", value=phi[-1])
     model.writeInput()
-    model.runModel(path="/home/buchwalj/github/ogs/build_mkl/bin", LOGFILE="out.log")
+    model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log")
     last_ts_vtu = vtuIO.VTUIO("square_1e0_lin_ts_100_t_500000.000000.vtu", dim=2)
     p_data = last_ts_vtu.getPointData("pressure_interpolated", pts=points)
     pressure.append(p_data["pt0"])
 ```
+
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 81.16767597198486 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 84.81383776664734 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 83.69526481628418 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 85.80170345306396 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 85.60525226593018 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 86.17963027954102 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 82.96798539161682 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 84.3891429901123 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 86.55081033706665 s
+    OGS finished with project file square_1e2_lin_out.prj.
+    Execution took 87.14056372642517 s
+
 
 
 ```python
@@ -245,6 +277,42 @@ plt.ylabel('pressure')
 
 
 
+
+    Text(0, 0.5, 'pressure')
+
+
+
+
+![png](output_27_1.png)
+
+
+
+```python
+out_df = model.parseOut("out.log")
+```
+
+
+```python
+out_df.drop_duplicates(subset ="time_step/number", keep = "last", inplace = True)
+```
+
+
+```python
+plt.plot(out_df["time_step/number"], out_df["time_step/iteration/number"])
+```
+
+
+
+
+    [<matplotlib.lines.Line2D at 0x7f42e925d460>]
+
+
+
+
+![png](output_30_1.png)
+
+
+
 # Citations
 
 Citations to entries in paper.bib should be in
@@ -252,21 +320,13 @@ Citations to entries in paper.bib should be in
 format.
 
 If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
+citation) then you can do it with the example BibTeX entry below for .
 
 For a quick reference, the following citation commands can be used:
 - `@author:2001`  ->  "Author et al. (2001)"
 - `[@author:2001]` -> "(Author et al., 2001)"
 - `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
 
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
 
 # Acknowledgements
 
@@ -274,7 +334,6 @@ We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
 Oh, and support from Kathryn Johnston during the genesis of this project.
 
 # References
-
 
 
 ```python
