@@ -35,15 +35,15 @@ class OGS:
         Filename of the input project file
     XMLSTRING : `str`,optional
     MKL : `boolean`, optional
-        Executes the MKL environment script
+        Switch on execution of the MKL environment script
+        before an OGS run
         Default: False
     MKL_SCRIPT : `str`,optional
-        MKL Environment command
+        MKL Environment script command
         Default: source /opt/intel/mkl/bin/mklvars.sh intel64
     OMP_NUM_THREADS : `int`, optional
         Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
     """
-    # TODO: substitute wildcard by arguments
     def __init__(self, **args):
         self.geo = geo.GEO()
         self.mesh = mesh.MESH()
