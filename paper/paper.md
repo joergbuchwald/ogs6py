@@ -43,25 +43,28 @@ in the modelling commounity. This because of its ease-of-use and flexibility as 
 source dynamic language, the gigantic Python ecosystem, the development of powerfull plotting
 libraries and the jupyter notebook.
 However, the attractiveness of Phython is not just limited to postprocessing. 
-E.g, with the python wrapper for GMSH [@] or the tool meshio [@] also pre-processing tasks can
+E.g, with the python wrapper for GMSH [@geuzaine2009gmsh] or the tool meshio [@] also pre-processing tasks can
 be easily conducted without leaving the IPython command prompt. It is therefore a big advantage 
-in usability nowadays for a modeling package if python bindings are provided, not least the ability to
-to facilitate ensemble runs.
+in usability nowadays for a modeling package if python bindings are provided, not least the ability to facilitate ensemble runs.
 
 As output OpenGeoSys produces VTU files as timeslices collected together by a PVD file.
-These can be analyzed typically using Paraview [@]. For interactive Python use there exists the Python 
-wrapper for VTK [@] and some other tools like PyVista or Mayavi proding an easier access to the VTK library.
+These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use there exists the Python 
+wrapper for VTK [@schroeder2000visualizing] and some other tools like PyVista [@sullivan2019pyvista] or Mayavi [@ramachandran2011mayavi] proding an easier access to the VTK library.
 While there focus is mainly 3D visualization, the _bread and butter_ bussiness of a finite-element-modeler often 
 still requires the extraction of time-series data at arbitrarry point in the model domain.
-To our knowledge the named packages don't support PVDs or time series data yet 
-([issue1](https://github.com/pyvista/pyvista/issues/414)[issue2](https://github.com/pyvista/pyvista-support/issues/294)
-[researchgate question](https://www.researchgate.net/post/How_to_plot_pvd_file_using_MayaVi)).
+To our knowledge the named packages (with the exception of Paraview) don't have file support for PVDs or time series data yet 
+([@pvdissue; @timeseriesissue]
 
 # Ussage
 
 
 ```python
 from ogs6py.ogs import OGS
+```
+
+
+```python
+import plot_settings
 ```
 
 
@@ -118,7 +121,7 @@ model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log"
 ```
 
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 78.41022038459778 s
+    Execution took 85.28426861763 s
 
 
 
@@ -139,17 +142,14 @@ triang = tri.Triangulation(last_ts_vtu.points[:,0],last_ts_vtu.points[:,1])
 
 ```python
 plt.tricontourf(triang,pressurefield)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.colorbar()
+plt.tight_layout()
 ```
 
 
-
-
-    <matplotlib.tri.tricontour.TriContourSet at 0x7f42ea517df0>
-
-
-
-
-![png](output_14_1.png)
+![png](output_15_0.png)
 
 
 
@@ -184,18 +184,14 @@ r = np.sqrt(2*x*x)
 for method in interp_methods:
     plt.plot(r[:],p_diagonal[method], label=method)
     plt.xlim((0.0,5))
-plt.legend()    
+plt.legend()
+plt.xlabel("r / m")
+plt.ylabel("p / Pa")
+plt.tight_layout()
 ```
 
 
-
-
-    <matplotlib.legend.Legend at 0x7f42ea4e2fd0>
-
-
-
-
-![png](output_20_1.png)
+![png](output_21_0.png)
 
 
 
@@ -219,11 +215,15 @@ p_vs_t = pvdfile.readTimeSeries("pressure_interpolated", points)
 
 ```python
 for pt in points:
-    plt.plot(pvdfile.timesteps, p_vs_t[pt])
+    plt.plot(pvdfile.timesteps, p_vs_t[pt], label=pt)
+plt.legend()
+plt.xlabel("t / s")
+plt.ylabel("p / Pa")
+plt.tight_layout()
 ```
 
 
-![png](output_24_0.png)
+![png](output_25_0.png)
 
 
 
@@ -247,25 +247,25 @@ for i in range(10):
 ```
 
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 81.16767597198486 s
+    Execution took 88.08794116973877 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 84.81383776664734 s
+    Execution took 86.88312768936157 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 83.69526481628418 s
+    Execution took 84.42618703842163 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 85.80170345306396 s
+    Execution took 90.0198221206665 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 85.60525226593018 s
+    Execution took 82.55094814300537 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 86.17963027954102 s
+    Execution took 87.03411412239075 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 82.96798539161682 s
+    Execution took 86.81215977668762 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 84.3891429901123 s
+    Execution took 83.7426118850708 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 86.55081033706665 s
+    Execution took 86.03023838996887 s
     OGS finished with project file square_1e2_lin_out.prj.
-    Execution took 87.14056372642517 s
+    Execution took 83.28014135360718 s
 
 
 
@@ -273,17 +273,11 @@ for i in range(10):
 plt.scatter(phi, pressure)
 plt.xlabel('porosity')
 plt.ylabel('pressure')
+plt.tight_layout()
 ```
 
 
-
-
-    Text(0, 0.5, 'pressure')
-
-
-
-
-![png](output_27_1.png)
+![png](output_28_0.png)
 
 
 
@@ -299,43 +293,18 @@ out_df.drop_duplicates(subset ="time_step/number", keep = "last", inplace = True
 
 ```python
 plt.plot(out_df["time_step/number"], out_df["time_step/iteration/number"])
+plt.xlabel("time step")
+plt.ylabel("iterations per time step")
+plt.tight_layout()
 ```
 
 
-
-
-    [<matplotlib.lines.Line2D at 0x7f42e925d460>]
-
-
-
-
-![png](output_30_1.png)
-
-
-
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for .
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+![png](output_31_0.png)
 
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+We acknowledge contributions from Tom Fischer, Dmitry Yu. Naumov and Dominik Kern
+during the genesis of this project.
 
 # References
-
-
-```python
-
-```
