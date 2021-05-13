@@ -92,7 +92,7 @@ class OGS:
 
         Parameters
         ----------
-        LOGFILE : `str`, optional
+        logfile : `str`, optional
             Name of the file to write STDOUT of ogs
             Default: out
         path : `str`, optional
@@ -105,8 +105,8 @@ class OGS:
             env_export = f"export OMP_NUM_THREADS={self.threads} && "
         if "path" in args:
             ogs_path = ogs_path + args["path"]
-        if "LOGFILE" in args:
-            self.logfile = args["LOGFILE"]
+        if "logfile" in args:
+            self.logfile = args["logfile"]
         else:
             self.logfile = "out"
         if sys.platform == "win32":
