@@ -27,8 +27,8 @@ class LINSOLVERS(build_tree.BUILD_TREE):
         """
         Adds a linear solver
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         name : `str`
         kind : `str`
                 one of `petsc`, `eigen` or `lis`
