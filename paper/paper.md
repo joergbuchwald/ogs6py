@@ -65,64 +65,72 @@ to facilitate both pre- and post-processing workflows using the Python ecosystem
 This aim was not the least inspired by the desire to facilitate setting up, controlling and
 evaluating ensemble runs [@Buchwald2020,@Chaudhry2021] but has now taken on a wider perspective of general usability.
 
-As output, OpenGeoSys produces VTU files as timeslices stacked together by a PVD file.
+As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as timeslices stacked together by a PVD file.
 These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use there exists the Python 
 wrapper for VTK [@schroeder2000visualizing] and some other tools like PyVista [@sullivan2019pyvista] or Mayavi [@ramachandran2011mayavi] proding an easier access to the VTK library.
-While their focus is mainly 3D visualization, the _bread and butter_ bussiness of a finite-element-modeler often 
-still requires the extraction of time-series data at arbitrary points in the model domain.
-To our knowledge the named packages (with the exception of Paraview) don't have file support for PVDs or time series data, yet 
-([@pvdissue; @timeseriesissue]
+While the direct use of te vtk library is quite cumbersome for quite _simple_ tasks, like reading data for a given point or a set of points, especially when interpolation between grid points is also involved. The latter packages focus mainly on 3D visualization. However, the _bread and butter_ bussiness of a finite-element-modeler often cosists of the extraction of single- or multiple point time-series data.
+To our knowledge the named packages (with the exception of Paraview) don't have file support for PVDs or time series data, yet ([@pvdissue; @timeseriesissue].
 
-# Ussage
+# Usage
+
+With ogs6py it is possible to create complete OGS source files from scratch or to alter existing file. The folloing example uses a complete input file for a coupled THM point heat source problem exchanges a paremeter write the input and runs the problem.
 
 
-```Python
+```python
 from ogs6py.ogs import OGS
 ```
 
 
-```Python
+```python
 import plot_settings
 ```
 
 
-```Python
+```python
 import vtuIO
 ```
 
 
-```Python
+```python
 import numpy as np
 ```
 
 
-```Python
+```python
 import matplotlib.pyplot as plt
 ```
 
 
-```Python
+```python
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 ```
 
+Reading in square_1e2_lin.prj and tell ogs6py to write the new project file to square_1e2_lin_out.prj
 
-```Python
+
+```python
 model = OGS(INPUT_FILE="square_1e2_lin.prj", PROJECT_FILE="square_1e2_lin_out.prj", MKL=True)
 ```
 
 
-```Python
+```python
 phi = 0.16
 ```
 
+The following command replaces the porosity.
 
-```Python
+
+```python
 model.replaceMediumProperty(mediumid=0, name="porosity", value=phi)
 ```
 
+In an analogous way any other property or parameter can be changed.
+ogs6py has also the capabilities to add XML code e.g., for additional properties.
+The follow function writes the new file to disk
 
-```Python
+
+```python
 model.writeInput()
 ```
 
@@ -133,8 +141,10 @@ model.writeInput()
 
 
 
+and execute ogs. The path to an ogs executable can be given as well as a logfile:
 
-```Python
+
+```python
 model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log")
 ```
 
@@ -142,23 +152,52 @@ model.runModel(path="~/github/ogs-build/build_mkl_master/bin", LOGFILE="out.log"
     Execution took 85.28426861763 s
 
 
+The ouput can be eaysily analyzed using the the capabilities of the VTUinterface tool.
+It is important to tell vtuIO the dimensionality of the problem in order to use the correct algorithm for interpolation.
 
-```Python
+
+```python
 last_ts_vtu = vtuIO.VTUIO("square_1e0_lin_ts_100_t_500000.000000.vtu", dim=2)
 ```
 
+Without interpolation any field corresponding to the order of node points (saved in .points variable) can be read with the following command.
 
-```Python
+
+```python
 pressurefield = last_ts_vtu.getField("pressure_interpolated")
 ```
 
+The available field names can be obtained as well using as single function call:
 
-```Python
+
+```python
+last_ts_vtu.getFieldnames()
+```
+
+
+
+
+    ['HydraulicFlow',
+     'NodalForces',
+     'displacement',
+     'epsilon',
+     'pressure',
+     'pressure_interpolated',
+     'sigma',
+     'temperature',
+     'temperature_interpolated']
+
+
+
+To make a contour plot matplotlibs triangulation tools can be used:
+
+
+```python
 triang = tri.Triangulation(last_ts_vtu.points[:,0],last_ts_vtu.points[:,1])
 ```
 
 
-```Python
+```python
 plt.tricontourf(triang,pressurefield)
 plt.xlabel("x")
 plt.ylabel("y")
@@ -167,38 +206,46 @@ plt.tight_layout()
 ```
 
 
-![png](output_15_0.png)
+![png](output_24_0.png)
 
 
+Often it is important read out data at arbitraty points within the mesh or along predefined lines.
+To do that we need to interpolate beween grid points.
+VTUinterface uses scipy.interpolate for interpolation beween grid points, i.e. the user can select between different methods that are provided by scipy.interpolate.
 
-```Python
+A diagonal point set can be defined as follows:
+
+
+```python
 x = np.linspace(0,10,num=100)
 ```
 
 
-```Python
+```python
 diagonal = [(i,i,0) for i in x]
 ```
 
 
-```Python
+```python
 interp_methods = ["nearest", "linear", "cubic"]
 ```
 
+Using three different interpolation methods, we can read a point set array along the diagonal.
 
-```Python
+
+```python
 p_diagonal = {}
 for method in interp_methods:
     p_diagonal[method] = last_ts_vtu.getPointSetData("pressure_interpolated", pointsetarray=diagonal, interpolation_method=method)
 ```
 
 
-```Python
+```python
 r = np.sqrt(2*x*x)
 ```
 
 
-```Python
+```python
 for method in interp_methods:
     plt.plot(r[:],p_diagonal[method], label=method)
     plt.xlim((0.0,5))
@@ -209,29 +256,38 @@ plt.tight_layout()
 ```
 
 
-![png](output_21_0.png)
+![png](output_32_0.png)
 
 
+One of the most significant features of VTUinterface is the ability to deal with PVD files as time series data.
+A file can be read in using the PVDIO class similar for the VTUIO class.
 
-```Python
+
+```python
 pvdfile = vtuIO.PVDIO(".","square_1e0_lin.pvd", dim=2)
 ```
 
     ./square_1e0_lin.pvd
 
 
+Points are definen in the following format:
 
-```Python
+
+```python
 points = {"pt0": (0.1,0.1,0.0), "pt1": (0.2,0.2,0), "pt2": (0.124,0.3,0.0)}
 ```
 
+This data is enough to read in a time series of a given field:
 
-```Python
+
+```python
 p_vs_t = pvdfile.readTimeSeries("pressure_interpolated", points)
 ```
 
+The .timesteps variable holds the time axis as defined in the PVD file.
 
-```Python
+
+```python
 for pt in points:
     plt.plot(pvdfile.timesteps, p_vs_t[pt], label=pt)
 plt.legend()
@@ -241,16 +297,19 @@ plt.tight_layout()
 ```
 
 
-![png](output_25_0.png)
+![png](output_40_0.png)
 
 
+The combination of ogs6py with VTUinterface allows to perform ensemble runs quite easily and to analyze the results directly on-the-fly.
+E.g., considering a  distribution of a triangular distributed parameter like the porosity $\phi$:
 
-```Python
+
+```python
 phi_dist = {"low": 0.12, "mid": 0.3, "high": 0.36} 
 ```
 
 
-```Python
+```python
 phi = []
 pressure =[]
 for i in range(10):
@@ -286,8 +345,10 @@ for i in range(10):
     Execution took 83.28014135360718 s
 
 
+Parallelization, e.g., by using Pythons concurrent future methods is straigtforward.
 
-```Python
+
+```python
 plt.scatter(phi, pressure)
 plt.xlabel('porosity')
 plt.ylabel('pressure')
@@ -295,21 +356,25 @@ plt.tight_layout()
 ```
 
 
-![png](output_28_0.png)
+![png](output_45_0.png)
 
 
+ogs6py als has a tool for parsing ogs output.
+This can be very helpful for studying numerical stability and performance.
+In the following example the output is read and the number or nonlinear iterations needed for every time step are ploted versus the time steps.
 
-```Python
+
+```python
 out_df = model.parseOut("out.log")
 ```
 
 
-```Python
+```python
 out_df.drop_duplicates(subset ="time_step/number", keep = "last", inplace = True)
 ```
 
 
-```Python
+```python
 plt.plot(out_df["time_step/number"], out_df["time_step/iteration/number"])
 plt.xlabel("time step")
 plt.ylabel("iterations per time step")
@@ -317,7 +382,7 @@ plt.tight_layout()
 ```
 
 
-![png](output_31_0.png)
+![png](output_49_0.png)
 
 
 # Acknowledgements
