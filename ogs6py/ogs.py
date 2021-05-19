@@ -245,6 +245,20 @@ class OGS:
                 if (attrib is not None and attrib_value is not None):
                     newelement[i].set(attrib, attrib_value)
 
+    def removeElement(self, xpath):
+        """Removes an element
+
+        Parameters
+        ----------
+        xpath : `str`
+        """
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        elements = root.findall(xpath)
+        for element in elements:
+            element.getparent().remove(element)
+
     def addBlock(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
 
