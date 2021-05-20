@@ -120,12 +120,12 @@ model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE="tunnel_exc.prj", MKL=T
 
 
 ```python
-model.replaceTxt("tunnel_exc", xpath="./time_loop/output/prefix")
+model.replace_text("tunnel_exc", xpath="./time_loop/output/prefix")
 ```
 
 
 ```python
-model.writeInput()
+model.write_input()
 ```
 
 
@@ -140,11 +140,11 @@ The path to the ogs executable and a name for the logfile containing important i
 
 
 ```python
-model.runModel(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
+model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
 ```
 
     OGS finished with project file tunnel_exc.prj.
-    Execution took 33.35050320625305 s
+    Execution took 32.684630393981934 s
 
 
 The ouput can be eaysily analyzed using the the capabilities of the VTUinterface tool.
@@ -165,7 +165,7 @@ The default observation point is {'pt0': (0,0,0)} using the method nearest the d
 
 
 ```python
-excavation_curve = pvdfile.readTimeSeries("pressure", interpolation_method="nearest")
+excavation_curve = pvdfile.read_time_series("pressure", interpolation_method="nearest")
 ```
 
 
@@ -230,7 +230,7 @@ The the function ist then converted to a point field which is transformed to cel
 
 
 ```python
-lasttimestep.func2Field(permEDZ, "perm", "tunnel_restart.vtu", cell=True)
+lasttimestep.func_to_field(permEDZ, "perm", "tunnel_restart.vtu", cell=True)
 ```
 
 ## 3. Create Input for heating
@@ -246,30 +246,30 @@ model = OGS(INPUT_FILE="tunnel.prj", PROJECT_FILE="tunnel_heat.prj", MKL=True)
 
 
 ```python
-model.replaceTxt("tunnel_restart.vtu", xpath="./meshes/mesh", occurrence=0)
-model.replaceTxt("tunnel_heat", xpath="./time_loop/output/prefix")
-model.removeElement("./processes/process/initial_stress")
-model.removeElement("./media/medium/properties/property[name='permeability']")
-model.removeElement("./parameters/parameter[mesh='tunnel']")
-model.addBlock("property", parent_xpath="./media/medium/properties", taglist=["name","type", "parameter_name"], textlist=["permeability", "Parameter", "k"])
-model.addBlock("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["k", "MeshElement", "perm"])
-model.addBlock("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["displacement_exc", "MeshNode", "displacement"])
-model.addBlock("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["pressure_exc", "MeshNode", "pressure"])
-model.replaceTxt("displacement_exc", xpath="./process_variables/process_variable[name='displacement']/initial_condition")
-model.replaceTxt("pressure_exc", xpath="./process_variables/process_variable[name='pressure']/initial_condition")
-model.removeElement("./process_variables/process_variable[name='displacement']/boundary_conditions/boundary_condition[mesh='tunnel_inner']")
-model.removeElement("./process_variables/process_variable[name='pressure']/boundary_conditions/boundary_condition[mesh='tunnel_inner']")
-model.addBlock("boundary_condition", parent_xpath="./process_variables/process_variable[name='temperature']/boundary_conditions", taglist=["mesh","type", "parameter"], textlist=["tunnel_inner", "Neumann", "heat_bc"])
-model.replaceTxt("100000000", xpath="./time_loop/processes/process/time_stepping/t_end")
-model.replaceTxt("500000", xpath="./time_loop/processes/process/time_stepping/initial_dt")
-model.replaceTxt("50000", xpath="./time_loop/processes/process/time_stepping/minimum_dt")
-model.replaceTxt("500000", xpath="./time_loop/processes/process/time_stepping/maximum_dt")
-model.replaceTxt("10", xpath="./time_loop/output/timesteps/pair/each_steps")
+model.replace_text("tunnel_restart.vtu", xpath="./meshes/mesh", occurrence=0)
+model.replace_text("tunnel_heat", xpath="./time_loop/output/prefix")
+model.remove_element("./processes/process/initial_stress")
+model.remove_element("./media/medium/properties/property[name='permeability']")
+model.remove_element("./parameters/parameter[mesh='tunnel']")
+model.add_block("property", parent_xpath="./media/medium/properties", taglist=["name","type", "parameter_name"], textlist=["permeability", "Parameter", "k"])
+model.add_block("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["k", "MeshElement", "perm"])
+model.add_block("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["displacement_exc", "MeshNode", "displacement"])
+model.add_block("parameter", parent_xpath="./parameters", taglist=["name","type", "field_name"], textlist=["pressure_exc", "MeshNode", "pressure"])
+model.replace_text("displacement_exc", xpath="./process_variables/process_variable[name='displacement']/initial_condition")
+model.replace_text("pressure_exc", xpath="./process_variables/process_variable[name='pressure']/initial_condition")
+model.remove_element("./process_variables/process_variable[name='displacement']/boundary_conditions/boundary_condition[mesh='tunnel_inner']")
+model.remove_element("./process_variables/process_variable[name='pressure']/boundary_conditions/boundary_condition[mesh='tunnel_inner']")
+model.add_block("boundary_condition", parent_xpath="./process_variables/process_variable[name='temperature']/boundary_conditions", taglist=["mesh","type", "parameter"], textlist=["tunnel_inner", "Neumann", "heat_bc"])
+model.replace_text("100000000", xpath="./time_loop/processes/process/time_stepping/t_end")
+model.replace_text("500000", xpath="./time_loop/processes/process/time_stepping/initial_dt")
+model.replace_text("50000", xpath="./time_loop/processes/process/time_stepping/minimum_dt")
+model.replace_text("500000", xpath="./time_loop/processes/process/time_stepping/maximum_dt")
+model.replace_text("10", xpath="./time_loop/output/timesteps/pair/each_steps")
 ```
 
 
 ```python
-model.writeInput()
+model.write_input()
 ```
 
 
@@ -281,11 +281,11 @@ model.writeInput()
 
 
 ```python
-model.runModel(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
+model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
 ```
 
     OGS finished with project file tunnel_heat.prj.
-    Execution took 133.53488850593567 s
+    Execution took 137.05233430862427 s
 
 
 We now look at the output again and define a set of observation points. We're interested in temperatures as well as pore pressure rise due to thermal pressurization of the fluid.
@@ -305,8 +305,8 @@ pts = {"pt0": (3.5,3.5,0), "pt1": (5.5,5.5,0), "pt2": (8.5,8.5,0)}
 
 
 ```python
-heating_curve = pvdfile.readTimeSeries("temperature", pts=pts)
-pressure_curve = pvdfile.readTimeSeries("pressure", pts=pts)
+heating_curve = pvdfile.read_time_series("temperature", pts=pts)
+pressure_curve = pvdfile.read_time_series("pressure", pts=pts)
 ```
 
 
@@ -347,14 +347,14 @@ Without interpolation any field corresponding to the order of node points (saved
 
 
 ```python
-pressurefield = last_ts_vtu.getField("pressure_interpolated")
+pressurefield = last_ts_vtu.get_field("pressure_interpolated")
 ```
 
 The available field names can be obtained as well using as single function call:
 
 
 ```python
-last_ts_vtu.getFieldNames()
+last_ts_vtu.get_field_names()
 ```
 
 
@@ -436,7 +436,7 @@ Using three different interpolation methods, we can read a point set array along
 ```python
 p_diagonal = {}
 for method in interp_methods:
-    p_diagonal[method] = last_ts_vtu.getPointSetData("pressure_interpolated", pointsetarray=diagonal, interpolation_method=method)
+    p_diagonal[method] = last_ts_vtu.get_point_set_data("pressure_interpolated", pointsetarray=diagonal, interpolation_method=method)
 ```
 
 
@@ -480,27 +480,31 @@ pressure = []
 for i in range(5):
     model = OGS(INPUT_FILE="tunnel_heat.prj", PROJECT_FILE="tunnel_heat_sample.prj", MKL=True)
     a_s.append(np.random.triangular(a_s_dist["low"], a_s_dist["mid"],a_s_dist["high"]))
-    model.replaceTxt("tunnel_heat_sample", xpath="./time_loop/output/prefix")
-    model.replacePhaseProperty(mediumid=0, phase="Solid", name="thermal_expansivity", value=a_s[-1])
-    model.writeInput()
-    model.runModel(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
+    model.replace_text("tunnel_heat_sample", xpath="./time_loop/output/prefix")
+    model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=a_s[-1])
+    model.write_input()
+    model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
     pvd = vtuIO.PVDIO(".","tunnel_heat_sample.pvd")
     last_ts_vtu = vtuIO.VTUIO(pvd.vtufilenames[-1], dim=2)
-    p_data = last_ts_vtu.getPointData("pressure_interpolated", pts=pts)
+    p_data = last_ts_vtu.get_point_data("pressure_interpolated", pts=pts)
     pressure.append(p_data["pt2"])
 ```
 
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 134.3497233390808 s
+    Execution took 136.20938754081726 s
     ./tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 136.38440704345703 s
+    Execution took 137.1558723449707 s
     ./tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 170.62366247177124 s
+    Execution took 141.11419105529785 s
     ./tunnel_heat_sample.pvd
-
-
+    OGS finished with project file tunnel_heat_sample.prj.
+    Execution took 135.82850313186646 s
+    ./tunnel_heat_sample.pvd
+    OGS finished with project file tunnel_heat_sample.prj.
+    Execution took 138.01419043540955 s
+    ./tunnel_heat_sample.pvd
 
 
 
@@ -511,13 +515,19 @@ plt.ylabel('$p$ / MPa')
 plt.tight_layout();
 ```
 
+
+    
+![png](output_61_0.png)
+    
+
+
 ogs6py als has a tool for parsing ogs output.
 This can be very helpful for studying numerical stability and performance.
 In the following example the output is read and the number or nonlinear iterations needed for every time step are ploted versus the time steps.
 
 
 ```python
-out_df = model.parseOut("heating.log")
+out_df = model.parse_out("heating.log")
 ```
 
 
@@ -532,6 +542,12 @@ plt.xlabel("time step")
 plt.ylabel("iterations per time step")
 plt.tight_layout();
 ```
+
+
+    
+![png](output_65_0.png)
+    
+
 
 This was a brief overview over the most significant functionalities of ogs6py and VTUinterface.
 Future developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
