@@ -45,18 +45,18 @@ class OGS:
         Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
     """
     def __init__(self, **args):
-        self.geo = geo.GEO()
-        self.mesh = mesh.MESH()
-        self.pyscript = python_script.PYTHON_SCRIPT()
-        self.processes = processes.PROCESSES()
-        self.media = media.MEDIA()
-        self.timeloop = timeloop.TIMELOOP()
-        self.local_coordinate_system = local_coordinate_system.LOCAL_COORDINATE_SYSTEM()
-        self.parameters = parameters.PARAMETERS()
-        self.curves = curves.CURVES()
-        self.processvars = processvars.PROCESSVARS()
-        self.linsolvers = linsolvers.LINSOLVERS()
-        self.nonlinsolvers = nonlinsolvers.NONLINSOLVERS()
+        self.geo = geo.Geo()
+        self.mesh = mesh.Mesh()
+        self.pyscript = python_script.PythonScript()
+        self.processes = processes.Processes()
+        self.media = media.Media()
+        self.timeloop = timeloop.TimeLoop()
+        self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem()
+        self.parameters = parameters.Parameters()
+        self.curves = curves.Curves()
+        self.processvars = processvars.ProcessVars()
+        self.linsolvers = linsolvers.LinSolvers()
+        self.nonlinsolvers = nonlinsolvers.NonLinSolvers()
         sys.setrecursionlimit(10000)
         self.tag = []
         self.logfile = "out.log"
@@ -85,7 +85,7 @@ class OGS:
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
 
-    def runModel(self, **args):
+    def run_model(self, **args):
         """Command to run OGS.
 
         Runs OGS with the project file specified as PROJECT_FILE
@@ -137,9 +137,7 @@ class OGS:
             if len(dictionary[entry]['children']) > 0:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
-    def replaceTxt(self, value, xpath=".", occurrence=-1):
-        print("PLEASE USE replaceText INSTEAD")
-    def replaceText(self, value, xpath=".", occurrence=-1):
+    def replace_text(self, value, xpath=".", occurrence=-1):
         """General method for replacing text between obening and closing tags
 
 
@@ -165,7 +163,7 @@ class OGS:
                 entry.text = str(value)
 
     @classmethod
-    def _getParameterPointer(cls, root, name, xpath):
+    def _get_parameter_pointer(cls, root, name, xpath):
         params = root.findall(xpath)
         parameterpointer = None
         for parameter in params:
@@ -179,7 +177,7 @@ class OGS:
         return parameterpointer
 
     @classmethod
-    def _getMediumPointer(cls, root, mediumid):
+    def get_medium_pointer(cls, root, mediumid):
         xpathmedia = "./media/medium"
         mediae = root.findall(xpathmedia)
         mediumpointer = None
@@ -192,7 +190,7 @@ class OGS:
         return mediumpointer
 
     @classmethod
-    def _getPhasePointer(cls, root, phase):
+    def _get_phase_pointer(cls, root, phase):
         phases = root.findall("./phases/phase")
         phasetypes = root.findall("./phases/phase/type")
         phasecounter = None
@@ -206,7 +204,7 @@ class OGS:
         return phasepointer
 
     @classmethod
-    def _setTypeValue(cls, parameterpointer, value, parametertype, valuetag=None):
+    def _set_type_value(cls, parameterpointer, value, parametertype, valuetag=None):
         for paramproperty in parameterpointer:
             if paramproperty.tag == valuetag:
                 if not value is None:
@@ -215,7 +213,7 @@ class OGS:
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
-    def addEntry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
+    def add_entry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
         Entry contains of a single tag containing 'text',
@@ -247,7 +245,7 @@ class OGS:
                 if (attrib is not None and attrib_value is not None):
                     newelement[i].set(attrib, attrib_value)
 
-    def removeElement(self, xpath):
+    def remove_element(self, xpath):
         """Removes an element
 
         Parameters
@@ -261,7 +259,7 @@ class OGS:
         for element in elements:
             element.getparent().remove(element)
 
-    def addBlock(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
+    def add_block(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
 
         A block consists of an enclosing tag containing a number of
@@ -292,7 +290,7 @@ class OGS:
                 subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
                 subtaglist[-1].text = str(textlist[i])
 
-    def replaceParameter(self, name=None, value=None, parametertype=None, valuetag="value"):
+    def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         """Replacing parametertypes and values
 
         Parameters
@@ -311,10 +309,10 @@ class OGS:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         parameterpath = "./parameters/parameter"
-        parameterpointer = self._getParameterPointer(root, name, parameterpath)
-        self._setTypeValue(parameterpointer, value, parametertype, valuetag=valuetag)
+        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
+        self._set_type_value(parameterpointer, value, parametertype, valuetag=valuetag)
 
-    def replacePhaseProperty(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
+    def replace_phase_property(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
             propertytype=None, valuetag="value"):
         """Replaces properties in medium phases
 
@@ -337,13 +335,13 @@ class OGS:
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self._getMediumPointer(root, mediumid)
-        phasepointer = self._getPhasePointer(mediumpointer, phase)
+        mediumpointer = self.get_medium_pointer(root, mediumid)
+        phasepointer = self._get_phase_pointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
-        parameterpointer = self._getParameterPointer(phasepointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
+        parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
+        self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def replaceMediumProperty(self, mediumid=None, name=None, value=None, propertytype=None,
+    def replace_medium_property(self, mediumid=None, name=None, value=None, propertytype=None,
             valuetag="value"):
         """Replaces properties in medium (not belonging to any phase)
 
@@ -364,12 +362,12 @@ class OGS:
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self._getMediumPointer(root, mediumid)
+        mediumpointer = self.get_medium_pointer(root, mediumid)
         xpathparameter = "./properties/property"
-        parameterpointer = self._getParameterPointer(mediumpointer, name, xpathparameter)
-        self._setTypeValue(parameterpointer, value, propertytype, valuetag=valuetag)
+        parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
+        self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def writeInput(self):
+    def write_input(self):
         """Writes the projectfile to disk"""
         if not self.tree is None:
             root = self.tree.getroot()
@@ -413,7 +411,7 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parseOut(self, outfile="", maximum_timesteps=None, maximum_lines=None):
+    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None):
         """Parses the logfile
 
         Parameters

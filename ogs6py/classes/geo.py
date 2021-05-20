@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class GEO(build_tree.BUILD_TREE):
+class Geo(build_tree.BuildTree):
     """
     Class containing the geometry file.
     """
@@ -23,7 +23,7 @@ class GEO(build_tree.BUILD_TREE):
             }
         }
 
-    def addGeom(self, filename):
+    def add_geom(self, filename):
         """
         Adds a geometry file.
 

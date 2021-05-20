@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class MEDIA(build_tree.BUILD_TREE):
+class Media(build_tree.BuildTree):
     """
     Class for defining a media material properties."
     """
@@ -23,7 +23,7 @@ class MEDIA(build_tree.BUILD_TREE):
             }
         }
 
-    def addProperty(self, **args):
+    def add_property(self, **args):
         """
         Adds a property to medium/phase
 

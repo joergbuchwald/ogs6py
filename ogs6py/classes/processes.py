@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class PROCESSES(build_tree.BUILD_TREE):
+class Processes(build_tree.BuildTree):
     """
     Class for managing the processes section in the project file.
     """
@@ -49,7 +49,7 @@ class PROCESSES(build_tree.BUILD_TREE):
             'children': {}
         }
 
-    def addProcessVariable(self, **args):
+    def add_process_variable(self, **args):
         """
         Adds a process variable.
 
@@ -89,7 +89,7 @@ class PROCESSES(build_tree.BUILD_TREE):
         else:
             raise KeyError("No process_variable/secondary_variable given.")
 
-    def setProcess(self, **args):
+    def set_process(self, **args):
         """
         Set basic process properties.
 
@@ -114,19 +114,19 @@ class PROCESSES(build_tree.BUILD_TREE):
             for i, entry in enumerate(args["darcy_gravity"]):
                 if entry != 0.0:
                     self.tree['processes']['children']['process'][
-                        'children']['darcy_gravity'] = self.populateTree('darcy_gravity')
+                        'children']['darcy_gravity'] = self.populate_tree('darcy_gravity')
                     darcy_vel = self.tree['processes']['children']['process'][
                                     'children']['darcy_gravity']
-                    darcy_vel['children']['axis'] = self.populateTree('axis_id', text=str(i))
-                    darcy_vel['children']['g'] = self.populateTree('g', text=str(entry))
+                    darcy_vel['children']['axis'] = self.populate_tree('axis_id', text=str(i))
+                    darcy_vel['children']['g'] = self.populate_tree('g', text=str(entry))
 
         for key, value in args.items():
             if isinstance(value, str):
                 self.tree['processes']['children']['process'][
-                    'children'][key] = self.populateTree(key, text=args[key])
+                    'children'][key] = self.populate_tree(key, text=args[key])
 
 
-    def setConstitutiveRelation(self, **args):
+    def set_constitutive_relation(self, **args):
         """
         Sets constituitive relation
 

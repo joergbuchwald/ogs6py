@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class CURVES(build_tree.BUILD_TREE):
+class Curves(build_tree.BuildTree):
     """
     Class to create the curve section of the project file.
     """
@@ -23,7 +23,7 @@ class CURVES(build_tree.BUILD_TREE):
             }
         }
 
-    def addCurve(self, **args):
+    def add_curve(self, **args):
         """
         Adds a new curve.
 
@@ -42,10 +42,10 @@ class CURVES(build_tree.BUILD_TREE):
         if len(args["coords"]) != len(args["values"]):
             raise ValueError("Number of time coordinate points differs from number of values")
         entries = len(self.tree['curves']['children'])
-        self.tree['curves']['children']['curve' + str(entries)] = self.populateTree('curve',
+        self.tree['curves']['children']['curve' + str(entries)] = self.populate_tree('curve',
                 children={})
         parameter = self.tree['curves']['children']['curve' + str(entries)]
-        parameter['children']['name'] = self.populateTree('name', text=args['name'], children={})
+        parameter['children']['name'] = self.populate_tree('name', text=args['name'], children={})
         coord_str = ""
         value_str = ""
         for i, coord in enumerate(args["coords"]):
@@ -55,5 +55,5 @@ class CURVES(build_tree.BUILD_TREE):
             if i == (len(args["coords"])-1):
                 coord_str = coord_str + str(coord)
                 value_str = value_str + str(args["values"][i])
-        parameter['children']['coords'] = self.populateTree('coords', text=coord_str, children={})
-        parameter['children']['values'] = self.populateTree('values', text=value_str, children={})
+        parameter['children']['coords'] = self.populate_tree('coords', text=coord_str, children={})
+        parameter['children']['values'] = self.populate_tree('values', text=value_str, children={})

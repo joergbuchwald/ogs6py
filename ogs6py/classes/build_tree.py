@@ -8,7 +8,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 """
 
 # pylint: disable=C0103, R0902, R0914, R0913
-class BUILD_TREE:
+class BuildTree:
     """ helper class to create a nested dictionary
     representing the xml structure
     """
@@ -25,7 +25,7 @@ class BUILD_TREE:
                 args[item] = str(value)
 
     @classmethod
-    def populateTree(cls, tag, text='', attr=None, children=None):
+    def populate_tree(cls, tag, text='', attr=None, children=None):
         """
         method to create dictionary from an xml entity
         """

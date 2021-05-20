@@ -1,5 +1,5 @@
 ogs6py.classes.python_script
-=====================
+============================
 
 .. automodule:: ogs6py.classes.python_script
    :members:

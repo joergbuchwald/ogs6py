@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class LOCAL_COORDINATE_SYSTEM(build_tree.BUILD_TREE):
+class LocalCoordinateSystem(build_tree.BuildTree):
     """
     Class for defining a local coordinate system in the project file"
     """
@@ -23,7 +23,7 @@ class LOCAL_COORDINATE_SYSTEM(build_tree.BUILD_TREE):
             }
         }
 
-    def addBasisVec(self, **args):
+    def add_basis_vec(self, **args):
         """
         Adds a basis
 

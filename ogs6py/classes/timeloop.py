@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class TIMELOOP(build_tree.BUILD_TREE):
+class TimeLoop(build_tree.BuildTree):
     """
     Class managing the time loop in the project file
     """
@@ -32,87 +32,87 @@ class TIMELOOP(build_tree.BUILD_TREE):
 
     @property
     def tree(self):
-        self.baum['time_loop']['children']['processes2'] = self.populateTree(
+        self.baum['time_loop']['children']['processes2'] = self.populate_tree(
             'processes')
         process = self.baum['time_loop']['children']['processes2']['children']
-        self.baum['time_loop']['children']['output'] = self.populateTree(
+        self.baum['time_loop']['children']['output'] = self.populate_tree(
             'output', children={})
         output = self.baum['time_loop']['children']['output']
-        def popConvCrit(processname):
+        def pop_conv_crit(processname):
             conv_crit_ = {}
             for entry, value in self.process[processname]["conv_crit"].items():
-                conv_crit_[entry] = self.populateTree(entry, text=value, children={})
+                conv_crit_[entry] = self.populate_tree(entry, text=value, children={})
             return conv_crit_
-        def popTimeStepping(processname):
+        def pop_time_stepping(processname):
             ts = {}
             for entry, value in self.process[processname]['time_stepping'].items():
                 if entry not in ('t_repeat', 't_deltat'):
-                    ts[entry] = self.populateTree(entry, text=value, children={})
+                    ts[entry] = self.populate_tree(entry, text=value, children={})
             return ts
-        def popOutput():
+        def pop_output():
             output = {}
             for key, val in self.output.items():
                 if isinstance(val, str):
-                    output[key] = self.populateTree(key, text=val, children={})
+                    output[key] = self.populate_tree(key, text=val, children={})
                 else:
-                    output['timesteps'] = self.populateTree('timesteps', children={})
+                    output['timesteps'] = self.populate_tree('timesteps', children={})
                     output_pair = output['timesteps']['children']
                     for i, repeat in enumerate(self.output["repeat"]):
-                        output_pair['pair' + str(i)] = self.populateTree('pair', children={})
-                        output_pair['pair' + str(i)]['children']['repeat'] = self.populateTree(
+                        output_pair['pair' + str(i)] = self.populate_tree('pair', children={})
+                        output_pair['pair' + str(i)]['children']['repeat'] = self.populate_tree(
                                 'repeat', text=repeat, children={})
-                        output_pair['pair' + str(i)]['children']['each_steps'] = self.populateTree(
+                        output_pair['pair' + str(i)]['children']['each_steps'] = self.populate_tree(
                                 'each_steps',text=self.output["each_steps"][i], children={})
-                    output['variables'] = self.populateTree('variables', children={})
+                    output['variables'] = self.populate_tree('variables', children={})
                     for i, variable in enumerate(self.output["variables"]):
-                        output['variables']['children']['variable'+str(i)] = self.populateTree(
+                        output['variables']['children']['variable'+str(i)] = self.populate_tree(
                                                 'variable',text=variable, children={})
                     if 'meshes' in self.output:
-                        output['meshes'] = self.populateTree('meshes', children={})
+                        output['meshes'] = self.populate_tree('meshes', children={})
                         for i, mesh in enumerate(self.output["meshes"]):
-                            output['meshes']['children']['mesh'+str(i)] = self.populateTree(
-                                    'mesh',text=mesh,children={})
+                            output['meshes']['children']['mesh'+str(i)] = self.populate_tree(
+                                    'mesh',text= mesh, children={})
             return output
 
         for processname in self.process:
-            process[processname] = self.populateTree('process', attr={'ref': processname},
+            process[processname] = self.populate_tree('process', attr={'ref': processname},
                     children={})
-            process[processname]['children']['nonlinear_solver'] = self.populateTree(
+            process[processname]['children']['nonlinear_solver'] = self.populate_tree(
                     'nonlinear_solver', text=self.process[processname]['nonlinear_solver'],
                     children={})
 
-            process[processname]['children']['convergence_criterion'] = self.populateTree(
+            process[processname]['children']['convergence_criterion'] = self.populate_tree(
                     'convergence_criterion', children={})
             conv_crit = process[processname]['children']['convergence_criterion']
-            conv_crit['children'] = popConvCrit(processname)
+            conv_crit['children'] = pop_conv_crit(processname)
 
-            process[processname]['children']['time_discretization'] = self.populateTree(
+            process[processname]['children']['time_discretization'] = self.populate_tree(
                     'time_discretization', children={})
             time_discr = process[processname]['children']['time_discretization']['children']
-            time_discr['type'] = self.populateTree('type',text=self.process[processname][
+            time_discr['type'] = self.populate_tree('type',text=self.process[processname][
                 'time_discretization'], children={})
 
-            process[processname]['children']['time_stepping'] = self.populateTree('time_stepping',
+            process[processname]['children']['time_stepping'] = self.populate_tree('time_stepping',
                     children={})
             time_stepping = process[processname]['children']['time_stepping']
-            time_stepping["children"] = popTimeStepping(processname)
+            time_stepping["children"] = pop_time_stepping(processname)
 
             if 't_repeat' in self.process[processname]['time_stepping']:
-                time_stepping["children"]['timesteps'] = self.populateTree('timesteps',
+                time_stepping["children"]['timesteps'] = self.populate_tree('timesteps',
                                                            children={})
                 time_pair = time_stepping["children"]['timesteps']['children']
                 for i, repeat in enumerate(self.process[processname]["time_stepping"]['t_repeat']):
-                    time_pair['pair' + str(i)] = self.populateTree('pair', children={})
-                    time_pair['pair' + str(i)]['children']['repeat'] = self.populateTree(
+                    time_pair['pair' + str(i)] = self.populate_tree('pair', children={})
+                    time_pair['pair' + str(i)]['children']['repeat'] = self.populate_tree(
                               'repeat', text=repeat, children={})
-                    time_pair['pair' + str(i)]['children']['delta_t'] = self.populateTree(
+                    time_pair['pair' + str(i)]['children']['delta_t'] = self.populate_tree(
                               'delta_t',
                               text=self.process[processname]["time_stepping"]['t_deltat'][i],
                               children={})
-        output['children'] = popOutput()
+        output['children'] = pop_output()
         return self.baum
 
-    def addProcess(self, **args):
+    def add_process(self, **args):
         """
         Add a process section to timeloop
 
@@ -128,7 +128,7 @@ class TIMELOOP(build_tree.BUILD_TREE):
         nonlinear_solver_name : `str`
         time_discretization : `str`
         """
-        def readConvCrit():
+        def read_conv_crit():
             self.process[args['process']]["conv_crit"] = {}
             if args["convergence_type"] == "DeltaX":
                 if "norm_type" not in args:
@@ -171,12 +171,12 @@ class TIMELOOP(build_tree.BUILD_TREE):
         if "convergence_type" not in args:
             raise KeyError("No convergence criterion given. \
                             Specify convergence_type.")
-        readConvCrit()
+        read_conv_crit()
         if "time_discretization" not in args:
             raise KeyError("No time_discretization specified.")
         self.process[args['process']]['time_discretization'] = args["time_discretization"]
 
-    def setStepping(self, **args):
+    def set_stepping(self, **args):
         """
         Sets the time stepping
 
@@ -247,7 +247,7 @@ class TIMELOOP(build_tree.BUILD_TREE):
         else:
             raise KeyError("Specified time stepping scheme not valid.")
 
-    def addOutput(self, **args):
+    def add_output(self, **args):
         """
         Add output section.
 
@@ -318,7 +318,7 @@ class TIMELOOP(build_tree.BUILD_TREE):
                 self.output["fixed_output_times"] = str(args["fixed_output_times"])
 
 
-    def addTimeSteppingPair(self, **args):
+    def add_time_stepping_pair(self, **args):
         """
         add a time stepping pair
 
@@ -338,7 +338,7 @@ class TIMELOOP(build_tree.BUILD_TREE):
             raise KeyError("You muss provide repeat and delta_t attributes to \
                         define additional time stepping pairs.")
 
-    def addOutputPair(self, **args):
+    def add_output_pair(self, **args):
         """
         add an output pair
 

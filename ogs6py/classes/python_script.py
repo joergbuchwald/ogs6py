@@ -9,7 +9,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
 
-class PYTHON_SCRIPT(build_tree.BUILD_TREE):
+class PythonScript(build_tree.BuildTree):
     """
     Class managing python script in the project file
     """
@@ -23,7 +23,7 @@ class PYTHON_SCRIPT(build_tree.BUILD_TREE):
             }
         }
 
-    def setPyscript(self, **args):
+    def set_pyscript(self, **args):
         """
         Set a filename for a python script.
 
