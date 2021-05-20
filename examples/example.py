@@ -85,5 +85,5 @@ model.linsolvers.addLinSolver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.writeInput()
-model.runModel(LOGFILE="test.log")
+model.runModel(logfile="test.log")
 #model.runModel(path="/path_to_ogs_bin_dir/")
