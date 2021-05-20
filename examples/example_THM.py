@@ -1,6 +1,8 @@
 from ogs6py.ogs import OGS
 
-model = OGS(PROJECT_FILE="thm_test.prj", MKL=True, OMP_NUM_THREADS=4)
+# if MKL set vars vars script should be executed before OGS
+# model = OGS(PROJECT_FILE="thm_test.prj", MKL=True, OMP_NUM_THREADS=4)
+model = OGS(PROJECT_FILE="thm_test.prj", OMP_NUM_THREADS=4)
 model.geo.addGeom(filename="square_1x1_thm.gml")
 model.mesh.addMesh(filename="quarter_002_2nd.vtu", axially_symmetric="true")
 model.processes.setProcess(

@@ -1,16 +1,16 @@
 from ogs6py.ogs import OGS
 """
-This example is based on a future version of the project file
-created by example_THM.py in which the porosity is already
-a medium property.
+This example is based on the file created by example_THM.py.
+It is tested with the current master version of OGS (2021-05-20)
 """
 
 for i in range(5):
-    ofile="new_" + str(i) + ".prj"
-    model = OGS(INPUT_FILE="test.prj", PROJECT_FILE=ofile)
+    ofile="thm_test_parameterset_" + str(i) + ".prj"
+    model = OGS(INPUT_FILE="thm_test.prj", PROJECT_FILE=ofile)
     # general function for replacements
-    model.replaceTxt(i/42.1, xpath="./parameters/parameter[name='nu']/value")
-    # is the same as:
+    model.replaceTxt(i*0.1, xpath="./parameters/parameter[name='nu']/value")
+    # alternatively we can tell ogs6py to replace the value of the 1st (2nd)
+    # occurence of parameters/parameter/value:
     #model.replaceTxt(i/42.1, xpath="./parameters/parameter/value", occurrence=1)
     # For MPL based processes, the following functions can be used
     # function for replacing parameter properties
