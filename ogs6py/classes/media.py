@@ -34,6 +34,8 @@ class MEDIA(build_tree.BUILD_TREE):
         name : `str`
         type : `str`
         value : `float` or `str`
+        exponent : `float` or `str`
+        cutoff_value : `float` or `str`
         independent_variable : `str`
         reference_condition : `float` or `str`
         reference_value : `float` or `str`
@@ -162,3 +164,18 @@ class MEDIA(build_tree.BUILD_TREE):
                       'attr': {},
                       'children': {}
                   }
+            elif args['type'] == "BishopsSaturationCutoff":
+                phase[args['name']]['children']['cutoff_value'] = {
+                    'tag': 'cutoff_value',
+                    'text': args['cutoff_value'],
+                    'attr': {},
+                    'children': {}
+                }
+            elif args['type'] == "BishopsPowerLaw":
+                phase[args['name']]['children']['exponent'] = {
+                    'tag': 'exponent',
+                    'text': args['exponent'],
+                    'attr': {},
+                    'children': {}
+                }
+
