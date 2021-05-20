@@ -138,6 +138,8 @@ class OGS:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
     def replaceTxt(self, value, xpath=".", occurrence=-1):
+        print("PLEASE USE replaceText INSTEAD")
+    def replaceText(self, value, xpath=".", occurrence=-1):
         """General method for replacing text between obening and closing tags
 
 

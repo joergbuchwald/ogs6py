@@ -8,7 +8,7 @@ for i in range(5):
     ofile="thm_test_parameterset_" + str(i) + ".prj"
     model = OGS(INPUT_FILE="thm_test.prj", PROJECT_FILE=ofile)
     # general function for replacements
-    model.replaceTxt(i*0.1, xpath="./parameters/parameter[name='nu']/value")
+    model.replaceText(i*0.1, xpath="./parameters/parameter[name='nu']/value")
     # alternatively we can tell ogs6py to replace the value of the 1st (2nd)
     # occurence of parameters/parameter/value:
     #model.replaceTxt(i/42.1, xpath="./parameters/parameter/value", occurrence=1)
