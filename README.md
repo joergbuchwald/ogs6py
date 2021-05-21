@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372) [![ogs6py_test](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml/badge.svg)](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml)
+[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372) [![ogs6py_test](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml/badge.svg)](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml) [![codecov](https://codecov.io/gh/joergbuchwald/ogs6py/branch/master/graph/badge.svg?token=LWID703VDU)](https://codecov.io/gh/joergbuchwald/ogs6py)
 
 # ogs6py
 
