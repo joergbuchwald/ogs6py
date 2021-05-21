@@ -35,7 +35,7 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
-    "m2r2"
+    'm2r2'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
