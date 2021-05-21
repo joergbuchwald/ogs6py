@@ -2,7 +2,6 @@
 source = ogs6py
 omit =
     *docs*
-    *tests*
     *examples*
     *paper*
 
