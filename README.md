@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372)
+[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372) [![ogs6py_test](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml/badge.svg)](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml)
 
 # ogs6py
 
@@ -8,7 +8,7 @@ The package allows to streamline OGS-workflows with python or Julia entirely in 
 
 [![video presentation of ogs6py and vtu interface](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
-[Documentation reference](https://joergbuchwald.github.io/ogs6py-doc)
+[API reference](https://joergbuchwald.github.io/ogs6py-doc)
 
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
@@ -160,7 +160,7 @@ The Young's modulus in this file can also be accessed through 0'th occurrence of
 model.replace_text(E, xpath="./parameters/parameter/value", occurrence=0)
 ```
 
-For MPL based processes, there exist specific functions to set phase and medium properties: E.g.,
+For MPL based processes, there exist specific functions to set phase and medium properties: e.g.,
 
 
 ```python
