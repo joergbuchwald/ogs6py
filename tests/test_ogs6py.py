@@ -2,6 +2,7 @@ import unittest
 
 import hashlib
 from ogs6py.ogs import OGS
+from lxml import etree as ET
 
 class TestiOGS(unittest.TestCase):
 
@@ -262,6 +263,39 @@ class TestiOGS(unittest.TestCase):
                 file_hash.update(chunk)
         self.assertEqual(file_hash.hexdigest(), '502dcb5b68d0ee2b5beb0ea735e8803e')
 
+    def test_replace_text(self):
+        prjfile = "tunnel_ogs6py_replace.prj"
+        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_text("tunnel_replace", xpath="./time_loop/output/prefix")
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./time_loop/output/prefix")
+        self.assertEqual("tunnel_replace", find[0].text)
+
+    def test_replace_phase_property(self):
+        prjfile = "tunnel_ogs6py_replace.prj"
+        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=5)
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./media/medium/phases/phase[type='Solid']/properties/property[name='thermal_expansivity']/value")
+        self.assertEqual("5", find[0].text)
+    def test_replace_medium_property(self):
+        prjfile = "tunnel_ogs6py_replace.prj"
+        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_medium_property(mediumid=0, name="porosity", value=42)
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./media/medium/properties/property[name='porosity']/value")
+        self.assertEqual("42", find[0].text)
+    def test_replace_parameter(self):
+        prjfile = "tunnel_ogs6py_replace.prj"
+        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_parameter(name="E", value=32)
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./parameters/parameter[name='E']/value")
+        self.assertEqual("32", find[0].text)
 
 if __name__ == '__main__':
     unittest.main()
