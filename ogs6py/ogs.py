@@ -411,7 +411,7 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None):
+    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None, petsc=False):
         """Parses the logfile
 
         Parameters
@@ -425,7 +425,7 @@ class OGS:
             maximum number of lines to be evaluated
         """
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
-                maximum_lines=maximum_lines)
+                maximum_lines=maximum_lines, petsc=petsc)
         if outfile=="":
             outfile=self.logfile
         df = pd.DataFrame(data)
