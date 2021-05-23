@@ -5,6 +5,7 @@
 #              See accompanying file LICENSE.txt or
 #              http://www.opengeosys.org/project/license
 
+# pylint: disable=C0103, R0902, R0914, R0913
 import re
 import sys
 from dataclasses import dataclass, field
@@ -35,6 +36,7 @@ class Iteration(object):
     dirichlet_bc_time: float  # seconds
     linear_solver_time: float  # seconds
     cpu_time: float  # seconds
+    phase_field_parameter: float
     component_convergence: List[ComponentConvergence] = field(default_factory=list)
     index_name: str = "iteration/"
 
@@ -45,6 +47,7 @@ class Iteration(object):
             prefix + self.index_name + "dirichlet_bc_time": self.dirichlet_bc_time,
             prefix + self.index_name + "linear_solver_time": self.linear_solver_time,
             prefix + self.index_name + "cpu_time": self.cpu_time,
+            prefix + self.index_name + "phase_field_parameter": self.phase_field_parameter,
         }
 
     def to_dict(self, prefix):
@@ -140,6 +143,10 @@ _re_linear_solver_time = [
     re.compile("info: \[time\] Linear solver took ([\d\.e+s]+) s"),
     float,
 ]
+_re_phase_field_parameter = [
+    re.compile("info: The min of d is ([\d\.e+s]+)"),
+    float,
+]
 # _re_reading_mesh = [re.compile(".*?time.*?Reading the mesh took ([\d\.e+s]+) s"), float]
 _re_execution_time = [re.compile("info: \[time\] Execution took ([\d\.e+s]+) s"), float]
 
@@ -185,6 +192,7 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
     assembly_time = None
     dirichlet_bc_time = None
     linear_solver_time = None
+    phase_field_parameter = None
     component_convergence = []
 
     number_of_lines_read = 0
@@ -204,12 +212,14 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
                     linear_solver_time=linear_solver_time,
                     component_convergence=component_convergence,
                     cpu_time=r[1],
+                    phase_field_parameter=phase_field_parameter
                 )
             )
             # Reset parsed quantities to avoid reusing old values for next iterations
             assembly_time = None
             dirichlet_bc_time = None
             linear_solver_time = None
+            phase_field_parameter = None
             component_convergence = []
             continue
 
@@ -223,6 +233,10 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
 
         if r := _tryMatch(line_new, *_re_linear_solver_time):
             linear_solver_time = r[0]
+            continue
+
+        if r := _tryMatch(line_new, *_re_phase_field_parameter):
+            phase_field_parameter = r[0]
             continue
 
         if r := _tryMatch(line_new, *_re_component_convergence):
