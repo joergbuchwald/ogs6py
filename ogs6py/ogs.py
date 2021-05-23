@@ -423,6 +423,8 @@ class OGS:
             maximum number of timesteps to be taken into account
         maximum_lines : `int`
             maximum number of lines to be evaluated
+        petsc : `boolean`
+            switch whether ogs used the petsc solver
         """
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
                 maximum_lines=maximum_lines, petsc=petsc)

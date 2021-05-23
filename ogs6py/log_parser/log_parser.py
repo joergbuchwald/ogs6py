@@ -191,6 +191,8 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
     for line in open(filename):
         if petsc is True:
             line_new = line.replace('[0] ', '')
+        else:
+            line_new = line
         number_of_lines_read += 1
 
         if r := _tryMatch(line_new, *_re_iteration):
