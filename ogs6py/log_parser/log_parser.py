@@ -153,6 +153,14 @@ _re_component_convergence = [
     float,
 ]
 
+_re_convergence = [
+    re.compile(
+        "info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
+    ),
+    float,
+    float,
+    float,
+]
 
 def _tryMatch(line: str, regex: re.Pattern, *ctors):
     if match := regex.match(line):
@@ -160,7 +168,7 @@ def _tryMatch(line: str, regex: re.Pattern, *ctors):
     return None
 
 
-def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
+def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False):
 
     tss = []
     execution_time = None
@@ -181,9 +189,11 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
 
     number_of_lines_read = 0
     for line in open(filename):
+        if petsc is True:
+            line_new = line.replace('[0] ', '')
         number_of_lines_read += 1
 
-        if r := _tryMatch(line, *_re_iteration):
+        if r := _tryMatch(line_new, *_re_iteration):
             ts.iterations.append(
                 Iteration(
                     number=r[0],
@@ -201,25 +211,31 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
             component_convergence = []
             continue
 
-        if r := _tryMatch(line, *_re_assembly_time):
+        if r := _tryMatch(line_new, *_re_assembly_time):
             assembly_time = r[0]
             continue
 
-        if r := _tryMatch(line, *_re_dirichlet_bc_time):
+        if r := _tryMatch(line_new, *_re_dirichlet_bc_time):
             dirichlet_bc_time = r[0]
             continue
 
-        if r := _tryMatch(line, *_re_linear_solver_time):
+        if r := _tryMatch(line_new, *_re_linear_solver_time):
             linear_solver_time = r[0]
             continue
 
-        if r := _tryMatch(line, *_re_component_convergence):
+        if r := _tryMatch(line_new, *_re_component_convergence):
             component_convergence.append(
                 ComponentConvergence(number=r[0], dx=r[1], x=r[2], dx_relative=r[3])
             )
             continue
 
-        if r := _tryMatch(line, *_re_time_step_start):
+        if r := _tryMatch(line_new, *_re_convergence):
+            component_convergence.append(
+                ComponentConvergence(number=0, dx=r[0], x=r[1], dx_relative=r[2])
+            )
+            continue
+
+        if r := _tryMatch(line_new, *_re_time_step_start):
             # print("Finished ts", ts)
             tss.append(ts)
             ts = TimeStep(number=r[0], t=r[1], dt=r[2])
@@ -233,28 +249,15 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
                 break
             continue
 
-        if r := _tryMatch(line, *_re_time_step_solution_time):
-            # r[0] is process number and is ignored for now.
-#            if ts.number != r[2]:
-#                raise RuntimeError(
-#                    "Solution time for wrong time step", r[2], "current time step", ts
-#                )
+        if r := _tryMatch(line_new, *_re_time_step_solution_time):
             ts.solution_time = r[1]
             continue
 
-        if r := _tryMatch(line, *_re_time_step_output):
-#            if ts.number != r[0]:
-#                raise RuntimeError(
-#                    "Output time for wrong time step", r[0], "current time step", ts
-#                )
+        if r := _tryMatch(line_new, *_re_time_step_output):
             ts.output_time = r[1]
             continue
 
-        if r := _tryMatch(line, *_re_time_step_finished):
-#            if ts.number != r[0]:
-#                raise RuntimeError(
-#                    "Total time for wrong time step", r[0], "current time step", ts
-#                )
+        if r := _tryMatch(line_new, *_re_time_step_finished):
             ts.cpu_time = r[1]
             continue
 
@@ -262,19 +265,20 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None):
         #    mesh_read_time = r[0]
         #    continue
 
-        if r := _tryMatch(line, *_re_execution_time):
+        if r := _tryMatch(line_new, *_re_execution_time):
             execution_time = r[0]
 
             # print("Finished ts", ts)
             tss.append(ts)
             continue
-
     return Simulation(
         timesteps=tss, mesh_read_time=mesh_read_time, execution_time=execution_time
     )
 if __name__ == "__main__":
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None)
+    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None, petsc=True)
+    print(data)
     df = pd.DataFrame(data)
+    print(df)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
