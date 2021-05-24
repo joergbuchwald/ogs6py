@@ -144,7 +144,7 @@ model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
 ```
 
     OGS finished with project file tunnel_exc.prj.
-    Execution took 32.684630393981934 s
+    Execution took 101.43525815010071 s
 
 
 The ouput can be eaysily analyzed using the the capabilities of the VTUinterface tool.
@@ -154,10 +154,10 @@ One of the most significant features of VTUinterface is the ability to deal with
 
 
 ```python
-pvdfile = vtuIO.PVDIO(".","tunnel_exc.pvd", dim=2)
+pvdfile = vtuIO.PVDIO("tunnel_exc.pvd", dim=2)
 ```
 
-    ./tunnel_exc.pvd
+    tunnel_exc.pvd
 
 
 The folllowing command reads time series data from the PVD and the referenced VTU files.
@@ -285,17 +285,17 @@ model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
 ```
 
     OGS finished with project file tunnel_heat.prj.
-    Execution took 137.05233430862427 s
+    Execution took 339.61534357070923 s
 
 
 We now look at the output again and define a set of observation points. We're interested in temperatures as well as pore pressure rise due to thermal pressurization of the fluid.
 
 
 ```python
-pvdfile = vtuIO.PVDIO(".","tunnel_heat.pvd", dim=2)
+pvdfile = vtuIO.PVDIO("tunnel_heat.pvd", dim=2)
 ```
 
-    ./tunnel_heat.pvd
+    tunnel_heat.pvd
 
 
 
@@ -347,7 +347,7 @@ Without interpolation any field corresponding to the order of node points (saved
 
 
 ```python
-pressurefield = last_ts_vtu.get_field("pressure_interpolated")
+pressurefield = last_ts_vtu.get_point_field("pressure_interpolated")
 ```
 
 The available field names can be obtained as well using as single function call:
@@ -358,21 +358,15 @@ last_ts_vtu.get_field_names()
 ```
 
 
+    ---------------------------------------------------------------------------
 
+    AttributeError                            Traceback (most recent call last)
 
-    ['HydraulicFlow',
-     'NodalForces',
-     'displacement',
-     'epsilon',
-     'original_node_number',
-     'pressure',
-     'pressure_interpolated',
-     'saturation',
-     'sigma',
-     'temperature',
-     'temperature_interpolated',
-     'velocity']
+    <ipython-input-36-f2ac528b96b7> in <module>
+    ----> 1 last_ts_vtu.get_field_names()
+    
 
+    AttributeError: 'VTUIO' object has no attribute 'get_field_names'
 
 
 To make a contour plot matplotlibs triangulation tools can be used:
@@ -484,27 +478,27 @@ for i in range(5):
     model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=a_s[-1])
     model.write_input()
     model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
-    pvd = vtuIO.PVDIO(".","tunnel_heat_sample.pvd")
+    pvd = vtuIO.PVDIO("tunnel_heat_sample.pvd")
     last_ts_vtu = vtuIO.VTUIO(pvd.vtufilenames[-1], dim=2)
     p_data = last_ts_vtu.get_point_data("pressure_interpolated", pts=pts)
     pressure.append(p_data["pt2"])
 ```
 
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 136.20938754081726 s
-    ./tunnel_heat_sample.pvd
+    Execution took 363.62722277641296 s
+    tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 137.1558723449707 s
-    ./tunnel_heat_sample.pvd
+    Execution took 372.6022951602936 s
+    tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 141.11419105529785 s
-    ./tunnel_heat_sample.pvd
+    Execution took 370.30759286880493 s
+    tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 135.82850313186646 s
-    ./tunnel_heat_sample.pvd
+    Execution took 330.79134249687195 s
+    tunnel_heat_sample.pvd
     OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 138.01419043540955 s
-    ./tunnel_heat_sample.pvd
+    Execution took 323.0938148498535 s
+    tunnel_heat_sample.pvd
 
 
 
@@ -551,6 +545,11 @@ plt.tight_layout();
 
 This was a brief overview over the most significant functionalities of ogs6py and VTUinterface.
 Future developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
+
+
+```python
+
+```
 
 # Acknowledgements
 
