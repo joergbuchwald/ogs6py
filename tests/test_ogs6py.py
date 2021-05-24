@@ -1,13 +1,13 @@
 import unittest
 
 import hashlib
-from ogs6py.ogs import OGS
+from context import ogs6py
 from lxml import etree as ET
 
 class TestiOGS(unittest.TestCase):
 
     def test_buildfromscratch(self):
-        model = OGS(PROJECT_FILE="tunnel_ogs6py.prj", MKL=True, OMP_NUM_THREADS=4)
+        model = ogs6py.OGS(PROJECT_FILE="tunnel_ogs6py.prj", MKL=True, OMP_NUM_THREADS=4)
         model.mesh.add_mesh(filename="tunnel.vtu")
         model.mesh.add_mesh(filename="tunnel_left.vtu")
         model.mesh.add_mesh(filename="tunnel_right.vtu")
@@ -265,7 +265,7 @@ class TestiOGS(unittest.TestCase):
 
     def test_replace_text(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_text("tunnel_replace", xpath="./time_loop/output/prefix")
         model.write_input()
         root = ET.parse(prjfile)
@@ -274,7 +274,7 @@ class TestiOGS(unittest.TestCase):
 
     def test_replace_phase_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=5)
         model.write_input()
         root = ET.parse(prjfile)
@@ -282,7 +282,7 @@ class TestiOGS(unittest.TestCase):
         self.assertEqual("5", find[0].text)
     def test_replace_medium_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_medium_property(mediumid=0, name="porosity", value=42)
         model.write_input()
         root = ET.parse(prjfile)
@@ -290,7 +290,7 @@ class TestiOGS(unittest.TestCase):
         self.assertEqual("42", find[0].text)
     def test_replace_parameter(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_parameter(name="E", value=32)
         model.write_input()
         root = ET.parse(prjfile)
