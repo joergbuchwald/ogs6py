@@ -1,38 +1,3 @@
----
-title: 'ogs6py and VTUinterface: streamlining OpenGeoSys workflows in Python'
-tags:
-  - Python
-  - physics
-  - THMC
-  - VTU
-  - time-series
-  - sensitivity analysis
-  - uncertainty quantification
-
-authors:
-  - name: Jörg Buchwald^[corresponding author]
-    orcid: 0000-0001-5174-3603
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Olaf Kolditz
-    orcid: 0000-0002-8098-4905
-    affiliation: "1, 3, 4"
-  - name: Thomas Nagel
-    orcid: 0000-0001-8459-4616
-    affiliation: "2, 4"
-affiliations:
- - name: Helmholtz Center for Environmental Research - UFZ, Leipzig, Germany
-   index: 1
- - name: Technische Universität Bergakademie Freiberg, Germany
-   index: 2
- - name: Technische Universität Dresden, Germany
-   index: 3
- - name: TUBAF-UFZ Center for Environmental Geosciences, Germany
-   index: 4
-date: 12 May 2021
-bibliography: paper.bib
-
----
-
 # Summary
 
 ogs6py is a Python interface for the OpenGeoSys finite element software [@Bilke2019].
@@ -148,7 +113,7 @@ model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
     Execution took 35.10139513015747 s
 
 
-The ouput can be eaysily analyzed using the the capabilities of the VTUinterface tool.
+The ouput can be eaysily analyzed using the capabilities of the VTUinterface tool.
 It is important to tell vtuIO the dimensionality of the problem in order to use the correct algorithm for interpolation.
 
 One of the most significant features of VTUinterface is the ability to deal with PVD files as time series data.
@@ -162,12 +127,14 @@ pvdfile = vtuIO.PVDIO("tunnel_exc.pvd", dim=2)
 
 
 The folllowing command reads time series data from the PVD and the referenced VTU files.
-The default observation point is {'pt0': (0,0,0)} using the method nearest the data at the tunne boundary can be gathered:
+The default observation point is {'pt0': (0,0,0)} using the method nearest the data at the tunnel boundary can be gathered:
 
 
 ```python
 excavation_curve = pvdfile.read_time_series("pressure", interpolation_method="nearest")
 ```
+
+and directly displayed using matplotlib:
 
 
 ```python
@@ -178,7 +145,7 @@ plt.ylabel("$p$ / MPa");
 
 
     
-![png](output_18_0.png)
+![png](output_19_0.png)
     
 
 
@@ -216,7 +183,7 @@ plt.ylabel("$k$ / m$^2$");
 
 
     
-![png](output_23_0.png)
+![png](output_24_0.png)
     
 
 
@@ -238,7 +205,7 @@ lasttimestep.func_to_field(permEDZ, "perm", "tunnel_restart.vtu", cell=True)
 
 Now that the properties are set and the initial conditions calculated, we can start the heating simulation. The following input specifies the boundary conditions of the problem and the material properties in the input file for the new phase, which is also based on the original input file used above for the excavation run.
 
-The following set of methods are general purpose methods specially suited for manipulating the OGS6 (XML-) input.
+The following set of methods are general purpose methods specially suited for manipulating the OGS6 (XML) input.
 
 
 ```python
@@ -320,7 +287,7 @@ plt.ylabel("$T$ / °C");
 
 
     
-![png](output_37_0.png)
+![png](output_38_0.png)
     
 
 
@@ -335,7 +302,7 @@ plt.ylabel("$p$ / MPa");
 
 
     
-![png](output_38_0.png)
+![png](output_39_0.png)
     
 
 
@@ -351,7 +318,7 @@ Without interpolation any field corresponding to the order of node points (saved
 pressurefield = last_ts_vtu.get_point_field("pressure_interpolated")
 ```
 
-The available field names can be obtained as well using as single function call:
+The available field names can be obtained as well using the following function call:
 
 
 ```python
@@ -376,7 +343,7 @@ last_ts_vtu.get_point_field_names()
 
 
 
-To make a contour plot matplotlibs triangulation tools can be used:
+To make a contour plot of the pressure field, matplotlibs triangulation tools can be used:
 
 
 ```python
@@ -406,13 +373,13 @@ plt.tight_layout()
 
 
     
-![png](output_48_0.png)
+![png](output_49_0.png)
     
 
 
-Often it is important read out data at arbitraty points within the mesh or along predefined lines.
-To do that we need to interpolate beween grid points.
-VTUinterface uses scipy.interpolate for interpolation beween grid points, i.e. the user can select between different methods that are provided by scipy.interpolate.
+Often it is important to read out data at arbitraty points within the mesh or along predefined lines.
+To do that we need to interpolate between grid points.
+VTUinterface uses scipy.interpolate for interpolation between grid points, i.e., the user can select between different methods that are provided by scipy.interpolate.
 
 A diagonal point set can be defined as follows:
 
@@ -431,7 +398,7 @@ diagonal = [(i,i,0) for i in x]
 interp_methods = ["nearest", "linear", "cubic"]
 ```
 
-Using three different interpolation methods, we can read a point set array along the diagonal.
+Using three different interpolation methods, we can read the output data for a point set array along the diagonal.
 
 
 ```python
@@ -457,11 +424,11 @@ plt.tight_layout();
 
 
     
-![png](output_56_0.png)
+![png](output_57_0.png)
     
 
 
-The combination of ogs6py with VTUinterface allows to perform ensemble runs quite easily and to analyze the results directly on-the-fly.
+The combination of ogs6py with VTUinterface allows us to perform ensemble runs quite easily and to analyze the results directly on-the-fly.
 E.g., considering a  distribution of a triangular distributed parameter like the solid thermal expansion coefficient $a_\text{s}$:
 
 
@@ -469,9 +436,9 @@ E.g., considering a  distribution of a triangular distributed parameter like the
 a_s_dist = {"low": 1e-6, "mid": 1.e-5, "high": 1.5e-5} 
 ```
 
-In contrast to the the general purpose methods like replaceTxt and addBlock, there exist also methods for very conveniently replacing Medium, Phase, Parameter properties.
-In this example we use replacePhaseProperty() to set the solid thermal expansion coefficient drawn from the given distribution in each iteration.
-After execution, the pressure value at given points is read for the last time step and saved in a list.
+In contrast to the the general purpose methods like `replace_text()` and `add_block()`, there exist also methods for very conveniently replacing medium, phase and parameter properties.
+In this example we use `replace_phase_property()` to set the solid thermal expansion coefficient drawn from the given distribution in each iteration.
+After execution, the pressure value at given points is read for the last time step and saved into a list.
 Parallelization of these kind of ensemble run is straight forwad e.g., using Pythons concurrent future methods.
 
 
@@ -508,6 +475,8 @@ for i in range(5):
     tunnel_heat_sample.pvd
 
 
+The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the giveb point.
+
 
 ```python
 plt.scatter(a_s, np.array(pressure)/1e6)
@@ -518,11 +487,11 @@ plt.tight_layout();
 
 
     
-![png](output_61_0.png)
+![png](output_63_0.png)
     
 
 
-ogs6py als has a tool for parsing ogs output.
+ogs6py has also a tool for parsing the OGS output.
 This can be very helpful for studying numerical stability and performance.
 In the following example the output is read and the number or nonlinear iterations needed for every time step are ploted versus the time steps.
 
@@ -536,6 +505,8 @@ out_df = model.parse_out("heating.log")
 out_df.drop_duplicates(subset ="time_step/number", keep = "last", inplace = True)
 ```
 
+The output shows a very stable behavior as every time step needs 5 or 6 nonlinear iterations to converge.
+
 
 ```python
 plt.plot(out_df["time_step/number"], out_df["time_step/iteration/number"])
@@ -546,15 +517,6 @@ plt.tight_layout();
 
 
     
-![png](output_65_0.png)
+![png](output_68_0.png)
     
 
-
-This was a brief overview over the most significant functionalities of ogs6py and VTUinterface.
-Future developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
-
-# Acknowledgements
-
-We acknowledge contributions from Tom Fischer, Dmitry Yu. Naumov, Dominik Kern and Sebastian Müller during the genesis of this project.
-
-# References
