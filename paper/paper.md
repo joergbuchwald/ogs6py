@@ -39,9 +39,9 @@ ogs6py is a Python interface for the OpenGeoSys finite element software [@Bilke2
 In conjunction with VTUinterface it is possible to streamline modeling workflows
 in Jupyter Notebooks using Python.
 With this article, we wish to introduce two new Python modules that facilitate
-the pre- and postprocessing of finite element calculations of OpenGeoSys and thus
+the pre- and post-processing of finite element calculations of OpenGeoSys and thus
 make this code more accessible. Their use is demonstrated along workflows typically
-encountered by the modeller, including the variation of parameters, boundary conditions,
+encountered by the modeler, including the variation of parameters, boundary conditions,
 or solver settings, the verification of simulation results by comparison to analytical
 solutions, the set-up and evaluation of ensemble runs, the analysis of results by line plots,
 time series, or transient contour plots.
@@ -51,10 +51,10 @@ time series, or transient contour plots.
 Driven by its ease-of-use and flexibility as an open-source 
 dynamic language, its vast modular ecosystem, the development of powerful plotting
 libraries and the Jupyter Notebook technology, Python became the quasi-standard for 
-scientific data analysis in the modelling community during the past decade.
-However, the attractiveness of Phython is not just limited to postprocessing. 
+scientific data analysis in the modeling community during the past decade.
+However, the attractiveness of Python is not just limited to post-processing. 
 E.g, with the Python wrapper for GMSH [@geuzaine2009gmsh] or the tool meshio [@nico_schlomer_2021_4745399] also pre-processing tasks can
-be easily conducted without leaving the IPython command prompt. The useability of a modeling package
+be easily conducted without leaving the IPython command prompt. The usability of a modeling package
 is therefore greatly enhanced if Python bindings are provided. In fact, 
 while many open-source tools effectively forced the user to learn a singular syntax
 for interacting with the software, Python bindings allow control over such tools from 
@@ -67,18 +67,18 @@ evaluating ensemble runs [@Buchwald2020;@Chaudhry2021] but has now taken on a wi
 software usability. There exists already a similar python interface "ogs5py" for OGS version 5 [@muller2021ogs5py]. 
 However, the differences in many concepts, like input file handling, required an entirely new package build from scratch.
 
-As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as timeslices stacked together by a PVD file.
+As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as time slices stacked together by a PVD file.
 These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use the Python 
 wrapper for VTK [@schroeder2000visualizing] and some other tools like PyVista [@sullivan2019pyvista] or Mayavi [@ramachandran2011mayavi] 
 are available facilitating an easier access to the VTK library.
-While the direct use of the VTK library is quite cumbersome for quite _simple_ tasks, like reading data for a given point set, especially when interpolation between grid points is also required. The latter packages focus mainly on 3D visualization. However, the _bread and butter_ bussiness of a finite-element-modeller often cosists of the extraction of single- or multiple point time-series data.
+While the direct use of the VTK library is quite cumbersome for basic tasks, like reading data for a given point set, especially when interpolation between grid points is also required. The latter packages focus mainly on 3D visualization. However, the _bread and butter_ business of a finite-element-modeler often consists of the extraction of single- or multiple point time-series data.
 To our knowledge the named packages (with the exception of Paraview) don't have file support for PVDs or time series data, yet [@pvdissue; @timeseriesissue].
 
 # Features
 
-ogs6py allows to create complete OGS source files from scratch, alter existing files, run OGS and parse OGS logfiles.
+ogs6py allows creating complete OGS source files from scratch, alter existing files, run OGS and parse OGS log files.
 The following example demonstrates some basic functionalities.
-A complete example demonstrating a common ogs6py/VTUinterface workflow on a coupled THM point heat source problem can be found in a [jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
+A complete example demonstrating a common ogs6py/VTUinterface workflow on a coupled THM point heat source problem can be found in a [Jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
 
 
 To read in an existing project file and to specify an output name an instance of OGS needs to be created.
@@ -149,8 +149,8 @@ Further developments will focus on extending functionalities with a focus on bui
 # Applications
 
 Both introduced packages are with 1-2 years of age relatively new. However, the adoption process in the OpenGeoSys community is gearing up.
-E.g., a [youtube video](https://www.youtube.com/watch?v=eihNKjK-I-s) was published explaining their use, both tools are also used for teaching 
-at the TU Bergakademie Freiberg and they were also exensively utilized in two recent peer-reviewed publications [@buchwald2021improved; @Buchwald2020].
+E.g., a [YouTube video](https://www.youtube.com/watch?v=eihNKjK-I-s) was published explaining their use, both tools are also used for teaching 
+at the TU Bergakademie Freiberg and they were also extensively utilized in two recent peer-reviewed publications [@buchwald2021improved; @Buchwald2020].
 
 # Acknowledgements
 
