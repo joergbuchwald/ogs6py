@@ -76,9 +76,10 @@ To our knowledge the named packages (with the exception of Paraview) don't have 
 
 # Features
 
-ogs6py allows to create complete OGS source files from scratch or alter existing files.
+ogs6py allows to create complete OGS source files from scratch, alter existing files, run OGS and parse OGS logfiles.
 The following example demonstrates some basic functionalities.
-A complete example demonstrating an usual worflow on a coupled THM point heat source problem can be found in a [jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
+A complete example demonstrating a common ogs6py/VTUinterface workflow on a coupled THM point heat source problem can be found in a [jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
+
 
 To read in an existing project file and to specify an output name an instance of OGS needs to be created.
 
@@ -142,7 +143,7 @@ plt.ylabel("$p$ / MPa");
     
 
 This brief overview shows only some of the functionalities coming with ogs6py and VTUinterface.
-Future developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
+Further developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
 
 
 # Applications
