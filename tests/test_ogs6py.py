@@ -265,7 +265,7 @@ class TestiOGS(unittest.TestCase):
 
     def test_replace_text(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_text("tunnel_replace", xpath="./time_loop/output/prefix")
         model.write_input()
         root = ET.parse(prjfile)
@@ -274,7 +274,7 @@ class TestiOGS(unittest.TestCase):
 
     def test_replace_phase_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=5)
         model.write_input()
         root = ET.parse(prjfile)
@@ -282,7 +282,7 @@ class TestiOGS(unittest.TestCase):
         self.assertEqual("5", find[0].text)
     def test_replace_medium_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_medium_property(mediumid=0, name="porosity", value=42)
         model.write_input()
         root = ET.parse(prjfile)
@@ -290,12 +290,38 @@ class TestiOGS(unittest.TestCase):
         self.assertEqual("42", find[0].text)
     def test_replace_parameter(self):
         prjfile = "tunnel_ogs6py_replace.prj"
-        model = ogs6py.OGS(INPUT_FILE="tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_parameter(name="E", value=32)
         model.write_input()
         root = ET.parse(prjfile)
         find = root.findall("./parameters/parameter[name='E']/value")
         self.assertEqual("32", find[0].text)
+    def test_add_entry(self):
+        prjfile = "tunnel_ogs6py_add_entry.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.add_entry(tag="geometry", parent_xpath=".", text="geometry.gml")
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./geometry")
+        self.assertEqual("geometry.gml", find[0].text)
+    def test_add_block(self):
+        prjfile = "tunnel_ogs6py_add_block.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.add_block("parameter", parent_xpath="./parameters", taglist=["name", "type", "value"],
+                textlist=["mu","Constant","0.001"])
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./parameters/parameter[name='mu']/value")
+        self.assertEqual("0.001", find[0].text)
+    def test_remove_element(self):
+        prjfile = "tunnel_ogs6py_remove_element.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.remove_element(xpath="./parameters/parameter[name='E']")
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./parameters/parameter[name='E']/value")
+        self.assertEqual(0, len(find))
+
 
 if __name__ == '__main__':
     unittest.main()
