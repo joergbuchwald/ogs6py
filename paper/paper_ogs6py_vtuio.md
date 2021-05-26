@@ -76,6 +76,7 @@ In order to demonstrate the features of the problem, we study the example of a t
 
 ## 1. Excavation
 
+
 We first excavate the tunnel by gradually reducing the traction and the pore pressure at the tunnel contour.
 This is achieved by a so-called deconfinement curve distributing the excavation over 8 days. The excavated tunnel is then left to drain and consolidate for another 300 days prior to the commencement of heating. The excavation phase is set up based on a basic input file provided by the user.
 
@@ -94,8 +95,6 @@ model.replace_text("tunnel_exc", xpath="./time_loop/output/prefix")
 model.write_input()
 ```
 
-[//]: #    True
-
 
 
 The input file tunnel_ogspy.prj can be build from scratch using ogs6py commands. The corresponding code can be found in create_tunnel.py.
@@ -105,9 +104,6 @@ The path to the ogs executable and a name for the logfile containing important i
 ```python
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
 ```
-
-[//]: #    OGS finished with project file tunnel_exc.prj.
-[//]: #    Execution took 35.10139513015747 s
 
 
 The ouput can be eaysily analyzed using the capabilities of the VTUinterface tool.
@@ -119,8 +115,6 @@ One of the most significant features of VTUinterface is the ability to deal with
 ```python
 pvdfile = vtuIO.PVDIO("tunnel_exc.pvd", dim=2)
 ```
-
-[//]: #    tunnel_exc.pvd
 
 
 The folllowing command reads time series data from the PVD and the VTU files referenced therein.
@@ -238,7 +232,6 @@ model.write_input()
 ```
 
 
-[//]: #     True
 
 
 
@@ -247,8 +240,6 @@ model.write_input()
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
 ```
 
-[//]: #    OGS finished with project file tunnel_heat.prj.
-[//]: #    Execution took 150.49467158317566 s
 
 
 ## 4. Postprocessing
@@ -260,7 +251,6 @@ We now look at the output again and define a set of observation points. We're in
 pvdfile = vtuIO.PVDIO("tunnel_heat.pvd", dim=2)
 ```
 
- [//]: #   tunnel_heat.pvd
 
 
 
@@ -361,7 +351,7 @@ triang.set_mask(np.hypot(last_ts_vtu.points[:,0][triang.triangles].mean(axis=1),
 
 
 ```python
-plt.tricontourf(triang,pressurefield/1e6, cmap=plt.cm.get_cmap("cool"), levels=levels)
+plt.tricontourf(triang,pressurefield/1e6, cmap=plt.cm.get_cmap("Reds"), levels=levels)
 plt.xlabel("$x$ / m")
 plt.ylabel("$y$ / m")
 plt.colorbar(label='$p$ / MPa')
@@ -426,6 +416,8 @@ plt.tight_layout();
 
 ## 5. Ensemble runs, sensitivity studies
 
+## 5. Ensemble runs, sensitivity studies
+
 The combination of ogs6py with VTUinterface allows us to perform ensemble runs quite easily and to analyze the results directly on-the-fly.
 E.g., considering a  distribution of a triangularly distributed parameter like the solid thermal expansion coefficient $a_\text{s}$:
 
@@ -456,21 +448,6 @@ for i in range(5):
     pressure.append(p_data["pt2"])
 ```
 
-[//]: #    OGS finished with project file tunnel_heat_sample.prj.
-[//]: #     Execution took 138.24808764457703 s
-[//]: #     tunnel_heat_sample.pvd
-[//]: #     OGS finished with project file tunnel_heat_sample.prj.
-[//]: #     Execution took 143.11853218078613 s
-[//]: #     tunnel_heat_sample.pvd
-[//]: #     OGS finished with project file tunnel_heat_sample.prj.
-[//]: #     Execution took 141.93866801261902 s
-[//]: #     tunnel_heat_sample.pvd
-[//]: #     OGS finished with project file tunnel_heat_sample.prj.
-[//]: #    Execution took 142.72268319129944 s
-[//]: #    tunnel_heat_sample.pvd
-[//]: #    OGS finished with project file tunnel_heat_sample.prj.
-[//]: #     Execution took 141.5700352191925 s
-[//]: #     tunnel_heat_sample.pvd
 
 
 The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the observation point.
@@ -483,11 +460,12 @@ plt.ylabel('$p$ / MPa')
 plt.tight_layout();
 ```
 
-## 6. Log-parsing
     
 ![png](output_63_0.png)
     
 
+
+## 6. Log-parsing
 
 ogs6py also has a tool for parsing the OGS log output.
 This can be very helpful for studying numerical stability and performance.
@@ -495,7 +473,8 @@ In the following example the output is read and the number or nonlinear iteratio
 
 
 ```python
-out_df = model.parse_out("heating.log")
+#"heating.log"
+out_df = model.parse_out("THM.log")
 ```
 
 
@@ -529,3 +508,257 @@ found in the ogs6py repository as a Jupyter Notebook.
 * improve figure quality (resolution is very low)
     
 
+
+
+```python
+out_df = model.parse_out("THM.log")
+```
+
+
+```python
+#out_df["iterations_abs"] = out_df["time_step/number"]*out_df["time_step/iteration/number"]
+```
+
+
+```python
+out_df_new = out_df[out_df["time_step/iteration/component_convergence/number"]==1]
+```
+
+
+```python
+#out_df.drop_duplicates(subset ="iterations_abs", keep = "first", inplace = True)
+```
+
+
+```python
+range(2)
+```
+
+
+
+
+    range(0, 2)
+
+
+
+
+```python
+out_df_new[out_df_new["time_step/number"]==2]
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>execution_time</th>
+      <th>time_step/number</th>
+      <th>time_step/t</th>
+      <th>time_step/dt</th>
+      <th>time_step/cpu_time</th>
+      <th>time_step/output_time</th>
+      <th>time_step/iteration/number</th>
+      <th>time_step/iteration/assembly_time</th>
+      <th>time_step/iteration/dirichlet_bc_time</th>
+      <th>time_step/iteration/linear_solver_time</th>
+      <th>time_step/iteration/cpu_time</th>
+      <th>time_step/iteration/phase_field_parameter</th>
+      <th>time_step/iteration/component_convergence/number</th>
+      <th>time_step/iteration/component_convergence/dx</th>
+      <th>time_step/iteration/component_convergence/x</th>
+      <th>time_step/iteration/component_convergence/dx_relative</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>37</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>0.022760</td>
+      <td>0.000955</td>
+      <td>0.048041</td>
+      <td>0.072458</td>
+      <td>None</td>
+      <td>1</td>
+      <td>3.679900e+08</td>
+      <td>1.093000e+09</td>
+      <td>3.366900e-01</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>2</td>
+      <td>0.026220</td>
+      <td>0.000959</td>
+      <td>0.049908</td>
+      <td>0.077778</td>
+      <td>None</td>
+      <td>1</td>
+      <td>1.198400e+08</td>
+      <td>9.735600e+08</td>
+      <td>1.230900e-01</td>
+    </tr>
+    <tr>
+      <th>45</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>3</td>
+      <td>0.025072</td>
+      <td>0.001008</td>
+      <td>0.047717</td>
+      <td>0.074520</td>
+      <td>None</td>
+      <td>1</td>
+      <td>1.251600e+05</td>
+      <td>9.734400e+08</td>
+      <td>1.285700e-04</td>
+    </tr>
+    <tr>
+      <th>49</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>4</td>
+      <td>0.025403</td>
+      <td>0.001071</td>
+      <td>0.049288</td>
+      <td>0.076502</td>
+      <td>None</td>
+      <td>1</td>
+      <td>2.169000e+02</td>
+      <td>9.734300e+08</td>
+      <td>2.228200e-07</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>5</td>
+      <td>0.025760</td>
+      <td>0.001051</td>
+      <td>0.048617</td>
+      <td>0.076121</td>
+      <td>None</td>
+      <td>1</td>
+      <td>3.380400e-01</td>
+      <td>9.734300e+08</td>
+      <td>3.472600e-10</td>
+    </tr>
+    <tr>
+      <th>57</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>6</td>
+      <td>0.025700</td>
+      <td>0.000909</td>
+      <td>0.048248</td>
+      <td>0.075537</td>
+      <td>None</td>
+      <td>1</td>
+      <td>5.165100e-04</td>
+      <td>9.734300e+08</td>
+      <td>5.306100e-13</td>
+    </tr>
+    <tr>
+      <th>61</th>
+      <td>5.07682</td>
+      <td>2</td>
+      <td>10000.0</td>
+      <td>5000.0</td>
+      <td>0.537828</td>
+      <td>NaN</td>
+      <td>7</td>
+      <td>0.025684</td>
+      <td>0.001131</td>
+      <td>0.050723</td>
+      <td>0.078284</td>
+      <td>None</td>
+      <td>1</td>
+      <td>2.761800e-06</td>
+      <td>9.734300e+08</td>
+      <td>2.837200e-15</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+for i in range(25):
+    plt.plot(out_df_new[out_df_new["time_step/number"]==i+1]["time_step/number"],out_df_new[out_df_new["time_step/number"]==i+1]["time_step/iteration/component_convergence/dx_relative"],'-o')
+plt.xlabel("time steps")
+plt.ylabel("relative convergence of pressure")
+plt.yscale('log')
+plt.tight_layout();
+```
+
+
+    
+![png](output_75_0.png)
+    
+
+
+
+```python
+for i in range(25):
+    plt.plot(out_df_new[out_df_new["time_step/number"]==i+1]["time_step/number"],out_df_new[out_df_new["time_step/number"]==i+1]["time_step/iteration/component_convergence/dx"],'-o')
+plt.xlabel("time steps")
+plt.ylabel("absolute convergence of the pressure")
+plt.yscale('log')
+plt.tight_layout();
+```
+
+
+    
+![png](output_76_0.png)
+    
+
+
+# Conclusions
+
+A short overview over the capabilities of ogs6py and VTUinterface for enhancing modeling workflows in OpenGeoSys was presented.
+There is no limit to the user's creativity in applying these tools to more complex situations. For the sake of brevity, we focused
+on highlight relevant in most modeling studies.
