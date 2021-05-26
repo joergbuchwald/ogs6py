@@ -30,7 +30,7 @@ to facilitate both pre- and post-processing workflows using the Python ecosystem
 This aim was not the least inspired by the desire to facilitate setting up, controlling and
 evaluating ensemble runs [@Buchwald2020,@Chaudhry2021] but has now taken on a wider perspective of general 
 software usability. There exists already a similar python interface "ogs5py" for OGS version 5 [@muller2021ogs5py]. 
-However, the differences in many concepts, like input file handling, required an entirely new package to be built from scratch.
+However, the differences in many concepts, like input file handling, required an entirely new package build from scratch.
 
 As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as timeslices stacked together by a PVD file.
 These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use the Python 
@@ -72,7 +72,7 @@ import matplotlib.tri as tri
 
 # Example problem
 
-In order to demonstrate the features of the problem, we study the example of a tunnel excavation followed by emplacement of a heat-emitting canister. The model simulates the thermal, hydraulic and mechanical response of the system during these two phases. For details on such problems we refer the reader to previous work [@Wang2021]. The modelling domain consists of a $200\; \text{m} \times 200\; \text{m}$ section through a clay rock formation with circular excavation ($r=2.5\ \text{m}$) with boundary conditions mimicing a heat-emitting canister as can be seen later in the results.
+In order to demonstrate the features of the problem, we study the example of a tunnel excavation followed by emplacement of a heat-emitting canister. The model simulates the thermal, hydraulic and mechanical response of the system during these two phases. For details on such problems we refer the reader to previous work [@Wang2021]. The modelling domain consists of a $200\; \text{m} \times 200\; \text{m}$ section through a clay rock formation with circular excavatio ($r=2.5\ \text{m}$) with boundary conditions mimicing a heat-emitting canister as can be seen later in the results.
 
 ## 1. Excavation
 
@@ -97,6 +97,11 @@ model.write_input()
 
 
 
+
+    True
+
+
+
 The input file tunnel_ogspy.prj can be build from scratch using ogs6py commands. The corresponding code can be found in create_tunnel.py.
 The path to the ogs executable and a name for the logfile containing important information on the simulation run need to be given as well.
 
@@ -104,6 +109,9 @@ The path to the ogs executable and a name for the logfile containing important i
 ```python
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
 ```
+
+    OGS finished with project file tunnel_exc.prj.
+    Execution took 32.865978717803955 s
 
 
 The ouput can be eaysily analyzed using the capabilities of the VTUinterface tool.
@@ -115,6 +123,8 @@ One of the most significant features of VTUinterface is the ability to deal with
 ```python
 pvdfile = vtuIO.PVDIO("tunnel_exc.pvd", dim=2)
 ```
+
+    tunnel_exc.pvd
 
 
 The folllowing command reads time series data from the PVD and the VTU files referenced therein.
@@ -135,7 +145,8 @@ plt.xlabel("$t$ / d")
 plt.ylabel("$p$ / MPa");
 ```
 
-   
+
+    
 ![png](output_19_0.png)
     
 
@@ -234,15 +245,18 @@ model.write_input()
 
 
 
+    True
+
+
 
 
 ```python
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
 ```
 
+    OGS finished with project file tunnel_heat.prj.
+    Execution took 135.33820176124573 s
 
-
-## 4. Postprocessing
 
 We now look at the output again and define a set of observation points. We're interested in temperatures as well as pore pressure rise due to thermal pressurization of the fluid.
 
@@ -251,6 +265,7 @@ We now look at the output again and define a set of observation points. We're in
 pvdfile = vtuIO.PVDIO("tunnel_heat.pvd", dim=2)
 ```
 
+    tunnel_heat.pvd
 
 
 
@@ -414,7 +429,6 @@ plt.tight_layout();
 ![png](output_57_0.png)
     
 
-## 5. Ensemble runs, sensitivity studies
 
 ## 5. Ensemble runs, sensitivity studies
 
@@ -435,7 +449,7 @@ Parallelization of these kind of ensemble run is straight forwad e.g., using Pyt
 ```python
 a_s = []
 pressure = []
-for i in range(5):
+for i in range(1):
     model = OGS(INPUT_FILE="tunnel_heat.prj", PROJECT_FILE="tunnel_heat_sample.prj", MKL=True)
     a_s.append(np.random.triangular(a_s_dist["low"], a_s_dist["mid"],a_s_dist["high"]))
     model.replace_text("tunnel_heat_sample", xpath="./time_loop/output/prefix")
@@ -448,9 +462,12 @@ for i in range(5):
     pressure.append(p_data["pt2"])
 ```
 
+    OGS finished with project file tunnel_heat_sample.prj.
+    Execution took 134.55228304862976 s
+    tunnel_heat_sample.pvd
 
 
-The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the observation point.
+The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the giveb point.
 
 
 ```python
@@ -459,6 +476,7 @@ plt.xlabel('$a_\\mathrm{s}$ / K$^{-1}$')
 plt.ylabel('$p$ / MPa')
 plt.tight_layout();
 ```
+
 
     
 ![png](output_63_0.png)
@@ -473,20 +491,20 @@ In the following example the output is read and the number or nonlinear iteratio
 
 
 ```python
-#"heating.log"
-out_df = model.parse_out("THM.log")
+out_df = model.parse_out("heating.log")
 ```
 
 
 ```python
-out_df.drop_duplicates(subset ="time_step/number", keep = "last", inplace = True)
+# filter out out all non-linear iterations except the last one:
+out_df_filter1 = out_df.drop_duplicates(subset ="time_step/number", keep = "last")
 ```
 
 The output shows a very stable behavior as every time step needs 5 or 6 nonlinear iterations to converge.
 
 
 ```python
-plt.plot(out_df["time_step/number"], out_df["time_step/iteration/number"])
+plt.plot(out_df_filter1["time_step/number"], out_df_filter1["time_step/iteration/number"])
 plt.xlabel("time step")
 plt.ylabel("iterations per time step")
 plt.tight_layout();
@@ -495,240 +513,21 @@ plt.tight_layout();
 
     
 ![png](output_68_0.png)
-
-# Conclusions
-
-A short overview over the capabilities of ogs6py and VTUinterface for enhancing modeling workflows in OpenGeoSys was presented.
-There is no limit to the user's creativity in applying these tools to more complex situations. For the sake of brevity, we focused
-on highlight relevant in most modeling studies. For those wanting to take a closer look, the full example described above can be 
-found in the ogs6py repository as a Jupyter Notebook. 
-
-
-* where is it available? links to repos?
-* improve figure quality (resolution is very low)
     
 
 
-
-```python
-out_df = model.parse_out("THM.log")
-```
+As the indivual error for every non-linear step are parsed as well, we can resolve the convergence beheavior for every time step:
 
 
 ```python
-#out_df["iterations_abs"] = out_df["time_step/number"]*out_df["time_step/iteration/number"]
+# filter out all other components except of the first
+out_df_filter2 = out_df[out_df["time_step/iteration/component_convergence/number"]==1]
 ```
-
-
-```python
-out_df_new = out_df[out_df["time_step/iteration/component_convergence/number"]==1]
-```
-
-
-```python
-#out_df.drop_duplicates(subset ="iterations_abs", keep = "first", inplace = True)
-```
-
-
-```python
-range(2)
-```
-
-
-
-
-    range(0, 2)
-
-
-
-
-```python
-out_df_new[out_df_new["time_step/number"]==2]
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>execution_time</th>
-      <th>time_step/number</th>
-      <th>time_step/t</th>
-      <th>time_step/dt</th>
-      <th>time_step/cpu_time</th>
-      <th>time_step/output_time</th>
-      <th>time_step/iteration/number</th>
-      <th>time_step/iteration/assembly_time</th>
-      <th>time_step/iteration/dirichlet_bc_time</th>
-      <th>time_step/iteration/linear_solver_time</th>
-      <th>time_step/iteration/cpu_time</th>
-      <th>time_step/iteration/phase_field_parameter</th>
-      <th>time_step/iteration/component_convergence/number</th>
-      <th>time_step/iteration/component_convergence/dx</th>
-      <th>time_step/iteration/component_convergence/x</th>
-      <th>time_step/iteration/component_convergence/dx_relative</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>37</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>1</td>
-      <td>0.022760</td>
-      <td>0.000955</td>
-      <td>0.048041</td>
-      <td>0.072458</td>
-      <td>None</td>
-      <td>1</td>
-      <td>3.679900e+08</td>
-      <td>1.093000e+09</td>
-      <td>3.366900e-01</td>
-    </tr>
-    <tr>
-      <th>41</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>2</td>
-      <td>0.026220</td>
-      <td>0.000959</td>
-      <td>0.049908</td>
-      <td>0.077778</td>
-      <td>None</td>
-      <td>1</td>
-      <td>1.198400e+08</td>
-      <td>9.735600e+08</td>
-      <td>1.230900e-01</td>
-    </tr>
-    <tr>
-      <th>45</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>3</td>
-      <td>0.025072</td>
-      <td>0.001008</td>
-      <td>0.047717</td>
-      <td>0.074520</td>
-      <td>None</td>
-      <td>1</td>
-      <td>1.251600e+05</td>
-      <td>9.734400e+08</td>
-      <td>1.285700e-04</td>
-    </tr>
-    <tr>
-      <th>49</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>4</td>
-      <td>0.025403</td>
-      <td>0.001071</td>
-      <td>0.049288</td>
-      <td>0.076502</td>
-      <td>None</td>
-      <td>1</td>
-      <td>2.169000e+02</td>
-      <td>9.734300e+08</td>
-      <td>2.228200e-07</td>
-    </tr>
-    <tr>
-      <th>53</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>5</td>
-      <td>0.025760</td>
-      <td>0.001051</td>
-      <td>0.048617</td>
-      <td>0.076121</td>
-      <td>None</td>
-      <td>1</td>
-      <td>3.380400e-01</td>
-      <td>9.734300e+08</td>
-      <td>3.472600e-10</td>
-    </tr>
-    <tr>
-      <th>57</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>6</td>
-      <td>0.025700</td>
-      <td>0.000909</td>
-      <td>0.048248</td>
-      <td>0.075537</td>
-      <td>None</td>
-      <td>1</td>
-      <td>5.165100e-04</td>
-      <td>9.734300e+08</td>
-      <td>5.306100e-13</td>
-    </tr>
-    <tr>
-      <th>61</th>
-      <td>5.07682</td>
-      <td>2</td>
-      <td>10000.0</td>
-      <td>5000.0</td>
-      <td>0.537828</td>
-      <td>NaN</td>
-      <td>7</td>
-      <td>0.025684</td>
-      <td>0.001131</td>
-      <td>0.050723</td>
-      <td>0.078284</td>
-      <td>None</td>
-      <td>1</td>
-      <td>2.761800e-06</td>
-      <td>9.734300e+08</td>
-      <td>2.837200e-15</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
 
 
 ```python
 for i in range(25):
-    plt.plot(out_df_new[out_df_new["time_step/number"]==i+1]["time_step/number"],out_df_new[out_df_new["time_step/number"]==i+1]["time_step/iteration/component_convergence/dx_relative"],'-o')
+    plt.plot(out_df_filter2[out_df_filter2["time_step/number"]==i+1]["time_step/number"]+0.1*out_df_filter2[out_df_filter2["time_step/number"]==i+1]["time_step/iteration/number"],out_df_filter2[out_df_filter2["time_step/number"]==i+1]["time_step/iteration/component_convergence/dx_relative"],'-o')
 plt.xlabel("time steps")
 plt.ylabel("relative convergence of pressure")
 plt.yscale('log')
@@ -737,23 +536,7 @@ plt.tight_layout();
 
 
     
-![png](output_75_0.png)
-    
-
-
-
-```python
-for i in range(25):
-    plt.plot(out_df_new[out_df_new["time_step/number"]==i+1]["time_step/number"],out_df_new[out_df_new["time_step/number"]==i+1]["time_step/iteration/component_convergence/dx"],'-o')
-plt.xlabel("time steps")
-plt.ylabel("absolute convergence of the pressure")
-plt.yscale('log')
-plt.tight_layout();
-```
-
-
-    
-![png](output_76_0.png)
+![png](output_71_0.png)
     
 
 
