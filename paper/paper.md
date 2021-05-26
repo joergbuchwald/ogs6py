@@ -141,10 +141,10 @@ plt.xlabel("$t$ / d")
 plt.ylabel("$p$ / MPa");
 ```
 
-![Plots demonstrating the usage of VTUinterface: Excavation curve extracted from a PVD file (left). Contour plot of pressure distribution generated with VTUinterface and matplotlibs `tricontourf()` (right).\label{fig:1}](fig1.png){ width=100% }
+![Plots demonstrating the usage of VTUinterface: Deconfinement curve extracted as timeseries from a PVD file of excavation simulation (left). Contour plot of pressure distribution generated with VTUinterface and matplotlibs `tricontourf()` showing the thermal pressurization during the heating phase (right).\label{fig:1}](fig1.png){ width=100% }
 
 
-![Spatial pressure distribution generated with VTUinterface from a linear point set array using three different grid interpolation methods (left). Relative convergence plot showing the numerical stability over ten time steps extracted using the log file parser of ogs6py (right).](fig2.png){ width=100% }
+![Spatial pressure distribution generated with VTUinterface from a linear point set array using three different grid interpolation methods (left). Relative convergence plot showing the numerical behaviour over ten time steps extracted using the log file parser of ogs6py (right).](fig2.png){ width=100% }
 
 
 This brief overview shows only some of the functionalities coming with ogs6py and VTUinterface.
