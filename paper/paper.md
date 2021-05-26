@@ -132,7 +132,7 @@ excavation_curve = pvdfile.read_time_series("pressure",
         interpolation_method="nearest",  pts={"pt0": (0.0,0.0,0)})
 ```
 
-The result can directly be plotted using matplotlib.
+The result can directly be plotted using matplotlib (\autoref{fig:1}).
 The time axis can be retrieved from the PVD file as well.
 
 ```python
@@ -141,9 +141,11 @@ plt.xlabel("$t$ / d")
 plt.ylabel("$p$ / MPa");
 ```
 
-    
-![Excavtion curve demonstrating the usage of VTUinterface](output_18_0.png){ width=80% }
-    
+![Plots demonstrating the usage of VTUinterface: Excavation curve extracted from a PVD file (left). Contour plot of pressure distribution generated with VTUinterface and matplotlibs `tricontourf()` (right).\label{fig:1}](fig1.png){ width=100% }
+
+
+![Spatial pressure distribution generated with VTUinterface from a linear point set array using three different grid interpolation methods (left). Relative convergence plot showing the numerical stability over ten time steps extracted using the log file parser of ogs6py (right).](fig2.png){ width=100% }
+
 
 This brief overview shows only some of the functionalities coming with ogs6py and VTUinterface.
 Further developments will focus on extending functionalities with a focus on built-in checks to ensure that only valid input files are generated.
