@@ -30,7 +30,7 @@ to facilitate both pre- and post-processing workflows using the Python ecosystem
 This aim was not the least inspired by the desire to facilitate setting up, controlling and
 evaluating ensemble runs [@Buchwald2020,@Chaudhry2021] but has now taken on a wider perspective of general 
 software usability. There exists already a similar python interface "ogs5py" for OGS version 5 [@muller2021ogs5py]. 
-However, the differences in many concepts, like input file handling, required an entirely new package build from scratch.
+However, the differences in many concepts, like input file handling, required an entirely new package to be built from scratch.
 
 As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as timeslices stacked together by a PVD file.
 These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use the Python 
@@ -42,7 +42,7 @@ To our knowledge the named packages (with the exception of Paraview) don't have 
 # Usage
 
 With ogs6py it is possible to create complete OGS source files from scratch or to alter existing file.
-The following example uses a complete input file for a coupled THM point heat source problem, exchanges parts and writes the input, runs the problem and analyses the results.
+The following example uses a complete input file for a coupled THM point heat source problem, exchanges parts and writes the input, runs the problem and analyses the results. We start by importing the modules required for handling OGS input, VTU output mathematical manipulations and plotting.
 
 
 ```python
@@ -70,14 +70,14 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 ```
 
-## Example problem
+# Example problem
 
-In order to demonstrate the features of the problem, we study the example of a tunnel excavation followed by emplacement of a heat-emitting canister. The model simulates the thermal, hydraulic and mechanical response of the system during these two phases. For details on such problems we refer the reader to previous work [@Wang2021]. The modelling domain consists of a $200\; \text{m} \times 200\; \text{m}$ section with a hole ($r=2.5\ \text{m}$) mimicing a heat-emitting canister as can be seen later in the pressure contour plot.
+In order to demonstrate the features of the problem, we study the example of a tunnel excavation followed by emplacement of a heat-emitting canister. The model simulates the thermal, hydraulic and mechanical response of the system during these two phases. For details on such problems we refer the reader to previous work [@Wang2021]. The modelling domain consists of a $200\; \text{m} \times 200\; \text{m}$ section through a clay rock formation with circular excavation ($r=2.5\ \text{m}$) with boundary conditions mimicing a heat-emitting canister as can be seen later in the results.
 
 ## 1. Excavation
 
 We first excavate the tunnel by gradually reducing the traction and the pore pressure at the tunnel contour.
-This is achieved by a so-called deconfinement curve distributing the excavation over 8 days. The excavated tunnel is then left to drain and consolidate for another 300 days prior to the commencement of heating.
+This is achieved by a so-called deconfinement curve distributing the excavation over 8 days. The excavated tunnel is then left to drain and consolidate for another 300 days prior to the commencement of heating. The excavation phase is set up based on a basic input file provided by the user.
 
 
 ```python
@@ -94,10 +94,7 @@ model.replace_text("tunnel_exc", xpath="./time_loop/output/prefix")
 model.write_input()
 ```
 
-
-
-
-    True
+[//]: #    True
 
 
 
@@ -109,12 +106,12 @@ The path to the ogs executable and a name for the logfile containing important i
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="excavation.log")
 ```
 
-    OGS finished with project file tunnel_exc.prj.
-    Execution took 35.10139513015747 s
+[//]: #    OGS finished with project file tunnel_exc.prj.
+[//]: #    Execution took 35.10139513015747 s
 
 
 The ouput can be eaysily analyzed using the capabilities of the VTUinterface tool.
-It is important to tell vtuIO the dimensionality of the problem in order to use the correct algorithm for interpolation.
+It is important to tell vtuIO the dimensionality of the problem in order to use the correct algorithm for spatial interpolation.
 
 One of the most significant features of VTUinterface is the ability to deal with PVD files as time series data.
 
@@ -123,11 +120,12 @@ One of the most significant features of VTUinterface is the ability to deal with
 pvdfile = vtuIO.PVDIO("tunnel_exc.pvd", dim=2)
 ```
 
-    tunnel_exc.pvd
+[//]: #    tunnel_exc.pvd
 
 
-The folllowing command reads time series data from the PVD and the referenced VTU files.
-The default observation point is {'pt0': (0,0,0)} using the method nearest the data at the tunnel boundary can be gathered:
+The folllowing command reads time series data from the PVD and the VTU files referenced therein.
+The default observation point is {'pt0': (0,0,0)} corresponding to the tunnel center. Using the interpolation method nearest,
+the data at the tunnel boundary can be gathered:
 
 
 ```python
@@ -143,15 +141,14 @@ plt.xlabel("$t$ / d")
 plt.ylabel("$p$ / MPa");
 ```
 
-
-    
+   
 ![png](output_19_0.png)
     
 
 
 ## 2. Spatially varying properties
 
-Another useful feature in a modelling workflow we wish to demonstrate is the assignment of spatially varying properties, initial conditions, etc. Here, we include a permeability enhancement in the vicinity of the tunnel after excavation in order to mimic the existence of an excavation damaged zone (EDZ) as an illustrative example. Counter to our usual simulations, the EDZ is here only activated in the heating phase in order to keep this demonstration case simple.
+Another useful feature in a modelling workflow we wish to demonstrate is the assignment of spatially varying properties, initial conditions, etc. Here, we include a permeability enhancement in the vicinity of the tunnel after excavation in order to mimic the existence of an excavation damaged zone (EDZ) as an illustrative example [@Wang2021]. Counter to our usual simulations, the EDZ is here only activated in the heating phase in order to keep this demonstration case simple.
 
 To define a field for an existing VTU file, we can define an arbitrary founction depending on three coordinates x,y and z:
 
@@ -194,18 +191,18 @@ We read in the last time-step after the excavation:
 lasttimestep = vtuIO.VTUIO("tunnel_exc_ts_81_t_8.000000.vtu", dim=2)
 ```
 
-The the function ist then converted to a point field which is transformed to cell data by the function argument cell=True and written to the file "tunnel_restart.vtu":
+The function ist then converted to a point field which is transformed to cell data by the function argument cell=True and written to the file "tunnel_restart.vtu":
 
 
 ```python
 lasttimestep.func_to_field(permEDZ, "perm", "tunnel_restart.vtu", cell=True)
 ```
 
-## 3. Create Input for heating
+## 3. Heating phase
 
 Now that the properties are set and the initial conditions calculated, we can start the heating simulation. The following input specifies the boundary conditions of the problem and the material properties in the input file for the new phase, which is also based on the original input file used above for the excavation run.
 
-The following set of methods are general purpose methods specially suited for manipulating the OGS6 (XML) input.
+The following set of methods are general purpose methods specially suited for manipulating the OGS-6 (XML) input.
 
 
 ```python
@@ -241,9 +238,7 @@ model.write_input()
 ```
 
 
-
-
-    True
+[//]: #     True
 
 
 
@@ -252,9 +247,11 @@ model.write_input()
 model.run_model(path="~/github/ogs/build_mkl/bin", logfile="heating.log")
 ```
 
-    OGS finished with project file tunnel_heat.prj.
-    Execution took 150.49467158317566 s
+[//]: #    OGS finished with project file tunnel_heat.prj.
+[//]: #    Execution took 150.49467158317566 s
 
+
+## 4. Postprocessing
 
 We now look at the output again and define a set of observation points. We're interested in temperatures as well as pore pressure rise due to thermal pressurization of the fluid.
 
@@ -263,7 +260,7 @@ We now look at the output again and define a set of observation points. We're in
 pvdfile = vtuIO.PVDIO("tunnel_heat.pvd", dim=2)
 ```
 
-    tunnel_heat.pvd
+ [//]: #   tunnel_heat.pvd
 
 
 
@@ -427,9 +424,10 @@ plt.tight_layout();
 ![png](output_57_0.png)
     
 
+## 5. Ensemble runs, sensitivity studies
 
 The combination of ogs6py with VTUinterface allows us to perform ensemble runs quite easily and to analyze the results directly on-the-fly.
-E.g., considering a  distribution of a triangular distributed parameter like the solid thermal expansion coefficient $a_\text{s}$:
+E.g., considering a  distribution of a triangularly distributed parameter like the solid thermal expansion coefficient $a_\text{s}$:
 
 
 ```python
@@ -458,24 +456,24 @@ for i in range(5):
     pressure.append(p_data["pt2"])
 ```
 
-    OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 138.24808764457703 s
-    tunnel_heat_sample.pvd
-    OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 143.11853218078613 s
-    tunnel_heat_sample.pvd
-    OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 141.93866801261902 s
-    tunnel_heat_sample.pvd
-    OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 142.72268319129944 s
-    tunnel_heat_sample.pvd
-    OGS finished with project file tunnel_heat_sample.prj.
-    Execution took 141.5700352191925 s
-    tunnel_heat_sample.pvd
+[//]: #    OGS finished with project file tunnel_heat_sample.prj.
+[//]: #     Execution took 138.24808764457703 s
+[//]: #     tunnel_heat_sample.pvd
+[//]: #     OGS finished with project file tunnel_heat_sample.prj.
+[//]: #     Execution took 143.11853218078613 s
+[//]: #     tunnel_heat_sample.pvd
+[//]: #     OGS finished with project file tunnel_heat_sample.prj.
+[//]: #     Execution took 141.93866801261902 s
+[//]: #     tunnel_heat_sample.pvd
+[//]: #     OGS finished with project file tunnel_heat_sample.prj.
+[//]: #    Execution took 142.72268319129944 s
+[//]: #    tunnel_heat_sample.pvd
+[//]: #    OGS finished with project file tunnel_heat_sample.prj.
+[//]: #     Execution took 141.5700352191925 s
+[//]: #     tunnel_heat_sample.pvd
 
 
-The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the giveb point.
+The output shows the linear correlation between the thermal expansion coeffient and the pressure response at the observation point.
 
 
 ```python
@@ -485,13 +483,13 @@ plt.ylabel('$p$ / MPa')
 plt.tight_layout();
 ```
 
-
+## 6. Log-parsing
     
 ![png](output_63_0.png)
     
 
 
-ogs6py has also a tool for parsing the OGS output.
+ogs6py also has a tool for parsing the OGS log output.
 This can be very helpful for studying numerical stability and performance.
 In the following example the output is read and the number or nonlinear iterations needed for every time step are ploted versus the time steps.
 
@@ -518,5 +516,16 @@ plt.tight_layout();
 
     
 ![png](output_68_0.png)
+
+# Conclusions
+
+A short overview over the capabilities of ogs6py and VTUinterface for enhancing modeling workflows in OpenGeoSys was presented.
+There is no limit to the user's creativity in applying these tools to more complex situations. For the sake of brevity, we focused
+on highlight relevant in most modeling studies. For those wanting to take a closer look, the full example described above can be 
+found in the ogs6py repository as a Jupyter Notebook. 
+
+
+* where is it available? links to repos?
+* improve figure quality (resolution is very low)
     
 
