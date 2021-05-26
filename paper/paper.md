@@ -8,6 +8,7 @@ tags:
   - time-series
   - sensitivity analysis
   - uncertainty quantification
+  - OpenGeoSys
 
 authors:
   - name: Jörg Buchwald^[corresponding author]
@@ -65,7 +66,7 @@ to facilitate both pre- and post-processing workflows using the Python ecosystem
 This aim was not the least inspired by the desire to facilitate setting up, controlling and
 evaluating ensemble runs [@Buchwald2020;@Chaudhry2021] but has now taken on a wider perspective of general 
 software usability. There exists already a similar python interface "ogs5py" for OGS version 5 [@muller2021ogs5py]. 
-However, the differences in many concepts, like input file handling, required an entirely new package build from scratch.
+However, the differences in many concepts, like input file handling, required an entirely new package to be built from scratch.
 
 As standard output format, OpenGeoSys uses VTK unstructured grid files (VTU) as time slices stacked together by a PVD file.
 These can be analyzed typically using Paraview [@ahrens2005paraview]. For interactive Python use the Python 
@@ -76,9 +77,11 @@ To our knowledge the named packages (with the exception of Paraview) don't have 
 
 # Features
 
-ogs6py allows creating complete OGS source files from scratch, alter existing files, run OGS and parse OGS log files.
+ogs6py allows creating complete OGS source files from scratch, altering existing files, running simulations and parsing OGS log files.
 The following example demonstrates some basic functionalities.
-A complete example demonstrating a common ogs6py/VTUinterface workflow on a coupled THM point heat source problem can be found in a [Jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
+The complete example demonstrating a common ogs6py/VTUinterface workflow on a coupled THM problem of a tunnel excavation followed by the
+emplacement of a heat-emitting canister can be found in a 
+[Jupyter notebook](https://github.com/joergbuchwald/ogs6py/blob/master/paper/paper_ogs6py_vtuio.ipynb) located in the project repository.
 
 
 To read in an existing project file and to specify an output name an instance of OGS needs to be created.
