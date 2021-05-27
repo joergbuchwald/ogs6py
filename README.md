@@ -8,14 +8,13 @@ The package allows to streamline OGS-workflows with python or Julia entirely in 
 
 [![video presentation of ogs6py and vtu interface](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
-[API reference](https://joergbuchwald.github.io/ogs6py-doc)
 
 To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
 
     1. creating a new input file using python method calls
     2. altering existing input files
 
-# 0. Installation
+## 0. Installation
 
 clone the repository and use pip/pip3 to install the package.
 
@@ -27,9 +26,14 @@ clone the repository and use pip/pip3 to install the package.
 
 ## CAUTION: naming style of methods has changed (2021-05-20)
 
-# 1. Creating a new input file
+## 1. Documentation for ogs6py
+
+You can find the documentation under [https://joergbuchwald.github.io/ogs6py-doc](https://joergbuchwald.github.io/ogs6py-doc)
+
+
+## 2. Creating a new input file
  
-The following example consists of a simple mechanics problem. The source file can be found in the examples directory The names of the method calls are based on the corresponing XML tags. The `MKL=True` option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
+The following example consists of a simple mechanics problem. The source file can be found in the examples directory The names of the method calls are based on the corresponing XML tags.
 
 
 ```python
@@ -130,7 +134,7 @@ model.runModel(path="~/github/ogs/build_mkl/bin")
 
 An example using the MPL can be find in example_THM.py.
 
-# 2. Alternatively it is possible to alter existing files using the available replace methods:
+## 3. Alternatively it is possible to alter existing files using the available replace methods:
 
 E.g., to iterate over three Young's moduli one can use the replace parameter method:
 
@@ -146,7 +150,8 @@ for E in Es:
     model.run_model(path="~/github/ogs/build_mkl/bin")
 ```
 
-Instead of the `replace_parameter` method, the more general `replace_text` method can be used
+The `MKL=True` option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
+Instead of the `replace_parameter` method, the more general `replace_text` method can also be used to replace the young modulus in this example:
 
 
 ```python
@@ -176,10 +181,12 @@ model.replace_medium_property(mediumid=0, name="porosity", value="0.24")
 
 for a property that lives on the medium level.
 
-# 3. Log-Parser
-To parse the output that is piped into a file named `out.log` you can simply do:
+## 4. Log-Parser
+To parse the OGS output that is piped into a file do
 
 
 ```python
 df = model.parse_out("examples/out_thm.log")
 ```
+
+which returns a pandas dataframe.
