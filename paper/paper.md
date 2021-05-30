@@ -161,5 +161,8 @@ at the TU Bergakademie Freiberg and they were also extensively utilized in two r
 # Acknowledgements
 
 We acknowledge contributions from Tom Fischer, Dmitry Yu. Naumov, Dominik Kern and Sebastian Müller during the genesis of this project.
+The funding through the iCROSS-Project (Integrity of nuclear waste repository systems – Cross-scale system understanding and analysis) 
+by the Federal Ministry of Research and Education (BMBF, grant number 02NUK053E) and Helmholtz Association (Helmholtz-Gemeinschaft e.V.) 
+through the Impulse and Networking Funds (grant number SO-093) is greatly acknowledged.
 
 # References
