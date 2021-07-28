@@ -426,9 +426,9 @@ class OGS:
         petsc : `boolean`
             switch whether ogs used the petsc solver
         """
+        if outfile == "":
+            outfile = self.logfile
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
                 maximum_lines=maximum_lines, petsc=petsc)
-        if outfile=="":
-            outfile=self.logfile
         df = pd.DataFrame(data)
         return df
