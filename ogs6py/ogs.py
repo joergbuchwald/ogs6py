@@ -181,9 +181,15 @@ class OGS:
         xpathmedia = "./media/medium"
         mediae = root.findall(xpathmedia)
         mediumpointer = None
+        print(len(mediae))
         for medium in mediae:
-            if medium.attrib['id'] == str(mediumid):
-                mediumpointer = medium
+            try:
+                if medium.attrib['id'] == str(mediumid):
+                    mediumpointer = medium
+            except KeyError:
+                if len(mediae) == 1:
+                    if str(mediumid) == "0":
+                        mediumpointer = medium
         if mediumpointer is None:
             print("Medium not found")
             raise RuntimeError
