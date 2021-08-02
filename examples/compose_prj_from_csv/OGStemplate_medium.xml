@@ -1,0 +1,41 @@
+<medium>
+            <phases>
+                <phase>
+                    <type>AqueousLiquid</type> 
+                    <properties>
+                        <property>
+                            <name>viscosity</name>
+                            <type>Constant</type>
+                            <value> 0.0 </value> <!--Pa*s-->
+                        </property>
+                        <property>
+                            <name>density</name>
+                            <type>Constant</type>
+                            <value> 0.0 </value> <!--kg/m3-->
+                        </property>
+                    </properties>
+                </phase>
+            </phases>
+            <properties>
+                <property>
+                    <name>permeability</name>
+                    <type>Constant</type>
+                    <value> 0.0 </value> <!--m2-->
+                </property>
+                <property>
+                    <name>reference_temperature</name>
+                    <type>Constant</type>
+                    <value> 293.15 </value> <!--K-->
+                </property>
+                <property>
+                    <name>porosity</name>
+                    <type>Constant</type>
+                    <value> 0.0 </value> <!--1-->
+                </property>
+                <property>
+                    <name>storage</name>
+                    <type>Constant</type>
+                    <value> 0.0 </value>
+                </property>
+            </properties>
+</medium>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--units: kg, m, s, K and derived units: N, Pa=N/m2, Da=m2 -->
+<OpenGeoSysProject>
+    <meshes>
+        <mesh>mesh_basin_domain.vtu</mesh>
+        <mesh>mesh_basin_physical_group_Left.vtu</mesh>
+        <mesh>mesh_basin_physical_group_Right.vtu</mesh>
+        <mesh>mesh_basin_physical_group_Bottom.vtu</mesh>
+        <mesh>mesh_basin_physical_group_Top.vtu</mesh>
+    </meshes>
+    <processes>
+        <process>
+            <name>LiquidFlow</name>
+            <type>LIQUID_FLOW</type>
+            <integration_order>2</integration_order>
+            <darcy_gravity>
+                <!-- axis_id: 0, 1, or the dimension of space minus one -->
+                <axis_id>1</axis_id>
+                <!-- g>=0. g=0: non gravity term -->
+                <g>9.81</g> <!--m/s2-->
+            </darcy_gravity>
+            <process_variables>
+                <process_variable>pressure</process_variable>
+            </process_variables>
+            <secondary_variables>
+                <secondary_variable internal_name="darcy_velocity" output_name="v"/>
+            </secondary_variables>
+        </process>
+    </processes>
+    <media>
+    </media>
+    <time_loop>
+        <processes>
+            <process ref="LiquidFlow">
+                <nonlinear_solver>basic_picard</nonlinear_solver>
+                <convergence_criterion>
+                    <type>DeltaX</type>
+                    <norm_type>NORM2</norm_type>
+                    <abstol>1.e-6</abstol>
+                </convergence_criterion>
+                <time_discretization>
+                    <type>BackwardEuler</type>
+                </time_discretization>
+                <time_stepping>
+                    <type>FixedTimeStepping</type>
+                    <t_initial> 0.0 </t_initial>
+                    <t_end> 100 </t_end> <!--s-->
+                    <timesteps>
+                        <pair>
+                            <repeat>10</repeat>
+                            <delta_t>10</delta_t> <!--s-->
+                        </pair>
+                    </timesteps>
+                </time_stepping>
+            </process>
+        </processes>
+        <output>
+            <type>VTK</type>
+            <prefix>OGSoutput_basin_H</prefix>
+            <timesteps>
+                <pair>
+                    <repeat> 10</repeat>
+                    <each_steps> 1 </each_steps>
+                </pair>
+<!--                <pair>
+                    <repeat> 9 </repeat>
+                    <each_steps> 10 </each_steps>
+                </pair>-->
+            </timesteps>
+            <variables>
+                <variable> pressure </variable>
+                <variable> v </variable>
+            </variables>
+            <suffix>_ts_{:timestep}_t_{:time}</suffix>
+        </output>
+    </time_loop>
+    <parameters>
+        <parameter>
+            <name>Zero</name>
+            <type>Constant</type>
+            <value>0.0</value> <!--Pa-->
+        </parameter>
+        <parameter>
+            <name>p_at</name>
+            <type>Constant</type>
+            <value>101325</value> <!--Pa-->
+        </parameter>
+        <parameter>
+            <name>p_bc</name>
+            <type>Constant</type>
+            <value>1e6</value> <!--Pa-->
+        </parameter>
+        <parameter>
+            <name>influx</name>
+            <type>Constant</type>
+            <value>1e-5</value> <!--m/s-->
+        </parameter>
+        <parameter>
+            <name>efflux</name>
+            <type>Constant</type>
+            <value>-1e-5</value> <!--m/s-->
+        </parameter>
+    </parameters>
+    <process_variables>
+        <process_variable>
+            <name>pressure</name>
+            <components>1</components>
+            <order>1</order>
+            <!-- Initial and boundary values -->
+            <initial_condition>Zero</initial_condition>
+            <boundary_conditions>
+                <boundary_condition>
+                    <mesh>mesh_basin_physical_group_Left</mesh>
+                    <type>Neumann</type>
+                    <parameter>influx</parameter>
+                </boundary_condition>
+                <boundary_condition>
+                    <mesh>mesh_basin_physical_group_Right</mesh>
+                    <type>Neumann</type>
+                    <parameter>efflux</parameter>
+                </boundary_condition>
+                <boundary_condition>
+                    <mesh>mesh_basin_physical_group_Top</mesh>
+                    <type>Dirichlet</type>
+                    <parameter>p_at</parameter>
+                </boundary_condition>
+                <boundary_condition>
+                    <mesh>mesh_basin_physical_group_Bottom</mesh>
+                      <type>Dirichlet</type>
+                    <parameter>p_bc</parameter>
+                </boundary_condition>
+            </boundary_conditions>
+        </process_variable>
+    </process_variables>
+    <nonlinear_solvers>
+        <nonlinear_solver>
+            <name>basic_picard</name>
+            <type>Picard</type>
+            <max_iter>10</max_iter>
+            <linear_solver>general_linear_solver</linear_solver>
+        </nonlinear_solver>
+    </nonlinear_solvers>
+    <linear_solvers>
+        <linear_solver>
+            <name>general_linear_solver</name>
+            <eigen>
+                <solver_type>CG</solver_type>
+                <precon_type>DIAGONAL</precon_type>
+                <max_iteration_step>10000</max_iteration_step>
+                <error_tolerance>1e-20</error_tolerance>
+            </eigen>
+        </linear_solver>
+    </linear_solvers>
+</OpenGeoSysProject>
