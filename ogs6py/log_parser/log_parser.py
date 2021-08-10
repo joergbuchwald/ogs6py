@@ -36,7 +36,10 @@ class Iteration(object):
     dirichlet_bc_time: float  # seconds
     linear_solver_time: float  # seconds
     cpu_time: float  # seconds
-    phase_field_parameter: float
+    elastic_energy: float
+    surface_energy: float
+    pressure_work: float
+    total_energy: float
     component_convergence: List[ComponentConvergence] = field(default_factory=list)
     index_name: str = "iteration/"
 
@@ -47,7 +50,10 @@ class Iteration(object):
             prefix + self.index_name + "dirichlet_bc_time": self.dirichlet_bc_time,
             prefix + self.index_name + "linear_solver_time": self.linear_solver_time,
             prefix + self.index_name + "cpu_time": self.cpu_time,
-            prefix + self.index_name + "phase_field_parameter": self.phase_field_parameter,
+            prefix + self.index_name + "elastic_energy": self.elastic_energy,
+            prefix + self.index_name + "surface_energy": self.surface_energy,
+            prefix + self.index_name + "pressure_work": self.pressure_work,
+            prefix + self.index_name + "total_energy": self.total_energy,
         }
 
     def to_dict(self, prefix):
@@ -143,8 +149,11 @@ _re_linear_solver_time = [
     re.compile("info: \[time\] Linear solver took ([\d\.e+s]+) s"),
     float,
 ]
-_re_phase_field_parameter = [
-    re.compile("info: The min of d is ([\d\.e+s]+)"),
+_re_phase_field_parameters = [
+    re.compile("info: Elastic energy: ([\d\.e+-]+) Surface energy: ([\d\.e+-]+) Pressure work: ([\d\.e+-]+) Total energy: ([\d\.e+-]+)"),
+    float,
+    float,
+    float,
     float,
 ]
 # _re_reading_mesh = [re.compile(".*?time.*?Reading the mesh took ([\d\.e+s]+) s"), float]
@@ -192,7 +201,10 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
     assembly_time = None
     dirichlet_bc_time = None
     linear_solver_time = None
-    phase_field_parameter = None
+    elastic_energy = None
+    surface_energy = None
+    pressure_work = None
+    total_energy = None
     component_convergence = []
 
     number_of_lines_read = 0
@@ -212,14 +224,20 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
                     linear_solver_time=linear_solver_time,
                     component_convergence=component_convergence,
                     cpu_time=r[1],
-                    phase_field_parameter=phase_field_parameter
+                    elastic_energy=elastic_energy,
+                    surface_energy=surface_energy,
+                    pressure_work=pressure_work,
+                    total_energy=total_energy
                 )
             )
             # Reset parsed quantities to avoid reusing old values for next iterations
             assembly_time = None
             dirichlet_bc_time = None
             linear_solver_time = None
-            phase_field_parameter = None
+            elastic_energy = None
+            surface_energy = None
+            pressure_work = None
+            total_energy = None
             component_convergence = []
             continue
 
@@ -235,8 +253,11 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
             linear_solver_time = r[0]
             continue
 
-        if r := _tryMatch(line_new, *_re_phase_field_parameter):
-            phase_field_parameter = r[0]
+        if r := _tryMatch(line_new, *_re_phase_field_parameters):
+            elastic_energy = r[0]
+            surface_energy = r[1]
+            pressure_work = r[2]
+            total_energy = r[3]
             continue
 
         if r := _tryMatch(line_new, *_re_component_convergence):
