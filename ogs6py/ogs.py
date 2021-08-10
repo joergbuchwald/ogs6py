@@ -219,6 +219,31 @@ class OGS:
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
+    def replace_mesh(self, oldmesh, newmesh):
+        """ Method to replace meshes
+
+        Parameters
+        ----------
+        oldmesh : `str`
+        newmesh : `str`
+        """
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        all_occurrences = root.findall(".//mesh")
+        switch = False
+        for occurrence in all_occurrences:
+            if switch is False:
+                if occurrence.text == oldmesh:
+                    occurrence.text = newmesh
+                    switch = True
+            else:
+                oldmesh_stripped = os.path.split(oldmesh)[1].split(".")[0]
+                newmesh_stripped = os.path.split(newmesh)[1].split(".")[0]
+                if occurrence.text == oldmesh_stripped:
+                    occurrence.text = newmesh_stripped
+
+    
     def add_entry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
