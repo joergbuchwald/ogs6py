@@ -126,14 +126,14 @@ _re_time_step_solution_time = [
     int,
 ]
 _re_time_step_finished = [
-    re.compile("info: \[time\] Time step #(\d+) took ([\d\.e+s]+) s"),
+    re.compile("info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s"),
     int,
     float,
 ]
 
-_re_assembly_time = [re.compile("info: \[time\] Assembly took ([\d\.e+s]+) s"), float]
+_re_assembly_time = [re.compile("info: \[time\] Assembly took ([\d\.e+-]+) s"), float]
 _re_dirichlet_bc_time = [
-    re.compile("info: \[time\] Applying Dirichlet BCs took ([\d\.e+s]+) s"),
+    re.compile("info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s"),
     float,
 ]
 _re_linear_solver_time = [
@@ -141,7 +141,7 @@ _re_linear_solver_time = [
     float,
 ]
 # _re_reading_mesh = [re.compile(".*?time.*?Reading the mesh took ([\d\.e+s]+) s"), float]
-_re_execution_time = [re.compile("info: \[time\] Execution took ([\d\.e+s]+) s"), float]
+_re_execution_time = [re.compile("info: \[time\] Execution took ([\d\.e+-]+) s"), float]
 
 _re_component_convergence = [
     re.compile(
