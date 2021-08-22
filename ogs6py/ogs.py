@@ -243,7 +243,7 @@ class OGS:
                 if occurrence.text == oldmesh_stripped:
                     occurrence.text = newmesh_stripped
 
-    
+
     def add_entry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
@@ -275,6 +275,25 @@ class OGS:
                     newelement[i].text = str(text)
                 if (attrib is not None and attrib_value is not None):
                     newelement[i].set(attrib, attrib_value)
+
+    def add_include(self, parent_xpath="./", file=""):
+        """add include element
+
+        Parameters
+        ----------
+        parent_xpath : `str`, optional
+            XPath of the parent tag
+        file : `str`
+            file name
+        """
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
+        parent = root.findall(parent_xpath)
+        newelement = []
+        for i, entry in enumerate(parent):
+            newelement.append(ET.SubElement(entry, "include"))
+            newelement[i].set("file", file)
 
     def remove_element(self, xpath):
         """Removes an element
