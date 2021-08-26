@@ -120,10 +120,10 @@ class OGS:
         startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()
-        difft = stopt - startt
+        self.exec_time = stopt - startt
         if returncode.returncode == 0:
             print(f"OGS finished with project file {self.prjfile}.")
-            print(f"Execution took {difft} s")
+            print(f"Execution took {self.exec_time} s")
         else:
             print(f"OGS execution not successfull. Error code: {returncode.returncode}")
             raise RuntimeError
