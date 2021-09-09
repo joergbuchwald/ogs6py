@@ -126,6 +126,11 @@ class OGS:
             print(f"Execution took {self.exec_time} s")
         else:
             print(f"OGS execution not successfull. Error code: {returncode.returncode}")
+            num_lines = sum(1 for line in open(self.logfile))
+            with open(self.logfile) as file:
+                for i, line in enumerate(file):
+                    if i > num_lines-10:
+                        print(line)
             raise RuntimeError
 
     def __dict2xml(self, parent, dictionary):
