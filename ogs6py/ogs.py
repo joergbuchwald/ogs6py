@@ -97,6 +97,8 @@ class OGS:
             Default: out
         path : `str`, optional
             Path of the directory in which the ogs executable can be found
+        args : `str`, optional
+            additional arguments for the ogs executable
         """
         ogs_path = ""
         if self.threads is None:
@@ -116,7 +118,10 @@ class OGS:
         cmd = env_export
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
-        cmd += f"{ogs_path} {self.prjfile} > {self.logfile}"
+        cmd += f"{ogs_path} "
+        if "args" in args:
+            cmd += f"{args['args']} "
+        cmd += f"{self.prjfile} > {self.logfile}"
         startt = time.time()
         returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()
