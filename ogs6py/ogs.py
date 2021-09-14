@@ -188,7 +188,7 @@ class OGS:
         return parameterpointer
 
     @classmethod
-    def get_medium_pointer(cls, root, mediumid):
+    def _get_medium_pointer(cls, root, mediumid):
         xpathmedia = "./media/medium"
         mediae = root.findall(xpathmedia)
         mediumpointer = None
@@ -396,7 +396,7 @@ class OGS:
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self.get_medium_pointer(root, mediumid)
+        mediumpointer = self._get_medium_pointer(root, mediumid)
         phasepointer = self._get_phase_pointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
@@ -423,7 +423,7 @@ class OGS:
         if self.tree is None:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
-        mediumpointer = self.get_medium_pointer(root, mediumid)
+        mediumpointer = self._get_medium_pointer(root, mediumid)
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
