@@ -64,6 +64,8 @@ class OGS:
         self.logfile = "out.log"
         self.tree = None
         self.loadmkl = None
+        self.include_elements = []
+        self.include_files = []
         if "MKL" in args:
             if args["MKL"] is True:
                 if "MKL_SCRIPT" in args:
@@ -154,6 +156,22 @@ class OGS:
             if len(dictionary[entry]['children']) > 0:
                 self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
+    def __replace_blocks_by_includes(self):
+        for i, file in enumerate(self.include_files):
+            parent_element = self.include_elements[i].getparent()
+            include_element = ET.SubElement(parent_element, "include")
+            include_element.set("file", file)
+            parse = ET.XMLParser(remove_blank_text=True)
+            include_string = ET.tostring(self.include_elements[i], pretty_print=True)
+            include_parse = ET.fromstring(include_string, parser=parse)
+            include_tree = ET.ElementTree(include_parse)
+            ET.indent(include_tree, space="    ")
+            include_tree.write(file,
+                            encoding="ISO-8859-1",
+                            xml_declaration=False,
+                            pretty_print=True)
+            parent_element.remove(self.include_elements[i])
+
     def replace_text(self, value, xpath=".", occurrence=-1):
         """General method for replacing text between obening and closing tags
 
@@ -169,9 +187,7 @@ class OGS:
             from the top of the XML file
             Default: -1
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
             if occurrence < 0:
@@ -265,13 +281,19 @@ class OGS:
             self.tree = ET.parse(self.inputfile)
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
-        files = []
         for occurrence in all_occurrences:
-            files.append(occurrence.attrib("file"))
-        for i, file in files:
+            self.include_files.append(occurrence.attrib["file"])
+        for i, file in enumerate(self.include_files):
             _tree = ET.parse(file)
             _root = _tree.getroot()
-            all_occurrences[i].append(_root)
+            parentelement = all_occurrences[i].getparent()
+            children_before = parentelement.getchildren()
+            parentelement.append(_root)
+            parentelement.remove(all_occurrences[i])
+            children_after = parentelement.getchildren()
+            for child in children_after:
+                if child not in children_before:
+                    self.include_elements.append(child)
         return root
 
 
@@ -371,6 +393,26 @@ class OGS:
                 subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
                 subtaglist[-1].text = str(textlist[i])
 
+    def replace_block_by_include(self, xpath="./", filename="include.xml", occurrence=0):
+        """General method for replacing a block by an include
+
+
+        Parameters
+        ----------
+        xpath : `str`, optional
+            XPath of the tag
+        filename : `str`, optional
+        occurrence : `int`, optional
+            Addresses nonunique XPath by their occurece
+            Default: 0
+        """
+        root = self._get_root()
+        find_xpath = root.findall(xpath)
+        for i, entry in enumerate(find_xpath):
+            if i == occurrence:
+                self.include_elements.append(entry)
+                self.include_files.append(filename)
+
     def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         """Replacing parametertypes and values
 
@@ -451,6 +493,7 @@ class OGS:
     def write_input(self):
         """Writes the projectfile to disk"""
         if not self.tree is None:
+            self.__replace_blocks_by_includes()
             root = self.tree.getroot()
             parse = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(root, pretty_print=True)
