@@ -9,19 +9,24 @@ The package allows to streamline OGS-workflows with python or Julia entirely in 
 [![video presentation of ogs6py and vtu interface](https://img.youtube.com/vi/eihNKjK-I-s/0.jpg)](https://www.youtube.com/watch?v=eihNKjK-I-s)
 
 
-To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist: 
+To alter and execute OGS input, e.g., for looping over parameter ranges, two approaches exist:
 
     1. creating a new input file using python method calls
     2. altering existing input files
 
 ## 0. Installation
 
-clone the repository and use pip/pip3 to install the package.
+
+ogs6py can be easily installed from PyPI
 
 ```shell
-# git clone https://github.com/joergbuchwald/ogs6py.git
-# cd ogs6py
-# pip install --user .
+# pip install [--user] ogs6py
+```
+
+or the latest version from github:
+
+```shell
+# pip install [--user] https://github.com/joergbuchwald/ogs6py/archive/refs/heads/master.zip
 ```
 
 ## CAUTION: naming style of methods has changed (2021-05-20)
