@@ -15,6 +15,7 @@ import sys
 import os
 import subprocess
 import time
+import shutil
 import pandas as pd
 from lxml import etree as ET
 from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop,
@@ -106,7 +107,10 @@ class OGS:
         else:
             env_export = f"export OMP_NUM_THREADS={self.threads} && "
         if "path" in args:
-            ogs_path = ogs_path + args["path"]
+            args["path"] = os.path.expanduser(args["path"])
+            if os.path.isdir(args["path"]) is False:
+                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
+            ogs_path += args["path"]
         if "logfile" in args:
             self.logfile = args["logfile"]
         else:
@@ -115,6 +119,8 @@ class OGS:
             ogs_path = os.path.join(ogs_path, "ogs.exe")
         else:
             ogs_path = os.path.join(ogs_path, "ogs")
+        if shutil.which(ogs_path) is None:
+            raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
@@ -130,13 +136,13 @@ class OGS:
             print(f"OGS finished with project file {self.prjfile}.")
             print(f"Execution took {self.exec_time} s")
         else:
-            print(f"OGS execution not successfull. Error code: {returncode.returncode}")
+            print(f"Error code: {returncode.returncode}")
             num_lines = sum(1 for line in open(self.logfile))
             with open(self.logfile) as file:
                 for i, line in enumerate(file):
                     if i > num_lines-10:
                         print(line)
-            raise RuntimeError
+            raise RuntimeError('OGS execution was not successfull.')
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
