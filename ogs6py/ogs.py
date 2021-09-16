@@ -89,64 +89,6 @@ class OGS:
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
 
-    def run_model(self, **args):
-        """Command to run OGS.
-
-        Runs OGS with the project file specified as PROJECT_FILE
-
-        Parameters
-        ----------
-        logfile : `str`, optional
-            Name of the file to write STDOUT of ogs
-            Default: out
-        path : `str`, optional
-            Path of the directory in which the ogs executable can be found
-        args : `str`, optional
-            additional arguments for the ogs executable
-        """
-        ogs_path = ""
-        if self.threads is None:
-            env_export = ""
-        else:
-            env_export = f"export OMP_NUM_THREADS={self.threads} && "
-        if "path" in args:
-            args["path"] = os.path.expanduser(args["path"])
-            if os.path.isdir(args["path"]) is False:
-                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
-            ogs_path += args["path"]
-        if "logfile" in args:
-            self.logfile = args["logfile"]
-        else:
-            self.logfile = "out"
-        if sys.platform == "win32":
-            ogs_path = os.path.join(ogs_path, "ogs.exe")
-        else:
-            ogs_path = os.path.join(ogs_path, "ogs")
-        if shutil.which(ogs_path) is None:
-            raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
-        cmd = env_export
-        if self.loadmkl is not None:
-            cmd += self.loadmkl + " && "
-        cmd += f"{ogs_path} "
-        if "args" in args:
-            cmd += f"{args['args']} "
-        cmd += f"{self.prjfile} > {self.logfile}"
-        startt = time.time()
-        returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
-        stopt = time.time()
-        self.exec_time = stopt - startt
-        if returncode.returncode == 0:
-            print(f"OGS finished with project file {self.prjfile}.")
-            print(f"Execution took {self.exec_time} s")
-        else:
-            print(f"Error code: {returncode.returncode}")
-            num_lines = sum(1 for line in open(self.logfile))
-            with open(self.logfile) as file:
-                for i, line in enumerate(file):
-                    if i > num_lines-10:
-                        print(line)
-            raise RuntimeError('OGS execution was not successfull.')
-
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
             self.tag.append(ET.SubElement(parent, dictionary[entry]['tag']))
@@ -172,28 +114,23 @@ class OGS:
                             pretty_print=True)
             parent_element.remove(self.include_elements[i])
 
-    def replace_text(self, value, xpath=".", occurrence=-1):
-        """General method for replacing text between obening and closing tags
-
-
-        Parameters
-        ----------
-        value : `str`/`any`
-            Text
-        xpath : `str`, optional
-            XPath of the tag
-        occurrence : `int`, optional
-            Easy way to adress nonunique XPath addresses by their occurece
-            from the top of the XML file
-            Default: -1
-        """
+    def _get_root(self):
         root = self._get_root()
-        find_xpath = root.findall(xpath)
-        for i, entry in enumerate(find_xpath):
-            if occurrence < 0:
-                entry.text = str(value)
-            elif i == occurrence:
-                entry.text = str(value)
+        all_occurrences = root.findall(".//include")
+        for occurrence in all_occurrences:
+            self.include_files.append(occurrence.attrib["file"])
+        for i, file in enumerate(self.include_files):
+            _tree = ET.parse(file)
+            _root = _tree.getroot()
+            parentelement = all_occurrences[i].getparent()
+            children_before = parentelement.getchildren()
+            parentelement.append(_root)
+            parentelement.remove(all_occurrences[i])
+            children_after = parentelement.getchildren()
+            for child in children_after:
+                if child not in children_before:
+                    self.include_elements.append(child)
+        return root
 
     @classmethod
     def _get_parameter_pointer(cls, root, name, xpath):
@@ -252,51 +189,6 @@ class OGS:
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
-    def replace_mesh(self, oldmesh, newmesh):
-        """ Method to replace meshes
-
-        Parameters
-        ----------
-        oldmesh : `str`
-        newmesh : `str`
-        """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
-        all_occurrences = root.findall(".//mesh")
-        switch = False
-        for occurrence in all_occurrences:
-            if switch is False:
-                if occurrence.text == oldmesh:
-                    occurrence.text = newmesh
-                    switch = True
-            else:
-                oldmesh_stripped = os.path.split(oldmesh)[1].split(".")[0]
-                newmesh_stripped = os.path.split(newmesh)[1].split(".")[0]
-                if occurrence.text == oldmesh_stripped:
-                    occurrence.text = newmesh_stripped
-
-    def _get_root(self):
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
-        all_occurrences = root.findall(".//include")
-        for occurrence in all_occurrences:
-            self.include_files.append(occurrence.attrib["file"])
-        for i, file in enumerate(self.include_files):
-            _tree = ET.parse(file)
-            _root = _tree.getroot()
-            parentelement = all_occurrences[i].getparent()
-            children_before = parentelement.getchildren()
-            parentelement.append(_root)
-            parentelement.remove(all_occurrences[i])
-            children_after = parentelement.getchildren()
-            for child in children_after:
-                if child not in children_before:
-                    self.include_elements.append(child)
-        return root
-
-
     def add_entry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
@@ -316,9 +208,7 @@ class OGS:
         attrib_value : `str`
             value of the attribute keyword
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         parent = root.findall(parent_xpath)
         if not tag is None:
             newelement = []
@@ -339,28 +229,12 @@ class OGS:
         file : `str`
             file name
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         parent = root.findall(parent_xpath)
         newelement = []
         for i, entry in enumerate(parent):
             newelement.append(ET.SubElement(entry, "include"))
             newelement[i].set("file", file)
-
-    def remove_element(self, xpath):
-        """Removes an element
-
-        Parameters
-        ----------
-        xpath : `str`
-        """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
-        elements = root.findall(xpath)
-        for element in elements:
-            element.getparent().remove(element)
 
     def add_block(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
@@ -379,9 +253,7 @@ class OGS:
         textlist : `list`
             list of strings retaining the corresponding values
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         parent = root.findall(parent_xpath)
         if not blocktag is None:
             newelement = []
@@ -392,6 +264,41 @@ class OGS:
             for i, taglistentry in enumerate(taglist):
                 subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
                 subtaglist[-1].text = str(textlist[i])
+
+    def remove_element(self, xpath):
+        """Removes an element
+
+        Parameters
+        ----------
+        xpath : `str`
+        """
+        root = self._get_root()
+        elements = root.findall(xpath)
+        for element in elements:
+            element.getparent().remove(element)
+
+    def replace_text(self, value, xpath=".", occurrence=-1):
+        """General method for replacing text between obening and closing tags
+
+
+        Parameters
+        ----------
+        value : `str`/`any`
+            Text
+        xpath : `str`, optional
+            XPath of the tag
+        occurrence : `int`, optional
+            Easy way to adress nonunique XPath addresses by their occurece
+            from the top of the XML file
+            Default: -1
+        """
+        root = self._get_root()
+        find_xpath = root.findall(xpath)
+        for i, entry in enumerate(find_xpath):
+            if occurrence < 0:
+                entry.text = str(value)
+            elif i == occurrence:
+                entry.text = str(value)
 
     def replace_block_by_include(self, xpath="./", filename="include.xml", occurrence=0):
         """General method for replacing a block by an include
@@ -413,6 +320,28 @@ class OGS:
                 self.include_elements.append(entry)
                 self.include_files.append(filename)
 
+    def replace_mesh(self, oldmesh, newmesh):
+        """ Method to replace meshes
+
+        Parameters
+        ----------
+        oldmesh : `str`
+        newmesh : `str`
+        """
+        root = self._get_root()
+        all_occurrences = root.findall(".//mesh")
+        switch = False
+        for occurrence in all_occurrences:
+            if switch is False:
+                if occurrence.text == oldmesh:
+                    occurrence.text = newmesh
+                    switch = True
+            else:
+                oldmesh_stripped = os.path.split(oldmesh)[1].split(".")[0]
+                newmesh_stripped = os.path.split(newmesh)[1].split(".")[0]
+                if occurrence.text == oldmesh_stripped:
+                    occurrence.text = newmesh_stripped
+
     def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
         """Replacing parametertypes and values
 
@@ -428,9 +357,7 @@ class OGS:
             name of the tag containing the value, e.g., values
             Default: value
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         parameterpath = "./parameters/parameter"
         parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
         self._set_type_value(parameterpointer, value, parametertype, valuetag=valuetag)
@@ -455,9 +382,7 @@ class OGS:
             name of the tag containing the value, e.g., values
             Default: value
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         mediumpointer = self._get_medium_pointer(root, mediumid)
         phasepointer = self._get_phase_pointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
@@ -482,13 +407,69 @@ class OGS:
             name of the tag containing the value, e.g., values
             Default: value
         """
-        if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
-        root = self.tree.getroot()
+        root = self._get_root()
         mediumpointer = self._get_medium_pointer(root, mediumid)
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
+
+    def run_model(self, **args):
+        """Command to run OGS.
+
+        Runs OGS with the project file specified as PROJECT_FILE
+
+        Parameters
+        ----------
+        logfile : `str`, optional
+            Name of the file to write STDOUT of ogs
+            Default: out
+        path : `str`, optional
+            Path of the directory in which the ogs executable can be found
+        args : `str`, optional
+            additional arguments for the ogs executable
+        """
+        ogs_path = ""
+        if self.threads is None:
+            env_export = ""
+        else:
+            env_export = f"export OMP_NUM_THREADS={self.threads} && "
+        if "path" in args:
+            args["path"] = os.path.expanduser(args["path"])
+            if os.path.isdir(args["path"]) is False:
+                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
+            ogs_path += args["path"]
+        if "logfile" in args:
+            self.logfile = args["logfile"]
+        else:
+            self.logfile = "out"
+        if sys.platform == "win32":
+            ogs_path = os.path.join(ogs_path, "ogs.exe")
+        else:
+            ogs_path = os.path.join(ogs_path, "ogs")
+        if shutil.which(ogs_path) is None:
+            raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
+        cmd = env_export
+        if self.loadmkl is not None:
+            cmd += self.loadmkl + " && "
+        cmd += f"{ogs_path} "
+        if "args" in args:
+            cmd += f"{args['args']} "
+        cmd += f"{self.prjfile} > {self.logfile}"
+        startt = time.time()
+        returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
+        stopt = time.time()
+        self.exec_time = stopt - startt
+        if returncode.returncode == 0:
+            print(f"OGS finished with project file {self.prjfile}.")
+            print(f"Execution took {self.exec_time} s")
+        else:
+            print(f"Error code: {returncode.returncode}")
+            num_lines = sum(1 for line in open(self.logfile))
+            with open(self.logfile) as file:
+                for i, line in enumerate(file):
+                    if i > num_lines-10:
+                        print(line)
+            raise RuntimeError('OGS execution was not successfull.')
 
     def write_input(self):
         """Writes the projectfile to disk"""
