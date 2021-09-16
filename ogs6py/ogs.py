@@ -65,6 +65,9 @@ class OGS:
         self.loadmkl = None
         self.include_elements = []
         self.include_files = []
+        self.add_blocks = []
+        self.add_entries = []
+        self.add_includes = []
         if "MKL" in args:
             if args["MKL"] is True:
                 if "MKL_SCRIPT" in args:
@@ -114,7 +117,9 @@ class OGS:
             parent_element.remove(self.include_elements[i])
 
     def _get_root(self):
-        root = self._get_root()
+        if self.tree is None:
+            self.tree = ET.parse(self.inputfile)
+        root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
             self.include_files.append(occurrence.attrib["file"])
@@ -207,16 +212,20 @@ class OGS:
         attrib_value : `str`
             value of the attribute keyword
         """
-        root = self._get_root()
-        parent = root.findall(parent_xpath)
-        if not tag is None:
-            newelement = []
-            for i, entry in enumerate(parent):
-                newelement.append(ET.SubElement(entry, tag))
-                if not text is None:
-                    newelement[i].text = str(text)
-                if (attrib is not None and attrib_value is not None):
-                    newelement[i].set(attrib, attrib_value)
+        self.add_entries.append({'parent_xpath': parent_xpath, 'tag': tag,
+        'text': text, 'attrib': attrib, 'attrib_value': attrib_value})
+
+    def _add_entries(self, root):
+        for add_entry in self.add_entries:
+            parent = root.findall(add_entry['parent_xpath'])
+            if not add_entry['tag'] is None:
+                newelement = []
+                for i, entry in enumerate(parent):
+                    newelement.append(ET.SubElement(entry, add_entry['tag']))
+                    if not add_entry['text'] is None:
+                        newelement[i].text = str(add_entry['text'])
+                    if (add_entry['attrib'] is not None and add_entry['attrib_value'] is not None):
+                        newelement[i].set(add_entry['attrib'], add_entry['attrib_value'])
 
     def add_include(self, parent_xpath="./", file=""):
         """add include element
@@ -228,12 +237,15 @@ class OGS:
         file : `str`
             file name
         """
-        root = self._get_root()
-        parent = root.findall(parent_xpath)
-        newelement = []
-        for i, entry in enumerate(parent):
-            newelement.append(ET.SubElement(entry, "include"))
-            newelement[i].set("file", file)
+        self.add_includes.append({'parent_xpath': parent_xpath, 'file': file})
+
+    def _add_includes(self, root):
+        for add_include in self.add_includes:
+            parent = root.findall(add_include['parent_xpath'])
+            newelement = []
+            for i, entry in enumerate(parent):
+                newelement.append(ET.SubElement(entry, "include"))
+                newelement[i].set("file", add_include['file'])
 
     def add_block(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
@@ -252,17 +264,21 @@ class OGS:
         textlist : `list`
             list of strings retaining the corresponding values
         """
-        root = self._get_root()
-        parent = root.findall(parent_xpath)
-        if not blocktag is None:
-            newelement = []
-            for i, entry in enumerate(parent):
-                newelement.append(ET.SubElement(entry, blocktag))
-        subtaglist = []
-        for blocktagentry in newelement:
-            for i, taglistentry in enumerate(taglist):
-                subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
-                subtaglist[-1].text = str(textlist[i])
+        self.add_blocks.append({'blocktag': blocktag, 'parent_xpath': parent_xpath,
+        'taglist': taglist, 'textlist': textlist})
+
+    def _add_blocks(self, root):
+        for add_block in self.add_blocks:
+            parent = root.findall(add_block['parent_xpath'])
+            if not add_block['blocktag'] is None:
+                newelement = []
+                for i, entry in enumerate(parent):
+                    newelement.append(ET.SubElement(entry, add_block['blocktag']))
+            subtaglist = []
+            for blocktagentry in newelement:
+                for i, taglistentry in enumerate(add_block['taglist']):
+                    subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
+                    subtaglist[-1].text = str(add_block['textlist'][i])
 
     def remove_element(self, xpath):
         """Removes an element
@@ -475,6 +491,9 @@ class OGS:
         if not self.tree is None:
             self.__replace_blocks_by_includes()
             root = self.tree.getroot()
+            self._add_blocks(root)
+            self._add_entries(root)
+            self._add_includes(root)
             parse = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(root, pretty_print=True)
             self.tree_ = ET.fromstring(self.tree_string, parser=parse)
@@ -503,6 +522,9 @@ class OGS:
         self.__dict2xml(self.root, self.processvars.tree)
         self.__dict2xml(self.root, self.nonlinsolvers.tree)
         self.__dict2xml(self.root, self.linsolvers.tree)
+        self._add_blocks(self.root)
+        self._add_entries(self.root)
+        self._add_includes(self.root)
         # Reparsing for pretty_print to work properly
         parse = ET.XMLParser(remove_blank_text=True)
         self.tree_string = ET.tostring(self.root, pretty_print=True)
