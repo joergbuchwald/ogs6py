@@ -86,7 +86,7 @@ class OGS:
         if "INPUT_FILE" in args:
             self.inputfile = args['INPUT_FILE']
         else:
-            self.inputfile = "default.prj"
+            self.inputfile = None
         if "XMLSTRING" in args:
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
@@ -118,7 +118,10 @@ class OGS:
 
     def _get_root(self):
         if self.tree is None:
-            self.tree = ET.parse(self.inputfile)
+            if self.inputfile is not None:
+                self.tree = ET.parse(self.inputfile)
+            else:
+                raise RuntimeError("No input file given.")
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
