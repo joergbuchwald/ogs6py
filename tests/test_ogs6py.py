@@ -256,12 +256,14 @@ class TestiOGS(unittest.TestCase):
         model.linsolvers.add_lin_solver(name="general_linear_solver",
                                     kind="eigen",
                                     solver_type="PardisoLU")
+        model.add_entry(parent_xpath="./linear_solvers/linear_solver/eigen", tag="scaling", text="1")
+        model.add_block("parameter", parent_xpath="./parameters", taglist=["name", "type", "value"], textlist=["T1", "Constant", "300"])
         model.write_input()
         with open("tunnel_ogs6py.prj", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '502dcb5b68d0ee2b5beb0ea735e8803e')
+        self.assertEqual(file_hash.hexdigest(), '3664e20f5ac0f151949b8aeeb9afabca')
 
     def test_replace_text(self):
         prjfile = "tunnel_ogs6py_replace.prj"
@@ -296,6 +298,29 @@ class TestiOGS(unittest.TestCase):
         root = ET.parse(prjfile)
         find = root.findall("./parameters/parameter[name='E']/value")
         self.assertEqual("32", find[0].text)
+    def test_replace_mesh(self):
+        prjfile = "tunnel_ogs6py_replacemesh.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_mesh(oldmesh="tunnel_inner.vtu", newmesh="tunnel_inner_new.vtu")
+        model.write_input()
+        root = ET.parse(prjfile)
+        find = root.findall("./meshes/mesh")
+        self.assertEqual("tunnel_inner_new.vtu", find[-1].text)
+        find = root.findall("./process_variables/process_variable/boundary_conditions/boundary_condition/mesh")
+        self.assertEqual("tunnel_right", find[0].text)
+        self.assertEqual("tunnel_left", find[1].text)
+        self.assertEqual("tunnel_bottom", find[2].text)
+        self.assertEqual("tunnel_top", find[3].text)
+        self.assertEqual("tunnel_right", find[4].text)
+        self.assertEqual("tunnel_left", find[5].text)
+        self.assertEqual("tunnel_top", find[6].text)
+        self.assertEqual("tunnel_bottom", find[7].text)
+        self.assertEqual("tunnel_right", find[9].text)
+        self.assertEqual("tunnel_left", find[10].text)
+        self.assertEqual("tunnel_top", find[11].text)
+        self.assertEqual("tunnel_bottom", find[12].text)
+        self.assertEqual("tunnel_inner_new", find[8].text)
+        self.assertEqual("tunnel_inner_new", find[13].text)
     def test_add_entry(self):
         prjfile = "tunnel_ogs6py_add_entry.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
@@ -321,6 +346,37 @@ class TestiOGS(unittest.TestCase):
         root = ET.parse(prjfile)
         find = root.findall("./parameters/parameter[name='E']/value")
         self.assertEqual(0, len(find))
+    def test_replace_block_by_include(self):
+        prjfile = "tunnel_ogs6py_solid_inc.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
+        model.replace_block_by_include(xpath="./media/medium/phases/phase[type='Solid']", filename="solid.xml")
+        model.write_input()
+        with open(prjfile, "rb") as f:
+            file_hash = hashlib.md5()
+            while chunk := f.read(8192):
+                file_hash.update(chunk)
+        self.assertEqual(file_hash.hexdigest(), '68ff996f4e6bfbe6fffd5e156275ac08')
+        with open("solid.xml", "rb") as f:
+            file_hash = hashlib.md5()
+            while chunk := f.read(8192):
+                file_hash.update(chunk)
+        self.assertEqual(file_hash.hexdigest(), '83bd4df36ac148eff94c36da4b7fc27f')
+    def test_replace_block_by_include(self):
+        prjfile = "tunnel_ogs6py_includetest.prj"
+        model = ogs6py.OGS(INPUT_FILE="tests/includetest.prj", PROJECT_FILE=prjfile)
+        model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=1e-3)
+        model.write_input()
+        with open(prjfile, "rb") as f:
+            file_hash = hashlib.md5()
+            while chunk := f.read(8192):
+                file_hash.update(chunk)
+        self.assertEqual(file_hash.hexdigest(), '4196c13e54dad2026e4f8283d7faf141')
+        with open("tests/solid_inc.xml", "rb") as f:
+            file_hash = hashlib.md5()
+            while chunk := f.read(8192):
+                file_hash.update(chunk)
+        self.assertEqual(file_hash.hexdigest(), '0e80d35b207c07abb0af020d864b277b')
+
 
 
 if __name__ == '__main__':
