@@ -361,7 +361,7 @@ class TestiOGS(unittest.TestCase):
             while chunk := f.read(8192):
                 file_hash.update(chunk)
         self.assertEqual(file_hash.hexdigest(), '83bd4df36ac148eff94c36da4b7fc27f')
-    def test_replace_block_by_include(self):
+    def test_replace_property_in_include(self):
         prjfile = "tunnel_ogs6py_includetest.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/includetest.prj", PROJECT_FILE=prjfile)
         model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=1e-3)
