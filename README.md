@@ -29,6 +29,13 @@ or the latest version from github:
 # pip install [--user] https://github.com/joergbuchwald/ogs6py/archive/refs/heads/master.zip
 ```
 
+Unittests can be run via
+
+```shell
+# python tests/test_ogs6py.py
+```
+from the project root directory.
+
 ## CAUTION: naming style of methods has changed (2021-05-20)
 
 ## 1. Documentation for ogs6py
@@ -195,3 +202,4 @@ df = model.parse_out("examples/out_thm.log")
 ```
 
 which returns a pandas dataframe.
+
