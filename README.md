@@ -29,12 +29,13 @@ or the latest version from github:
 # pip install [--user] https://github.com/joergbuchwald/ogs6py/archive/refs/heads/master.zip
 ```
 
+Note that the logfile parser of ogs6py requires at least Python 3.8.
+
 Unittests can be run via
 
 ```shell
 # python tests/test_ogs6py.py
 ```
-from the project root directory.
 
 ## CAUTION: naming style of methods has changed (2021-05-20)
 
