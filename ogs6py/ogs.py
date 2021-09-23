@@ -84,7 +84,10 @@ class OGS:
             print("PROJECT_FILE not given. Calling it default.prj.")
             self.prjfile = "default.prj"
         if "INPUT_FILE" in args:
-            self.inputfile = args['INPUT_FILE']
+            if os.path.isfile(args['INPUT_FILE']) is True:
+                self.inputfile = args['INPUT_FILE']
+            else:
+                raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
         else:
             self.inputfile = None
         if "XMLSTRING" in args:
