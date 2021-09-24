@@ -161,7 +161,6 @@ class OGS:
         xpathmedia = "./media/medium"
         mediae = root.findall(xpathmedia)
         mediumpointer = None
-        print(len(mediae))
         for medium in mediae:
             try:
                 if medium.attrib['id'] == str(mediumid):
