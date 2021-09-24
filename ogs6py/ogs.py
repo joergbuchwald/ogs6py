@@ -130,8 +130,8 @@ class OGS:
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
             self.include_files.append(occurrence.attrib["file"])
-        for i, file in enumerate(self.include_files):
-            _tree = ET.parse(file)
+        for i, occurrence in enumerate(all_occurrences):
+            _tree = ET.parse(self.include_files[i])
             _root = _tree.getroot()
             parentelement = all_occurrences[i].getparent()
             children_before = parentelement.getchildren()
