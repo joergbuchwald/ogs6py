@@ -444,14 +444,14 @@ class OGS:
         logfile : `str`, optional
             Name of the file to write STDOUT of ogs
             Default: out
-        container: `boolean`, optional
-            Switch to run OGS in a singularity container. 
-            If True, `container_path` is required
-            Default: False
         path : `str`, optional
             Path of the directory in which the ogs executable can be found.
             If ``container=True``: Path to the directory in which the 
             Singularity executable can be found
+        container: `boolean`, optional
+            Switch to run OGS in a singularity container. 
+            If True, `container_path` is required
+            Default: False
         container_path : `str`, optional
             Path of the OGS container file. Only required if ``container=True``
         args : `str`, optional
@@ -476,7 +476,7 @@ class OGS:
         if "container_path" in args:
             args["container_path"] = os.path.expanduser(args["container_path"])
             if os.path.isfile(args["container_path"]) is False:
-                raise RuntimeError('The specific path is not a file. Please provide a path to the OGS container.')
+                raise RuntimeError('The specific container_path is not a file. Please provide a path to the OGS container.')
             if not args["container_path"].endswith(".sif"):
                 raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
             container_path = args["container_path"]
