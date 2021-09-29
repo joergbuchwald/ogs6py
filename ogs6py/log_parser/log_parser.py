@@ -35,8 +35,8 @@ class Iteration(object):
     dirichlet_bc_time: float  # seconds
     linear_solver_time: float  # seconds
     cpu_time: float  # seconds
+    index_name: str
     component_convergence: List[ComponentConvergence] = field(default_factory=list)
-    index_name: str = "iteration/"
 
     def _dict(self, prefix):
         return {
@@ -100,26 +100,26 @@ class Simulation(object):
 
 
 _re_iteration = [
-    re.compile("info: \[time\] Iteration #(\d+) took ([\d\.e+s]+) s"),
+    re.compile("info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s"),
     int,
     float,
 ]
 _re_time_step_start = [
     re.compile(
-        "info: === Time stepping at step #(\d+) and time ([\d\.e+s]+) with step size (.*)"
+        "info: === Time stepping at step #(\d+) and time ([\d\.e+-]+) with step size (.*)"
     ),
     int,
     float,
     float,
 ]
 _re_time_step_output = [
-    re.compile("info: \[time\] Output of timestep (\d+) took ([\d\.e+s]+) s"),
+    re.compile("info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s"),
     int,
     float,
 ]
 _re_time_step_solution_time = [
     re.compile(
-        "info: \[time\] Solving process #(\d+) took ([\d\.e+s]+) s in time step #(\d+)"
+        "info: \[time\] Solving process #(\d+) took ([\d\.e+-]+) s in time step #(\d+)"
     ),
     int,
     float,
@@ -162,13 +162,27 @@ _re_convergence = [
     float,
 ]
 
+_re_coupled_convergence = [
+    re.compile(
+        "info: ------- Checking convergence criterion for coupled solution of process #(\d+) -------"
+    ),
+    int
+]
+
+_re_coupled_convergence_alt = [
+    re.compile(
+        "info: ------- Checking convergence criterion for coupled solution  of process ID (\d+) -------"
+    ),
+    int
+]
+
 def _tryMatch(line: str, regex: re.Pattern, *ctors):
     if match := regex.match(line):
         return [ctor(s) for ctor, s in zip(ctors, match.groups())]
     return None
 
 
-def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False):
+def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False, coupled_processes=1):
 
     tss = []
     execution_time = None
@@ -188,6 +202,9 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
     component_convergence = []
 
     number_of_lines_read = 0
+    process_count = 0
+    coupling_iteration = 0
+    wait_for_coupled_convergence = False
     for line in open(filename):
         if petsc is True:
             line_new = line.replace('[0] ', '')
@@ -197,15 +214,15 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
 
         if r := _tryMatch(line_new, *_re_iteration):
             ts.iterations.append(
-                Iteration(
+                    Iteration(
                     number=r[0],
                     assembly_time=assembly_time,
                     dirichlet_bc_time=dirichlet_bc_time,
                     linear_solver_time=linear_solver_time,
                     component_convergence=component_convergence,
                     cpu_time=r[1],
+                    index_name=f"iteration_proc{process_count}/")
                 )
-            )
             # Reset parsed quantities to avoid reusing old values for next iterations
             assembly_time = None
             dirichlet_bc_time = None
@@ -213,8 +230,33 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
             component_convergence = []
             continue
 
+        if r := _tryMatch(line_new, *_re_coupled_convergence):
+            wait_for_coupled_convergence = True
+            continue
+
+        if r := _tryMatch(line_new, *_re_coupled_convergence_alt):
+            wait_for_coupled_convergence = True
+            continue
+
         if r := _tryMatch(line_new, *_re_assembly_time):
             assembly_time = r[0]
+            if wait_for_coupled_convergence is True:
+                ts.iterations.append(
+                    Iteration(
+                    number=coupling_iteration,
+                    assembly_time=assembly_time,
+                    dirichlet_bc_time=dirichlet_bc_time,
+                    linear_solver_time=linear_solver_time,
+                    component_convergence=component_convergence,
+                    cpu_time=None,
+                    index_name=f"iteration/")
+                )
+                # Reset parsed quantities to avoid reusing old values for next iterations
+                wait_for_coupled_convergence = False
+                assembly_time = None
+                dirichlet_bc_time = None
+                linear_solver_time = None
+                component_convergence = []
             continue
 
         if r := _tryMatch(line_new, *_re_dirichlet_bc_time):
@@ -242,6 +284,8 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
             tss.append(ts)
             ts = TimeStep(number=r[0], t=r[1], dt=r[2])
             # print("New timestep", ts, "\n")
+            process_count = 0
+            coupling_iteration = 0
             if (
                 ts
                 and (maximum_timesteps is not None)
@@ -253,6 +297,11 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
 
         if r := _tryMatch(line_new, *_re_time_step_solution_time):
             ts.solution_time = r[1]
+            if coupled_processes >1:
+                process_count += 1
+            if process_count == coupled_processes:
+                coupling_iteration += 1
+                process_count = 0
             continue
 
         if r := _tryMatch(line_new, *_re_time_step_output):
@@ -278,7 +327,7 @@ def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False
     )
 if __name__ == "__main__":
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None, petsc=True)
+    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None, petsc=True, coupled_processes=1)
     print(data)
     df = pd.DataFrame(data)
     print(df)
