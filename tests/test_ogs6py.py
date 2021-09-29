@@ -350,7 +350,7 @@ class TestiOGS(unittest.TestCase):
         prjfile = "tunnel_ogs6py_solid_inc.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
         model.replace_block_by_include(xpath="./media/medium/phases/phase[type='Solid']", filename="solid.xml")
-        model.write_input()
+        model.write_input(keep_includes=True)
         with open(prjfile, "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
@@ -365,7 +365,7 @@ class TestiOGS(unittest.TestCase):
         prjfile = "tunnel_ogs6py_includetest.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/includetest.prj", PROJECT_FILE=prjfile)
         model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=1e-3)
-        model.write_input()
+        model.write_input(keep_includes=True)
         with open(prjfile, "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):

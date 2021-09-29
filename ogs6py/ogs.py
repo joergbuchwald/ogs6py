@@ -334,6 +334,7 @@ class OGS:
             Addresses nonunique XPath by their occurece
             Default: 0
         """
+        print("Note: Includes are only written if write_input(keep_includes=True) is called.")
         root = self._get_root()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
@@ -521,10 +522,11 @@ class OGS:
                         print(line)
             raise RuntimeError('OGS execution was not successfull.')
 
-    def write_input(self):
+    def write_input(self, keep_includes=False):
         """Writes the projectfile to disk"""
         if not self.tree is None:
-            self.__replace_blocks_by_includes()
+            if keep_includes is True:
+                self.__replace_blocks_by_includes()
             root = self.tree.getroot()
             self._add_blocks(root)
             self._add_entries(root)
