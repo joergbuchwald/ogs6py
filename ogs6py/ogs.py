@@ -478,26 +478,30 @@ class OGS:
         if "container_path" in args:
             args["container_path"] = os.path.expanduser(args["container_path"])
             if os.path.isfile(args["container_path"]) is False:
-                raise RuntimeError('The specific container_path is not a file. Please provide a path to the OGS container.')
+                raise RuntimeError('The specific container-path is not a file. Please provide a path to the OGS container.')
             if not args["container_path"].endswith(".sif"):
                 raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
             container_path = args["container_path"]
+        if self.container and container_path == "":
+            raise RuntimeError('Path to OGS container is missing. Please provide a path to the OGS container using the container_path argument')
         if "logfile" in args:
             self.logfile = args["logfile"]
         else:
             self.logfile = "out"
         if self.container:
             if sys.platform == "win32":
-                ogs_path = os.path.join(ogs_path, "singularity.exe")
+                raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
             else:
                 ogs_path = os.path.join(ogs_path, "singularity")
+            if shutil.which(ogs_path) is None:
+                raise RuntimeError('The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions.')
         else:
             if sys.platform == "win32":
                 ogs_path = os.path.join(ogs_path, "ogs.exe")
             else:
                 ogs_path = os.path.join(ogs_path, "ogs")
-        if shutil.which(ogs_path) is None:
-            raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
+            if shutil.which(ogs_path) is None:
+                raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
