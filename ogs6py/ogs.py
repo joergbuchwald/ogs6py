@@ -87,6 +87,7 @@ class OGS:
         if "INPUT_FILE" in args:
             if os.path.isfile(args['INPUT_FILE']) is True:
                 self.inputfile = args['INPUT_FILE']
+                _ = self._get_root()
             else:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
         else:

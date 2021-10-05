@@ -2,6 +2,9 @@
 
 All notable changes to **ogs6py** will be documented in this file.
 
+### Changes
+* parse input if input is given (allows for execution of given file if no replace function is called)
+
 ## [0.32]
 
 ### Changes
