@@ -494,7 +494,12 @@ class OGS:
             raise RuntimeError('OGS execution was not successfull.')
 
     def write_input(self, keep_includes=False):
-        """Writes the projectfile to disk"""
+        """Writes the projectfile to disk
+
+        Parameters
+        ----------
+        keep_includes : `bolean`, optional
+        """
         if not self.tree is None:
             if keep_includes is True:
                 self.__replace_blocks_by_includes()

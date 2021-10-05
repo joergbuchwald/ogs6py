@@ -282,12 +282,12 @@ class TestiOGS(unittest.TestCase):
         with open(inputfile, "rb") as f:
             inputfile_hash = hashlib.md5()
             while chunk := f.read(8192):
-                inputfilefile_hash.update(chunk)
+                inputfile_hash.update(chunk)
         with open(prjfile, "rb") as f:
             prjfile_hash = hashlib.md5()
             while chunk := f.read(8192):
                 prjfile_hash.update(chunk)
-        self.assertEqual(inputfile_hash.hexdigest(), prjfile_hash..hexdigest())
+        self.assertEqual(inputfile_hash.hexdigest(), prjfile_hash.hexdigest())
     def test_replace_phase_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
