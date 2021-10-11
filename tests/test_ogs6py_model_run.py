@@ -14,7 +14,7 @@ class TestiOGSModelrun(unittest.TestCase):
         x_file = tempfile.NamedTemporaryFile(suffix=".x")
         # dummy directory
         sing_dir = tempfile.TemporaryDirectory()
-        
+
         # case: path is not a dir
         model = ogs6py.OGS(INPUT_FILE=prjfile, PROJECT_FILE=prjfile)
         with self.assertRaises(RuntimeError) as cm:
@@ -42,9 +42,9 @@ class TestiOGSModelrun(unittest.TestCase):
             model.run_model(path=sing_dir.name, container_path=sif_file.name)
         self.assertEqual('The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions.',
             str(cm.exception))
-        
+
         # clean up the temporary dir
         sing_dir.cleanup()
-        
+
 if __name__ == '__main__':
     unittest.main()
