@@ -446,34 +446,62 @@ class OGS:
             Name of the file to write STDOUT of ogs
             Default: out
         path : `str`, optional
-            Path of the directory in which the ogs executable can be found
+            Path of the directory in which the ogs executable can be found.
+            If ``container_path`` is given: Path to the directory in which the
+            Singularity executable can be found
+        container_path : `str`, optional
+            Path of the OGS container file.
         args : `str`, optional
             additional arguments for the ogs executable
         """
+
         ogs_path = ""
+        container_path = ""
+        container = False
         if self.threads is None:
             env_export = ""
         else:
             env_export = f"export OMP_NUM_THREADS={self.threads} && "
+        if "container_path" in args:
+            container = True
+            args["container_path"] = os.path.expanduser(args["container_path"])
+            if os.path.isfile(args["container_path"]) is False:
+                raise RuntimeError('The specific container-path is not a file. Please provide a path to the OGS container.')
+            if not args["container_path"].endswith(".sif"):
+                raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
+            container_path = args["container_path"]
         if "path" in args:
             args["path"] = os.path.expanduser(args["path"])
             if os.path.isdir(args["path"]) is False:
-                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
+                if container:
+                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
+                else:
+                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
             ogs_path += args["path"]
         if "logfile" in args:
             self.logfile = args["logfile"]
         else:
             self.logfile = "out"
-        if sys.platform == "win32":
-            ogs_path = os.path.join(ogs_path, "ogs.exe")
+        if container:
+            if sys.platform == "win32":
+                raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
+            else:
+                ogs_path = os.path.join(ogs_path, "singularity")
+            if shutil.which(ogs_path) is None:
+                raise RuntimeError('The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions.')
         else:
-            ogs_path = os.path.join(ogs_path, "ogs")
-        if shutil.which(ogs_path) is None:
-            raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
+            if sys.platform == "win32":
+                ogs_path = os.path.join(ogs_path, "ogs.exe")
+            else:
+                ogs_path = os.path.join(ogs_path, "ogs")
+            if shutil.which(ogs_path) is None:
+                raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
         cmd += f"{ogs_path} "
+        if container:
+            cmd += "exec " + f"{container_path} " + "ogs "
         if "args" in args:
             cmd += f"{args['args']} "
         cmd += f"{self.prjfile} > {self.logfile}"
