@@ -578,7 +578,7 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None, petsc=False):
+    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None, petsc=False, coupled_processes=1):
         """Parses the logfile
 
         Parameters
@@ -591,11 +591,13 @@ class OGS:
         maximum_lines : `int`
             maximum number of lines to be evaluated
         petsc : `boolean`
-            switch whether ogs used the petsc solver
+            True if ogs is used with the MPI/petsc (only proc 0 output is used
+        coupled_processes : `int`
+            Number of coupled processes in staggered scheme (1 for monolithic scheme)
         """
         if outfile == "":
             outfile = self.logfile
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
-                maximum_lines=maximum_lines, petsc=petsc)
+                maximum_lines=maximum_lines, petsc=petsc, coupled_processes=coupled_processes)
         df = pd.DataFrame(data)
         return df
