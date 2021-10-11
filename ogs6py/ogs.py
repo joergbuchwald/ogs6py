@@ -507,7 +507,10 @@ class OGS:
             cmd += f"{args['args']} "
         cmd += f"{self.prjfile} > {self.logfile}"
         startt = time.time()
-        returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
+        if sys.platform == "win32":
+            returncode = subprocess.run([cmd], shell=True)
+        else:
+            returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
