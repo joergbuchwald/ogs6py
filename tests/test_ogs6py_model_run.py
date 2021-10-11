@@ -1,6 +1,6 @@
 import shutil
 import unittest
-import ogs6py
+from context import ogs6py
 import tempfile
 import os
 
