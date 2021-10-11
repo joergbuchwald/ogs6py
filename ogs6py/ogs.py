@@ -447,7 +447,7 @@ class OGS:
             Default: out
         path : `str`, optional
             Path of the directory in which the ogs executable can be found.
-            If ``container_path`` is given: Path to the directory in which the 
+            If ``container_path`` is given: Path to the directory in which the
             Singularity executable can be found
         container_path : `str`, optional
             Path of the OGS container file.
@@ -477,7 +477,7 @@ class OGS:
                     raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
                 else:
                     raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
-            ogs_path += args["path"]     
+            ogs_path += args["path"]
         if "logfile" in args:
             self.logfile = args["logfile"]
         else:
