@@ -63,7 +63,6 @@ class OGS:
         self.logfile = "out.log"
         self.tree = None
         self.loadmkl = None
-        self.container = False
         self.include_elements = []
         self.include_files = []
         self.add_blocks = []
@@ -447,47 +446,42 @@ class OGS:
             Default: out
         path : `str`, optional
             Path of the directory in which the ogs executable can be found.
-            If ``container=True``: Path to the directory in which the 
+            If ``container_path`` is given: Path to the directory in which the 
             Singularity executable can be found
-        container: `boolean`, optional
-            Switch to run OGS in a singularity container. 
-            If True, `container_path` is required
-            Default: False
         container_path : `str`, optional
-            Path of the OGS container file. Only required if ``container=True``
+            Path of the OGS container file.
         args : `str`, optional
             additional arguments for the ogs executable
         """
+
         ogs_path = ""
         container_path = ""
+        container = False
         if self.threads is None:
             env_export = ""
         else:
             env_export = f"export OMP_NUM_THREADS={self.threads} && "
-        if "container" in args:
-            self.container = args["container"]
-        if "path" in args:
-            args["path"] = os.path.expanduser(args["path"])
-            if os.path.isdir(args["path"]) is False:
-                if self.container:
-                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
-                else:
-                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
-            ogs_path += args["path"]
         if "container_path" in args:
+            container = True
             args["container_path"] = os.path.expanduser(args["container_path"])
             if os.path.isfile(args["container_path"]) is False:
                 raise RuntimeError('The specific container-path is not a file. Please provide a path to the OGS container.')
             if not args["container_path"].endswith(".sif"):
                 raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
             container_path = args["container_path"]
-        if self.container and container_path == "":
-            raise RuntimeError('Path to OGS container is missing. Please provide a path to the OGS container using the container_path argument')
+        if "path" in args:
+            args["path"] = os.path.expanduser(args["path"])
+            if os.path.isdir(args["path"]) is False:
+                if container:
+                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
+                else:
+                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
+            ogs_path += args["path"]     
         if "logfile" in args:
             self.logfile = args["logfile"]
         else:
             self.logfile = "out"
-        if self.container:
+        if container:
             if sys.platform == "win32":
                 raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
             else:
@@ -505,7 +499,7 @@ class OGS:
         if self.loadmkl is not None:
             cmd += self.loadmkl + " && "
         cmd += f"{ogs_path} "
-        if self.container:
+        if container:
             cmd += "exec " + f"{container_path} " + "ogs "
         if "args" in args:
             cmd += f"{args['args']} "
