@@ -86,6 +86,7 @@ class OGS:
         if "INPUT_FILE" in args:
             if os.path.isfile(args['INPUT_FILE']) is True:
                 self.inputfile = args['INPUT_FILE']
+                _ = self._get_root()
             else:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
         else:
@@ -521,7 +522,12 @@ class OGS:
             raise RuntimeError('OGS execution was not successfull.')
 
     def write_input(self, keep_includes=False):
-        """Writes the projectfile to disk"""
+        """Writes the projectfile to disk
+
+        Parameters
+        ----------
+        keep_includes : `bolean`, optional
+        """
         if not self.tree is None:
             if keep_includes is True:
                 self.__replace_blocks_by_includes()
