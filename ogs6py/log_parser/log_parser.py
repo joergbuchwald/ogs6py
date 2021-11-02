@@ -7,280 +7,303 @@
 
 import re
 import sys
-from dataclasses import dataclass, field
 import pandas as pd
-from typing import List
-
-@dataclass
-class ComponentConvergence(object):
-    number: int
-    dx: float
-    x: float
-    dx_relative: float
-    index_name: str = "component_convergence/"
-
-    def to_dict(self, prefix):
-        yield {
-            prefix + self.index_name + "number": self.number,
-            prefix + self.index_name + "dx": self.dx,
-            prefix + self.index_name + "x": self.x,
-            prefix + self.index_name + "dx_relative": self.dx_relative,
-        }
+from dataclasses import dataclass
 
 
-@dataclass
-class Iteration(object):
-    number: int
-    assembly_time: float  # seconds
-    dirichlet_bc_time: float  # seconds
-    linear_solver_time: float  # seconds
-    cpu_time: float  # seconds
-    component_convergence: List[ComponentConvergence] = field(default_factory=list)
-    index_name: str = "iteration/"
-
-    def _dict(self, prefix):
-        return {
-            prefix + self.index_name + "number": self.number,
-            prefix + self.index_name + "assembly_time": self.assembly_time,
-            prefix + self.index_name + "dirichlet_bc_time": self.dirichlet_bc_time,
-            prefix + self.index_name + "linear_solver_time": self.linear_solver_time,
-            prefix + self.index_name + "cpu_time": self.cpu_time,
-        }
-
-    def to_dict(self, prefix):
-        for c in self.component_convergence:
-            for d in c.to_dict(prefix + self.index_name):
-                yield self._dict(prefix) | d
-
-
-@dataclass
-class TimeStep(object):
-    number: int
-    t: float  # simulation time
-    dt: float  # simulation time increment
-    iterations: List[Iteration] = field(default_factory=list)
-    cpu_time: float = None  # seconds
-    output_time: float = None  # seconds
-    index_name: str = "time_step/"
-
-    def _dict(self):
-        return {
-            self.index_name + "number": self.number,
-            self.index_name + "t": self.t,
-            self.index_name + "dt": self.dt,
-            self.index_name + "cpu_time": self.cpu_time,
-            self.index_name + "output_time": self.output_time,
-        }
-
-    def to_dict(self, prefix):
-        for i in self.iterations:
-            for d in i.to_dict(self.index_name):
-                yield self._dict() | d
-
-
-@dataclass
-class Simulation(object):
-    timesteps: List[TimeStep] = field(default_factory=list)
-    mesh_read_time: float = None  # seconds
-    execution_time: float = None  # seconds
-
-    def __len__(self):
-        """Number of time steps"""
-        return len(self.timesteps)
-
-    def _dict(self):
-        return {
-            "execution_time": self.execution_time,
-        }
-
-    def __iter__(self):
-        for t in self.timesteps:
-            for d in t.to_dict(""):
-                yield self._dict() | d
-
-
-_re_iteration = [
-    re.compile("info: \[time\] Iteration #(\d+) took ([\d\.e+s]+) s"),
-    int,
-    float,
-]
-_re_time_step_start = [
-    re.compile(
-        "info: === Time stepping at step #(\d+) and time ([\d\.e+s]+) with step size (.*)"
-    ),
-    int,
-    float,
-    float,
-]
-_re_time_step_output = [
-    re.compile("info: \[time\] Output of timestep (\d+) took ([\d\.e+s]+) s"),
-    int,
-    float,
-]
-_re_time_step_solution_time = [
-    re.compile(
-        "info: \[time\] Solving process #(\d+) took ([\d\.e+s]+) s in time step #(\d+)"
-    ),
-    int,
-    float,
-    int,
-]
-_re_time_step_finished = [
-    re.compile("info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s"),
-    int,
-    float,
-]
-
-_re_assembly_time = [re.compile("info: \[time\] Assembly took ([\d\.e+-]+) s"), float]
-_re_dirichlet_bc_time = [
-    re.compile("info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s"),
-    float,
-]
-_re_linear_solver_time = [
-    re.compile("info: \[time\] Linear solver took ([\d\.e+s]+) s"),
-    float,
-]
-# _re_reading_mesh = [re.compile(".*?time.*?Reading the mesh took ([\d\.e+s]+) s"), float]
-_re_execution_time = [re.compile("info: \[time\] Execution took ([\d\.e+-]+) s"), float]
-
-_re_component_convergence = [
-    re.compile(
-        "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
-    ),
-    int,
-    float,
-    float,
-    float,
-]
-
-_re_convergence = [
-    re.compile(
-        "info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
-    ),
-    float,
-    float,
-    float,
-]
-
-def _tryMatch(line: str, regex: re.Pattern, *ctors):
+def try_match_serial(line: str, regex: re.Pattern, *types):
     if match := regex.match(line):
-        return [ctor(s) for ctor, s in zip(ctors, match.groups())]
+        # Convergence.__annotations__.values()
+        match_with_process_0 = tuple('0')+match.groups()
+        types_with_process_0 = tuple([int] + list(types))
+        return [ctor(s) for ctor, s in zip(types_with_process_0, match_with_process_0)]
     return None
 
 
-def parse_file(filename, maximum_timesteps=None, maximum_lines=None, petsc=False):
+def try_match_parallel(line: str, regex: re.Pattern, *types):
+    if match := regex.match(line):
+        types = (int, *types)
+        return [ctor(s) for ctor, s in zip(types, match.groups())]
+    return None
 
-    tss = []
-    execution_time = None
-    mesh_read_time = None
 
-    ts = TimeStep(
-        number=0,
-        t=0.0,  # Note: initial time is not set correctly.
-        dt=None,
-        iterations=[],
-        cpu_time=None,
-    )
+def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=False):
 
-    assembly_time = None
-    dirichlet_bc_time = None
-    linear_solver_time = None
-    component_convergence = []
+    if petsc:
+        process_regex = '\\[(\\d+)\\]\\ '
+        try_match = try_match_parallel
+    else:
+        process_regex = ''
+        try_match = try_match_serial
+
+    @dataclass
+    class MPIProcess(object):
+        mpi_process: int
+
+    @dataclass
+    class TimeStep(MPIProcess):
+        time_step: int
+
+    @dataclass
+    class Iteration(TimeStep):
+        iteration_number: int
+
+    @dataclass
+    class IterationTime(Iteration):
+        iteration_time: float
+
+    _re_iteration = [
+        re.compile(process_regex + "info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
+    @dataclass
+    class TimeStepStartTime(TimeStep):
+        step_start_time: float
+        step_size: float
+
+    _re_time_step_start = [
+        re.compile(process_regex +
+                   "info: === Time stepping at step #(\d+) and time ([\d\.e+-]+) with step size (.*)"
+                   ),
+        int,
+        float,
+        float,
+    ]
+
+    @dataclass
+    class TimeStepOutputTime(TimeStep):
+        output_time: float
+
+    _re_time_step_output = [
+        re.compile(process_regex + "info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
+    @dataclass
+    class TimeStepSolutionTime(TimeStep):
+        time_step_solution_time: float
+        process: int
+
+    _re_time_step_solution_time = [
+        re.compile(process_regex + "info: \[time\] Solving process #(\d+) took ([\d\.e+-]+) s in time step #(\d+)"
+                   ),
+        int,
+        float,
+        int,
+    ]
+
+    @dataclass
+    class TimeStepFinishedTime(TimeStep):
+        time_step_finished_time: float
+
+    _re_time_step_finished = [
+        re.compile(process_regex + "info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
+    @dataclass
+    class AssemblyTime(Iteration):
+        assembly_time: float
+
+    _re_assembly_time = [re.compile(process_regex + "info: \[time\] Assembly took ([\d\.e+-]+) s"), float]
+
+    @dataclass
+    class DirichletTime(Iteration):
+        dirichlet_time: float
+
+    _re_dirichlet_bc_time = [
+        re.compile(process_regex + "info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s"),
+        float,
+    ]
+
+    @dataclass
+    class LinearSolverTime(Iteration):
+        linear_solver_time: float
+
+    _re_linear_solver_time = [
+        re.compile(process_regex + "info: \[time\] Linear solver took ([\d\.e+-]+) s"),
+        float,
+    ]
+
+    @dataclass
+    class MeshReadTime(MPIProcess):
+        mesh_read_time: float
+
+    _re_reading_mesh = [re.compile(process_regex + "info: \[time\] Reading the mesh took ([\d\.e+-]+) s"), float]
+
+    @dataclass
+    class SimulationExecutionTime(object):
+        execution_time: float
+
+    _re_execution_time = [re.compile(process_regex + "info: \[time\] Execution took ([\d\.e+-]+) s"), float]
+
+    @dataclass
+    class ComponentConvergenceCriterion(Iteration):
+        component: int
+        dx: float
+        x: float
+        dx_x: float
+
+    _re_component_convergence = [
+        re.compile(process_regex +
+                   "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
+                   ),
+        int,
+        float,
+        float,
+        float,
+    ]
+
+    @dataclass
+    class TimeStepConvergenceCriterion(TimeStep):
+        dx: float
+        x: float
+        dx_x: float
+
+    _re_convergence = [
+        re.compile(process_regex +
+                   "info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
+                   ),
+        float,
+        float,
+        float,
+    ]
+
+    # Examples simple CodePoints (no extra information is gathered)
+    _re_initial_residuum = [
+        re.compile(process_regex +
+                   "info: Calculate non-equilibrium initial residuum$"
+                   )
+    ]
+
+    _re_warning_use_multiple_meshes_input = [
+        re.compile(process_regex + "warning: Consider switching from mesh and geometry input to multiple meshes input.$"
+                   )
+    ]
 
     number_of_lines_read = 0
-    for line in open(filename):
-        if petsc is True:
-            line_new = line.replace('[0] ', '')
-        else:
-            line_new = line
+    file = open(file_name)
+    lines = iter(file)
+    processes = get_mpi_processes(lines)
+
+    # Context
+    last_time_step = [0] * processes  # first time_step is 0
+    last_iteration = [0] * processes  # first iteration is 1
+
+    def get_context(mpi_process_nr):
+        return last_time_step[mpi_process_nr], last_iteration[mpi_process_nr] + 1
+
+    records = list()
+    for line in lines:
         number_of_lines_read += 1
 
-        if r := _tryMatch(line_new, *_re_iteration):
-            ts.iterations.append(
-                Iteration(
-                    number=r[0],
-                    assembly_time=assembly_time,
-                    dirichlet_bc_time=dirichlet_bc_time,
-                    linear_solver_time=linear_solver_time,
-                    component_convergence=component_convergence,
-                    cpu_time=r[1],
-                )
+        if (maximum_lines is not None) and (maximum_lines > number_of_lines_read):
+            break
+
+        if r := try_match(line, *_re_iteration):
+            [mpi_process, iteration, time] = r
+            step, _ = get_context(mpi_process)
+            # set context (iteration)
+            last_iteration[mpi_process] = iteration
+            records.append(
+                IterationTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, iteration_time=time))
+            continue
+
+        if r := try_match(line, *_re_assembly_time):
+            [mpi_process, time] = r
+            step, iteration = get_context(mpi_process)
+            records.append(
+                AssemblyTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, assembly_time=time))
+            continue
+
+        if r := try_match(line, *_re_dirichlet_bc_time):
+            [mpi_process, time] = r
+            step, iteration = get_context(mpi_process)
+            records.append(
+                DirichletTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, dirichlet_time=time))
+            continue
+
+        if r := try_match(line, *_re_linear_solver_time):
+            [mpi_process, time] = r
+            step, iteration = get_context(mpi_process)
+            records.append(LinearSolverTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration,
+                                            linear_solver_time=time))
+            continue
+
+        if r := try_match(line, *_re_component_convergence):
+            [mpi_process, number, dx, x, dx_relative] = r
+            step, iteration = get_context(mpi_process)
+            records.append(
+                ComponentConvergenceCriterion(mpi_process=mpi_process, time_step=step, iteration_number=iteration,
+                                              component=number, dx=dx, x=x, dx_x=dx_relative))
+            continue
+
+        if r := try_match(line, *_re_convergence):
+            [mpi_process, dx, x, dx_x] = r
+            step, iteration = get_context(mpi_process)
+            records.append(
+                TimeStepConvergenceCriterion(mpi_process=mpi_process, time_step=step, dx=dx, x=x, dx_x=dx_x)
             )
-            # Reset parsed quantities to avoid reusing old values for next iterations
-            assembly_time = None
-            dirichlet_bc_time = None
-            linear_solver_time = None
-            component_convergence = []
             continue
 
-        if r := _tryMatch(line_new, *_re_assembly_time):
-            assembly_time = r[0]
-            continue
-
-        if r := _tryMatch(line_new, *_re_dirichlet_bc_time):
-            dirichlet_bc_time = r[0]
-            continue
-
-        if r := _tryMatch(line_new, *_re_linear_solver_time):
-            linear_solver_time = r[0]
-            continue
-
-        if r := _tryMatch(line_new, *_re_component_convergence):
-            component_convergence.append(
-                ComponentConvergence(number=r[0], dx=r[1], x=r[2], dx_relative=r[3])
-            )
-            continue
-
-        if r := _tryMatch(line_new, *_re_convergence):
-            component_convergence.append(
-                ComponentConvergence(number=0, dx=r[0], x=r[1], dx_relative=r[2])
-            )
-            continue
-
-        if r := _tryMatch(line_new, *_re_time_step_start):
-            # print("Finished ts", ts)
-            tss.append(ts)
-            ts = TimeStep(number=r[0], t=r[1], dt=r[2])
-            # print("New timestep", ts, "\n")
-            if (
-                ts
-                and (maximum_timesteps is not None)
-                and (ts.number > maximum_timesteps)
-            ) or ((maximum_lines is not None) and (number_of_lines_read >
-                    maximum_lines)):
+        if r := try_match(line, *_re_time_step_start):
+            [mpi_process, step, start_time, step_size] = r
+            # set context
+            # when new timestamp starts set step and reset iterations
+            last_time_step[mpi_process] = step
+            last_iteration[mpi_process] = 0
+            records.append(TimeStepStartTime(mpi_process=mpi_process, time_step=step, step_start_time=start_time,
+                                             step_size=step_size))
+            if (maximum_time_steps is not None) and (maximum_time_steps > step):
                 break
             continue
 
-        if r := _tryMatch(line_new, *_re_time_step_solution_time):
-            ts.solution_time = r[1]
+        if r := try_match(line, *_re_time_step_solution_time):
+            [mpi_process, process, time, step] = r
+            records.append(TimeStepSolutionTime(mpi_process=mpi_process, time_step=step, time_step_solution_time=time,
+                                                process=process))
             continue
 
-        if r := _tryMatch(line_new, *_re_time_step_output):
-            ts.output_time = r[1]
+        if r := try_match(line, *_re_time_step_output):
+            records.append(TimeStepOutputTime(*r))
             continue
 
-        if r := _tryMatch(line_new, *_re_time_step_finished):
-            ts.cpu_time = r[1]
+        if r := try_match(line, *_re_time_step_finished):
+            records.append(TimeStepFinishedTime(*r))
             continue
 
-        # if r := _tryMatch(line, *_re_reading_mesh):
-        #    mesh_read_time = r[0]
-        #    continue
-
-        if r := _tryMatch(line_new, *_re_execution_time):
-            execution_time = r[0]
-
-            # print("Finished ts", ts)
-            tss.append(ts)
+        if r := try_match(line, *_re_reading_mesh):
+            mpi_process, time = r
+            records.append(MeshReadTime(mpi_process=mpi_process, mesh_read_time=time))
             continue
-    return Simulation(
-        timesteps=tss, mesh_read_time=mesh_read_time, execution_time=execution_time
-    )
+
+        if r := try_match(line, *_re_execution_time):
+            [mpi_process, time] = r
+            step, _ = get_context(mpi_process)
+            records.append(SimulationExecutionTime(time))
+            continue
+
+        # TODO parse all DEBUG outputs in c++ sources and generate a full list
+        # records.append(UnknownLine(line))
+    file.close()
+    return records
+
+
+def get_mpi_processes(lines):
+    processes = 0
+    # There is no synchronisation barrier between both info, we count both and divide
+    while re.search("info: This is OpenGeoSys-6 version|info: OGS started on", next(lines)):
+        processes = processes + 1
+    return int(processes / 2 + 0.5)
+
+
 if __name__ == "__main__":
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], maximum_timesteps=None, maximum_lines=None, petsc=True)
-    print(data)
+    data = parse_file(sys.argv[1], maximum_time_steps=None, maximum_lines=None, petsc=True)
     df = pd.DataFrame(data)
-    print(df)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
