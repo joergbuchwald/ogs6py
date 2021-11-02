@@ -1,0 +1,125 @@
+info: This is OpenGeoSys-6 version 6.4.1-91-g31c30ea65c.
+info: OGS started on 2021-11-02 16:32:19+0100.
+info: Project configuration from file '/home/meisel/o/s/Tests/Data/Parabolic/LiquidFlow/SimpleSynthetics/XDMF/FunctionParameterTest_XDMF.prj' read.
+info: FunctionParameter: p_0
+info: FunctionParameter: p_polyline_left
+info: FunctionParameter: p_polyline_right
+info: No source terms for process variable 'pressure' found.
+info: Configure mesh 'square_5x5_tris_32' for output.
+info: Configure mesh 'square_5x5_tris_32_left_boundary' for output.
+info: Configure mesh 'square_5x5_tris_32_right_boundary' for output.
+info: Initialize processes.
+info: Solve processes.
+info: [time] Output of timestep 0 took 0.0106136 s.
+info: === Time stepping at step #1 and time 0.3 with step size 0.3
+info: Calculate non-equilibrium initial residuum.
+info: [time] Assembly took 8.3935e-05 s.
+info: [time] Applying Dirichlet BCs took 1.864e-05 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 4/1000
+info: 	 residual: 2.812472e-17
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 2.7321e-05 s.
+info: [time] Iteration #1 took 0.000140448 s.
+info: [time] Solving process #0 took 0.000147615 s in time step #1 
+info: [time] Time step #1 took 0.000167065 s.
+info: [time] Output of timestep 1 took 0.00123401 s.
+info: === Time stepping at step #2 and time 0.6 with step size 0.3
+info: [time] Assembly took 4.9621e-05 s.
+info: [time] Applying Dirichlet BCs took 9.347e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 3/1000
+info: 	 residual: 3.054198e-17
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.4822e-05 s.
+info: [time] Iteration #1 took 8.2084e-05 s.
+info: [time] Solving process #0 took 8.681e-05 s in time step #2 
+info: [time] Time step #2 took 9.9061e-05 s.
+info: [time] Output of timestep 2 took 7.8629e-05 s.
+info: === Time stepping at step #3 and time 0.9 with step size 0.3
+info: [time] Assembly took 4.7409e-05 s.
+info: [time] Applying Dirichlet BCs took 8.967e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 1/1000
+info: 	 residual: 3.852948e-17
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.3708e-05 s.
+info: [time] Iteration #1 took 7.7746e-05 s.
+info: [time] Solving process #0 took 8.2081e-05 s in time step #3 
+info: [time] Time step #3 took 9.4026e-05 s.
+info: [time] Output of timestep 3 took 7.4361e-05 s.
+info: === Time stepping at step #4 and time 1.2 with step size 0.3
+info: [time] Assembly took 4.6798e-05 s.
+info: [time] Applying Dirichlet BCs took 8.563e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 1/1000
+info: 	 residual: 2.368181e-17
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.3706e-05 s.
+info: [time] Iteration #1 took 7.6621e-05 s.
+info: [time] Solving process #0 took 8.1083e-05 s in time step #4 
+info: [time] Time step #4 took 9.3071e-05 s.
+info: [time] Output of timestep 4 took 7.5139e-05 s.
+info: === Time stepping at step #5 and time 1.5 with step size 0.3
+info: [time] Assembly took 4.6818e-05 s.
+info: [time] Applying Dirichlet BCs took 8.5e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 1/1000
+info: 	 residual: 5.236132e-17
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.3377e-05 s.
+info: [time] Iteration #1 took 7.6289e-05 s.
+info: [time] Solving process #0 took 8.6723e-05 s in time step #5 
+info: [time] Time step #5 took 0.000100525 s.
+info: [time] Output of timestep 5 took 7.5813e-05 s.
+info: === Time stepping at step #6 and time 1.8 with step size 0.3
+info: [time] Assembly took 4.6869e-05 s.
+info: [time] Applying Dirichlet BCs took 8.624e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 1/1000
+info: 	 residual: 3.470140e-17
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.3378e-05 s.
+info: [time] Iteration #1 took 7.6588e-05 s.
+info: [time] Solving process #0 took 8.0978e-05 s in time step #6 
+info: [time] Time step #6 took 9.2626e-05 s.
+info: [time] Output of timestep 6 took 7.3767e-05 s.
+info: === Time stepping at step #7 and time 2 with step size 0.2
+info: [time] Assembly took 4.669e-05 s.
+info: [time] Applying Dirichlet BCs took 8.189e-06 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with BiCGSTAB (precon DIAGONAL)
+info: 	 iteration: 0/1000
+info: 	 residual: 6.691814e-17
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.2473e-05 s.
+info: [time] Iteration #1 took 7.4908e-05 s.
+info: [time] Solving process #0 took 7.9044e-05 s in time step #7 
+info: [time] Time step #7 took 9.1573e-05 s.
+info: [time] Output of timestep 7 took 7.3108e-05 s.
+info: The whole computation of the time stepping took 7 steps, in which
+	 the accepted steps are 7, and the rejected steps are 0.
+
+info: [time] Execution took 0.0154405 s.
+info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32.xdmf took 0.000148102 s.
+info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32_left_boundary.xdmf took 8.4569e-05 s.
+info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32_right_boundary.xdmf took 7.6308e-05 s.
+info: OGS terminated on 2021-11-02 16:32:19+0100.
