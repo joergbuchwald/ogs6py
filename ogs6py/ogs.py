@@ -486,7 +486,7 @@ class OGS:
             if shutil.which(ogs_path) is None:
                 raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
-        if wrapper in args:
+        if "wrapper" in args:
             cmd += args['wrapper'] + " "
         cmd += f"{ogs_path} "
         if container:
