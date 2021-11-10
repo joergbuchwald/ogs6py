@@ -2,10 +2,13 @@
 
 All notable changes to **ogs6py** will be documented in this file.
 
+## [0.33]
+
 ### Changes
 * parse input if input is given (allows for execution of given file if no replace function is called)
 * logparser can now output from staggered scheme
 * OGS executables from a singularity container are now supported as well
+* add argument for general wrapper for ogs
 
 ## [0.32]
 
