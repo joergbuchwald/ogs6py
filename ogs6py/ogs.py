@@ -35,13 +35,6 @@ class OGS:
     INPUT_FILE : `str`, optional
         Filename of the input project file
     XMLSTRING : `str`,optional
-    MKL : `boolean`, optional
-        Switch on execution of the MKL environment script
-        before an OGS run
-        Default: False
-    MKL_SCRIPT : `str`,optional
-        MKL Environment script command
-        Default: source /opt/intel/mkl/bin/mklvars.sh intel64
     OMP_NUM_THREADS : `int`, optional
         Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
     """
@@ -62,18 +55,11 @@ class OGS:
         self.tag = []
         self.logfile = "out.log"
         self.tree = None
-        self.loadmkl = None
         self.include_elements = []
         self.include_files = []
         self.add_blocks = []
         self.add_entries = []
         self.add_includes = []
-        if "MKL" in args:
-            if args["MKL"] is True:
-                if "MKL_SCRIPT" in args:
-                    self.loadmkl = args["MKL_SCRIPT"]
-                else:
-                    self.loadmkl = "source /opt/intel/mkl/bin/mklvars.sh intel64"
         if "OMP_NUM_THREADS" in args:
             self.threads = args["OMP_NUM_THREADS"]
         else:
@@ -453,6 +439,8 @@ class OGS:
             Path of the OGS container file.
         args : `str`, optional
             additional arguments for the ogs executable
+        wrapper : `str`, optional
+            add a wrapper command. E.g. mpirun
         """
 
         ogs_path = ""
@@ -497,8 +485,8 @@ class OGS:
             if shutil.which(ogs_path) is None:
                 raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
-        if self.loadmkl is not None:
-            cmd += self.loadmkl + " && "
+        if wrapper in args:
+            cmd += args['wrapper'] + " "
         cmd += f"{ogs_path} "
         if container:
             cmd += "exec " + f"{container_path} " + "ogs "
