@@ -421,7 +421,7 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def run_model(self, **args):
+    def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True):
         """Command to run OGS.
 
         Runs OGS with the project file specified as PROJECT_FILE
@@ -435,42 +435,38 @@ class OGS:
             Path of the directory in which the ogs executable can be found.
             If ``container_path`` is given: Path to the directory in which the
             Singularity executable can be found
-        container_path : `str`, optional
-            Path of the OGS container file.
         args : `str`, optional
             additional arguments for the ogs executable
+        container_path : `str`, optional
+            Path of the OGS container file.
         wrapper : `str`, optional
             add a wrapper command. E.g. mpirun
+        write_logs: `bolean`, optional
+            set False to omit logging
         """
 
         ogs_path = ""
-        container_path = ""
-        container = False
         if self.threads is None:
             env_export = ""
         else:
             env_export = f"export OMP_NUM_THREADS={self.threads} && "
-        if "container_path" in args:
-            container = True
-            args["container_path"] = os.path.expanduser(args["container_path"])
-            if os.path.isfile(args["container_path"]) is False:
+        if not container_path is None:
+            container_path = os.path.expanduser(container_path)
+            if os.path.isfile(container_path) is False:
                 raise RuntimeError('The specific container-path is not a file. Please provide a path to the OGS container.')
-            if not args["container_path"].endswith(".sif"):
+            if not container_path.endswith(".sif"):
                 raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
-            container_path = args["container_path"]
-        if "path" in args:
-            args["path"] = os.path.expanduser(args["path"])
-            if os.path.isdir(args["path"]) is False:
-                if container:
+        if not path is None:
+            path = os.path.expanduser(path)
+            if os.path.isdir(path) is False:
+                if not container_path is None:
                     raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
                 else:
                     raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
-            ogs_path += args["path"]
-        if "logfile" in args:
-            self.logfile = args["logfile"]
-        else:
-            self.logfile = "out"
-        if container:
+            ogs_path += path
+        if not logfile is None:
+            self.logfile = logfile
+        if not container_path is None:
             if sys.platform == "win32":
                 raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
             else:
@@ -485,19 +481,22 @@ class OGS:
             if shutil.which(ogs_path) is None:
                 raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
         cmd = env_export
-        if "wrapper" in args:
-            cmd += args['wrapper'] + " "
+        if not wrapper is None:
+            cmd += wrapper + " "
         cmd += f"{ogs_path} "
-        if container:
+        if not container_path is None:
             cmd += "exec " + f"{container_path} " + "ogs "
-        if "args" in args:
-            cmd += f"{args['args']} "
-        cmd += f"{self.prjfile} > {self.logfile}"
+        if not args is None:
+            cmd += f"{args} "
+        if write_logs is True:
+            cmd += f"{self.prjfile} > {self.logfile}"
+        else:
+            cmd += f"{self.prjfile}"
         startt = time.time()
         if sys.platform == "win32":
-            returncode = subprocess.run([cmd], shell=True)
+            returncode = subprocess.run([cmd], shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         else:
-            returncode = subprocess.run([cmd], shell=True, executable="/bin/bash")
+            returncode = subprocess.run([cmd], shell=True, executable="/bin/bash", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
@@ -505,6 +504,8 @@ class OGS:
             print(f"Execution took {self.exec_time} s")
         else:
             print(f"Error code: {returncode.returncode}")
+            if write_logs is False:
+                raise RuntimeError('OGS execution was not successfull. Please set write_logs to True to obtain more information.')
             num_lines = sum(1 for line in open(self.logfile))
             with open(self.logfile) as file:
                 for i, line in enumerate(file):
