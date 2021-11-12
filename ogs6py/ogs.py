@@ -461,16 +461,14 @@ class OGS:
             if os.path.isdir(path) is False:
                 if not container_path is None:
                     raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
-                else:
-                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
+                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
             ogs_path += path
         if not logfile is None:
             self.logfile = logfile
         if not container_path is None:
             if sys.platform == "win32":
                 raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
-            else:
-                ogs_path = os.path.join(ogs_path, "singularity")
+            ogs_path = os.path.join(ogs_path, "singularity")
             if shutil.which(ogs_path) is None:
                 raise RuntimeError('The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions.')
         else:
