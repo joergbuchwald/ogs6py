@@ -2,6 +2,11 @@
 
 All notable changes to **ogs6py** will be documented in this file.
 
+## [0.34]
+
+### Changes
+* Switch to turn off logging
+
 ## [0.33]
 
 ### Changes
