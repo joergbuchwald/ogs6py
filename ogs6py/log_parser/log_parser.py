@@ -27,7 +27,93 @@ def try_match_parallel(line: str, regex: re.Pattern, *types):
     return None
 
 
-def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=False):
+@dataclass
+class MPIProcess(object):
+    mpi_process: int
+
+@dataclass
+class TimeStep(MPIProcess):
+    time_step: int
+
+@dataclass
+class Iteration(TimeStep):
+    iteration_number: int
+
+@dataclass
+class IterationTime(Iteration):
+    iteration_time: float
+
+
+@dataclass
+class TimeStepStartTime(TimeStep):
+    step_start_time: float
+    step_size: float
+
+
+
+@dataclass
+class TimeStepOutputTime(TimeStep):
+    output_time: float
+
+
+@dataclass
+class TimeStepSolutionTime(TimeStep):
+    time_step_solution_time: float
+    process: int
+
+
+@dataclass
+class TimeStepFinishedTime(TimeStep):
+    time_step_finished_time: float
+
+
+
+@dataclass
+class AssemblyTime(Iteration):
+    assembly_time: float
+
+
+
+@dataclass
+class DirichletTime(Iteration):
+    dirichlet_time: float
+
+
+
+@dataclass
+class LinearSolverTime(Iteration):
+    linear_solver_time: float
+
+
+
+@dataclass
+class MeshReadTime(MPIProcess):
+    mesh_read_time: float
+
+
+
+@dataclass
+class SimulationExecutionTime(object):
+    execution_time: float
+
+@dataclass
+class ComponentConvergenceCriterion(Iteration):
+    component: int
+    dx: float
+    x: float
+    dx_x: float
+
+
+
+@dataclass
+class TimeStepConvergenceCriterion(TimeStep):
+    dx: float
+    x: float
+    dx_x: float
+
+
+
+def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=True):
 
     if petsc:
         process_regex = '\\[(\\d+)\\]\\ '
@@ -36,133 +122,11 @@ def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=Fal
         process_regex = ''
         try_match = try_match_serial
 
-    @dataclass
-    class MPIProcess(object):
-        mpi_process: int
-
-    @dataclass
-    class TimeStep(MPIProcess):
-        time_step: int
-
-    @dataclass
-    class Iteration(TimeStep):
-        iteration_number: int
-
-    @dataclass
-    class IterationTime(Iteration):
-        iteration_time: float
-
-    _re_iteration = [
-        re.compile(process_regex + "info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s"),
-        int,
-        float,
-    ]
-
-    @dataclass
-    class TimeStepStartTime(TimeStep):
-        step_start_time: float
-        step_size: float
-
-    _re_time_step_start = [
-        re.compile(process_regex +
-                   "info: === Time stepping at step #(\d+) and time ([\d\.e+-]+) with step size (.*)"
-                   ),
-        int,
-        float,
-        float,
-    ]
-
-    @dataclass
-    class TimeStepOutputTime(TimeStep):
-        output_time: float
-
-    _re_time_step_output = [
-        re.compile(process_regex + "info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s"),
-        int,
-        float,
-    ]
-
-    @dataclass
-    class TimeStepSolutionTime(TimeStep):
-        time_step_solution_time: float
-        process: int
-
-    _re_time_step_solution_time = [
-        re.compile(process_regex + "info: \[time\] Solving process #(\d+) took ([\d\.e+-]+) s in time step #(\d+)"
-                   ),
-        int,
-        float,
-        int,
-    ]
-
-    @dataclass
-    class TimeStepFinishedTime(TimeStep):
-        time_step_finished_time: float
-
-    _re_time_step_finished = [
-        re.compile(process_regex + "info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s"),
-        int,
-        float,
-    ]
-
-    @dataclass
-    class AssemblyTime(Iteration):
-        assembly_time: float
-
     _re_assembly_time = [re.compile(process_regex + "info: \[time\] Assembly took ([\d\.e+-]+) s"), float]
-
-    @dataclass
-    class DirichletTime(Iteration):
-        dirichlet_time: float
-
-    _re_dirichlet_bc_time = [
-        re.compile(process_regex + "info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s"),
-        float,
-    ]
-
-    @dataclass
-    class LinearSolverTime(Iteration):
-        linear_solver_time: float
-
-    _re_linear_solver_time = [
-        re.compile(process_regex + "info: \[time\] Linear solver took ([\d\.e+-]+) s"),
-        float,
-    ]
-
-    @dataclass
-    class MeshReadTime(MPIProcess):
-        mesh_read_time: float
-
-    _re_reading_mesh = [re.compile(process_regex + "info: \[time\] Reading the mesh took ([\d\.e+-]+) s"), float]
-
-    @dataclass
-    class SimulationExecutionTime(object):
-        execution_time: float
 
     _re_execution_time = [re.compile(process_regex + "info: \[time\] Execution took ([\d\.e+-]+) s"), float]
 
-    @dataclass
-    class ComponentConvergenceCriterion(Iteration):
-        component: int
-        dx: float
-        x: float
-        dx_x: float
 
-    _re_component_convergence = [
-        re.compile(process_regex +
-                   "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
-                   ),
-        int,
-        float,
-        float,
-        float,
-    ]
-
-    @dataclass
-    class TimeStepConvergenceCriterion(TimeStep):
-        dx: float
-        x: float
-        dx_x: float
 
     _re_convergence = [
         re.compile(process_regex +
@@ -184,6 +148,64 @@ def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=Fal
         re.compile(process_regex + "warning: Consider switching from mesh and geometry input to multiple meshes input.$"
                    )
     ]
+
+    _re_component_convergence = [
+        re.compile(process_regex +
+                   "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$"
+                   ),
+        int,
+        float,
+        float,
+        float,
+    ]
+
+    _re_linear_solver_time = [
+        re.compile(process_regex + "info: \[time\] Linear solver took ([\d\.e+-]+) s"),
+        float,
+    ]
+
+    _re_reading_mesh = [re.compile(process_regex + "info: \[time\] Reading the mesh took ([\d\.e+-]+) s"), float]
+
+    _re_dirichlet_bc_time = [
+        re.compile(process_regex + "info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s"),
+        float,
+    ]
+
+    _re_iteration = [
+        re.compile(process_regex + "info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
+    _re_time_step_start = [
+        re.compile(process_regex +
+                   "info: === Time stepping at step #(\d+) and time ([\d\.e+-]+) with step size (.*)"
+                   ),
+        int,
+        float,
+        float,
+    ]
+
+    _re_time_step_output = [
+        re.compile(process_regex + "info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
+    _re_time_step_solution_time = [
+        re.compile(process_regex + "info: \[time\] Solving process #(\d+) took ([\d\.e+-]+) s in time step #(\d+)"
+                   ),
+        int,
+        float,
+        int,
+    ]
+
+    _re_time_step_finished = [
+        re.compile(process_regex + "info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s"),
+        int,
+        float,
+    ]
+
 
     number_of_lines_read = 0
     file = open(file_name)
