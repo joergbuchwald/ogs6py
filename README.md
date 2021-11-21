@@ -1,4 +1,5 @@
-[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372) [![ogs6py_test](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml/badge.svg)](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml) [![codecov](https://codecov.io/gh/joergbuchwald/ogs6py/branch/master/graph/badge.svg?token=LWID703VDU)](https://codecov.io/gh/joergbuchwald/ogs6py)
+[![DOI](https://zenodo.org/badge/179541372.svg)](https://zenodo.org/badge/latestdoi/179541372) [![ogs6py_test](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml/badge.svg)](https://github.com/joergbuchwald/ogs6py/actions/workflows/python-package.yml) [![codecov](https://codecov.io/gh/joergbuchwald/ogs6py/branch/master/graph/badge.svg?token=LWID703VDU)](https://codecov.io/gh/joergbuchwald/ogs6py) [![DOI](https://joss.theoj.org/papers/10.21105/joss.03673/status.svg)](https://doi.org/10.21105/joss.03673)
+
 
 # ogs6py
 
