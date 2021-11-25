@@ -8,7 +8,6 @@
 import re
 import sys
 import pandas as pd
-from dataclasses import dataclass
 
 
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
@@ -29,120 +28,7 @@ def try_match_serial_line(line: str, line_nr: int, regex: re.Pattern, pattern_cl
     return None
 
 
-@dataclass
-class Log(object):
-    line: int
-
-
-@dataclass
-class MPIProcess(Log):
-    mpi_process: int
-
-
-@dataclass
-class AssemblyTime(MPIProcess):
-    assembly_time: float
-
-
-@dataclass
-class TimeStep(MPIProcess):
-    time_step: int
-
-
-@dataclass
-class Iteration(TimeStep):
-    iteration_number: int
-
-
-@dataclass
-class IterationTime(MPIProcess):
-    iteration_number: int
-    iteration_time: float
-
-
-@dataclass
-class TimeStepStartTime(MPIProcess):
-    time_step: int
-    step_start_time: float
-    step_size: float
-
-
-@dataclass
-class TimeStepOutputTime(MPIProcess):
-    time_step: int
-    output_time: float
-
-
-@dataclass
-class TimeStepSolutionTime(MPIProcess):
-    process: int
-    time_step_solution_time: float
-    time_step: int
-
-
-@dataclass
-class TimeStepFinishedTime(MPIProcess):
-    time_step: int
-    time_step_finished_time: float
-
-
-@dataclass
-class DirichletTime(MPIProcess):
-    dirichlet_time: float
-
-
-@dataclass
-class LinearSolverTime(MPIProcess):
-    linear_solver_time: float
-
-
-@dataclass
-class MeshReadTime(MPIProcess):
-    mesh_read_time: float
-
-
-@dataclass
-class SimulationExecutionTime(MPIProcess):
-    execution_time: float
-
-
-@dataclass
-class ComponentConvergenceCriterion(MPIProcess):
-    component: int
-    dx: float
-    x: float
-    dx_x: float
-
-
-@dataclass
-class TimeStepConvergenceCriterion(MPIProcess):
-    dx: float
-    x: float
-    dx_x: float
-
-
-r1 = [("info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s", TimeStepOutputTime),
-      ("info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s", TimeStepFinishedTime),
-      ("info: \[time\] Reading the mesh took ([\d\.e+-]+) s", MeshReadTime),
-      ("info: \[time\] Execution took ([\d\.e+-]+) s", SimulationExecutionTime),
-      ("info: \[time\] Solving process #(\d+) took ([\d\.e+-]+) s in time step #(\d+)", TimeStepSolutionTime),
-      ("info: === Time stepping at step #(\d+) and time ([\d\.e+-]+) with step size (.*)", TimeStepStartTime),
-      ("info: \[time\] Assembly took ([\d\.e+-]+) s", AssemblyTime),
-      ("info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s", DirichletTime),
-      ("info: \[time\] Linear solver took ([\d\.e+-]+) s", LinearSolverTime),
-      ("info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s", IterationTime),
-      ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$",
-       TimeStepConvergenceCriterion),
-      # Examples simple CodePoints (no extra information is gathered)
-      ("info: Calculate non-equilibrium initial residuum$", MPIProcess),
-      (
-      "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$",
-      ComponentConvergenceCriterion)
-
-      ]
-
-
-def parse_file(file_name, maximum_lines=None, petsc=True):
+def parse_file(file_name, ogs_res, maximum_lines=None, petsc=True):
     if petsc:
         process_regex = '\\[(\\d+)\\]\\ '
         try_match = try_match_parallel_line
@@ -154,7 +40,7 @@ def parse_file(file_name, maximum_lines=None, petsc=True):
         return lambda regex: re.compile(mpi_process_regex + regex)
 
     compile_re = compile_re_fn(process_regex)
-    patterns = [(compile_re(k), v) for k, v in r1]
+    patterns = [(compile_re(k), v) for k, v in ogs_res]
 
     number_of_lines_read = 0
     with open(file_name) as file:
@@ -177,8 +63,9 @@ def parse_file(file_name, maximum_lines=None, petsc=True):
 
 
 if __name__ == "__main__":
+    import ogs_regexes
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], maximum_lines=None, petsc=True)
+    data = parse_file(sys.argv[1], ogs_regexes.ogs_regexes(), maximum_lines=None, petsc=True)
     df = pd.DataFrame(data)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
