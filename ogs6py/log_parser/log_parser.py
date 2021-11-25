@@ -13,7 +13,6 @@ from dataclasses import dataclass
 
 def try_match_serial(line: str, regex: re.Pattern, *types):
     if match := regex.match(line):
-        # Convergence.__annotations__.values()
         match_with_process_0 = tuple('0')+match.groups()
         types_with_process_0 = tuple([int] + list(types))
         return [ctor(s) for ctor, s in zip(types_with_process_0, match_with_process_0)]
@@ -28,20 +27,34 @@ def try_match_parallel(line: str, regex: re.Pattern, *types):
 
 
 @dataclass
-class MPIProcess(object):
+class Log(object):
+    line: int
+
+
+@dataclass
+class MPIProcess(Log):
     mpi_process: int
+
 
 @dataclass
 class TimeStep(MPIProcess):
     time_step: int
 
+
 @dataclass
 class Iteration(TimeStep):
     iteration_number: int
 
+
 @dataclass
 class IterationTime(Iteration):
     iteration_time: float
+
+
+@dataclass
+class IterationTime_N(MPIProcess):
+    iteration_time: float
+    iteration_number: int
 
 
 @dataclass
@@ -69,19 +82,19 @@ class TimeStepFinishedTime(TimeStep):
 
 
 @dataclass
-class AssemblyTime(Iteration):
+class AssemblyTime(MPIProcess):
     assembly_time: float
 
 
 
 @dataclass
-class DirichletTime(Iteration):
+class DirichletTime(MPIProcess):
     dirichlet_time: float
 
 
 
 @dataclass
-class LinearSolverTime(Iteration):
+class LinearSolverTime(MPIProcess):
     linear_solver_time: float
 
 
@@ -93,7 +106,7 @@ class MeshReadTime(MPIProcess):
 
 
 @dataclass
-class SimulationExecutionTime(object):
+class SimulationExecutionTime(MPIProcess):
     execution_time: float
 
 @dataclass
@@ -211,13 +224,6 @@ def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=Tru
         lines = iter(file)
         processes = get_mpi_processes(lines)
 
-        # Context
-        last_time_step = [0] * processes  # first time_step is 0
-        last_iteration = [0] * processes  # first iteration is 1
-
-        def get_context(mpi_process_nr):
-            return last_time_step[mpi_process_nr], last_iteration[mpi_process_nr] + 1
-
         records = list()
         for line in lines:
             number_of_lines_read += 1
@@ -227,85 +233,70 @@ def parse_file(file_name, maximum_time_steps=None, maximum_lines=None, petsc=Tru
 
             if r := try_match(line, *_re_iteration):
                 [mpi_process, iteration, time] = r
-                step, _ = get_context(mpi_process)
-                # set context (iteration)
-                last_iteration[mpi_process] = iteration
-                records.append(
-                    IterationTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, iteration_time=time))
+                records.append(IterationTime_N(mpi_process=mpi_process,iteration_number=iteration, iteration_time=time,line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_assembly_time):
                 [mpi_process, time] = r
-                step, iteration = get_context(mpi_process)
                 records.append(
-                    AssemblyTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, assembly_time=time))
+                    AssemblyTime(mpi_process=mpi_process, assembly_time=time, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_dirichlet_bc_time):
                 [mpi_process, time] = r
-                step, iteration = get_context(mpi_process)
                 records.append(
-                    DirichletTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration, dirichlet_time=time))
+                    DirichletTime(mpi_process=mpi_process, dirichlet_time=time, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_linear_solver_time):
                 [mpi_process, time] = r
-                step, iteration = get_context(mpi_process)
-                records.append(LinearSolverTime(mpi_process=mpi_process, time_step=step, iteration_number=iteration,
-                                                linear_solver_time=time))
+                records.append(LinearSolverTime(mpi_process=mpi_process, linear_solver_time=time, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_component_convergence):
                 [mpi_process, number, dx, x, dx_relative] = r
-                step, iteration = get_context(mpi_process)
                 records.append(
                     ComponentConvergenceCriterion(mpi_process=mpi_process, time_step=step, iteration_number=iteration,
-                                                  component=number, dx=dx, x=x, dx_x=dx_relative))
+                                                  component=number, dx=dx, x=x, dx_x=dx_relative, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_convergence):
                 [mpi_process, dx, x, dx_x] = r
-                step, iteration = get_context(mpi_process)
                 records.append(
-                    TimeStepConvergenceCriterion(mpi_process=mpi_process, time_step=step, dx=dx, x=x, dx_x=dx_x)
+                    TimeStepConvergenceCriterion(mpi_process=mpi_process, time_step=step, dx=dx, x=x, dx_x=dx_x, line=number_of_lines_read)
                 )
                 continue
 
             if r := try_match(line, *_re_time_step_start):
                 [mpi_process, step, start_time, step_size] = r
-                # set context
-                # when new timestamp starts set step and reset iterations
-                last_time_step[mpi_process] = step
-                last_iteration[mpi_process] = 0
                 records.append(TimeStepStartTime(mpi_process=mpi_process, time_step=step, step_start_time=start_time,
-                                                 step_size=step_size))
-                if (maximum_time_steps is not None) and (maximum_time_steps > step):
-                    break
+                                                 step_size=step_size, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_time_step_solution_time):
                 [mpi_process, process, time, step] = r
                 records.append(TimeStepSolutionTime(mpi_process=mpi_process, time_step=step, time_step_solution_time=time,
-                                                    process=process))
+                                                    process=process, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_time_step_output):
+                r= [number_of_lines_read, *r]
                 records.append(TimeStepOutputTime(*r))
                 continue
 
             if r := try_match(line, *_re_time_step_finished):
+                r = [number_of_lines_read, *r ]
                 records.append(TimeStepFinishedTime(*r))
                 continue
 
             if r := try_match(line, *_re_reading_mesh):
                 mpi_process, time = r
-                records.append(MeshReadTime(mpi_process=mpi_process, mesh_read_time=time))
+                records.append(MeshReadTime(mpi_process=mpi_process, mesh_read_time=time, line=number_of_lines_read))
                 continue
 
             if r := try_match(line, *_re_execution_time):
                 [mpi_process, time] = r
-                step, _ = get_context(mpi_process)
-                records.append(SimulationExecutionTime(time))
+                records.append(SimulationExecutionTime(mpi_process=mpi_process,execution_time=time, line=number_of_lines_read))
                 continue
 
         # TODO parse all DEBUG outputs in c++ sources and generate a full list

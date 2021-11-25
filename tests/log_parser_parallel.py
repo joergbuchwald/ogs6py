@@ -47,6 +47,8 @@ class OGSParserTest(unittest.TestCase):
                          'The number of logs of each type should be a multiple of the number of processes')
 
         df = pd.DataFrame(records)
+        df['time_step'] = df.groupby('mpi_process')[['time_step']].fillna(method='ffill').fillna(value=0)
+        df['iteration_number'] = df.groupby('mpi_process')[['iteration_number']].fillna(method='bfill')
         dfe = filter_time_analysis_by_time_step(df)
 
         # some specific values
