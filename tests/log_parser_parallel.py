@@ -19,11 +19,11 @@ class OGSParserTest(unittest.TestCase):
     def test_parallel_1_compare_serial_info(self):
         filename_p = 'parser/parallel_1_info.txt'
         # Only for MPI execution with 1 process we need to tell the log parser by force_parallel=True!
-        records_p = parse_file(filename_p, ogs_regexes(), force_parallel=True)
+        records_p = parse_file(filename_p, force_parallel=True)
         num_of_record_type_p = [len(i) for i in log_types(records_p).values()]
 
         filename_s = 'parser/serial_info.txt'
-        records_s = parse_file(filename_s, ogs_regexes())
+        records_s = parse_file(filename_s)
         num_of_record_type_s = [len(i) for i in log_types(records_s).values()]
 
         self.assertSequenceEqual(num_of_record_type_s, num_of_record_type_p,
@@ -31,7 +31,7 @@ class OGSParserTest(unittest.TestCase):
 
     def test_parallel_3_debug(self):
         filename = 'parser/parallel_3_debug.txt'
-        records = parse_file(filename, ogs_regexes())
+        records = parse_file(filename)
         mpi_processes = 3
 
         self.assertEqual(len(records) % mpi_processes, 0,
@@ -58,7 +58,7 @@ class OGSParserTest(unittest.TestCase):
 
     def test_serial_convergence_newton_iteration_long(self):
         filename = 'parser/serial_convergence_long.txt'
-        records = parse_file(filename, ogs_regexes())
+        records = parse_file(filename)
         df = pandas_from_records(records)
         dfe = analysis_convergence_newton_iteration(df)
 
@@ -72,7 +72,7 @@ class OGSParserTest(unittest.TestCase):
 
     def test_serial_convergence_coupling_iteration_long(self):
         filename = 'parser/serial_convergence_long.txt'
-        records = parse_file(filename, ogs_regexes())
+        records = parse_file(filename)
         df = pandas_from_records(records)
         dfe = analysis_convergence_coupling_iteration(df)
 

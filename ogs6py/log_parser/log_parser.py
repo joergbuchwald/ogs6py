@@ -8,7 +8,7 @@
 import re
 import sys
 import pandas as pd
-
+from .ogs_regexes import ogs_regexes
 
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
     if match := regex.match(line):
@@ -39,7 +39,7 @@ def mpi_processes(file_name):
         return processes
 
 
-def parse_file(file_name, ogs_res, maximum_lines=None, force_parallel=False):
+def parse_file(file_name, maximum_lines=None, force_parallel=False, ogs_res=ogs_regexes()):
     parallel_log = force_parallel or mpi_processes(file_name)>1
 
     if parallel_log:
@@ -48,6 +48,8 @@ def parse_file(file_name, ogs_res, maximum_lines=None, force_parallel=False):
     else:
         process_regex = ''
         try_match = try_match_serial_line
+
+
 
     def compile_re_fn(mpi_process_regex):
         return lambda regex: re.compile(mpi_process_regex + regex)
@@ -76,10 +78,8 @@ def parse_file(file_name, ogs_res, maximum_lines=None, force_parallel=False):
 
 
 if __name__ == "__main__":
-    import ogs_regexes
-
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], ogs_regexes.ogs_regexes(), maximum_lines=None, force_parallel=True)
+    data = parse_file(sys.argv[1], maximum_lines=None, force_parallel=True)
     df = pd.DataFrame(data)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
