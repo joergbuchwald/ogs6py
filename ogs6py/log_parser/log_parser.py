@@ -10,6 +10,7 @@ import sys
 import pandas as pd
 from .ogs_regexes import ogs_regexes
 
+
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
     if match := regex.match(line):
         # Line , Process, Type specific
@@ -40,7 +41,7 @@ def mpi_processes(file_name):
 
 
 def parse_file(file_name, maximum_lines=None, force_parallel=False, ogs_res=ogs_regexes()):
-    parallel_log = force_parallel or mpi_processes(file_name)>1
+    parallel_log = force_parallel or mpi_processes(file_name) > 1
 
     if parallel_log:
         process_regex = '\\[(\\d+)\\]\\ '
@@ -48,8 +49,6 @@ def parse_file(file_name, maximum_lines=None, force_parallel=False, ogs_res=ogs_
     else:
         process_regex = ''
         try_match = try_match_serial_line
-
-
 
     def compile_re_fn(mpi_process_regex):
         return lambda regex: re.compile(mpi_process_regex + regex)
