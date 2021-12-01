@@ -65,10 +65,12 @@ class OGSParserTest(unittest.TestCase):
         # some specific values
         record_id = namedtuple('id', 'time_step coupling_iteration process iteration_number component')
         digits = 6
-        self.assertAlmostEqual(dfe.at[record_id(time_step=1.0, coupling_iteration=0, process=0, iteration_number=1, component=1), 'dx'],
-                               1.935000e-01, digits)
-        self.assertAlmostEqual(dfe.at[record_id(time_step=10.0, coupling_iteration=5, process=1, iteration_number=1, component=-1), 'x'],
-                               1.289000e+07, digits)
+        self.assertAlmostEqual(
+            dfe.at[record_id(time_step=1.0, coupling_iteration=0, process=0, iteration_number=1, component=1), 'dx'],
+            1.935000e-01, digits)
+        self.assertAlmostEqual(
+            dfe.at[record_id(time_step=10.0, coupling_iteration=5, process=1, iteration_number=1, component=-1), 'x'],
+            1.289000e+07, digits)
 
     def test_serial_convergence_coupling_iteration_long(self):
         filename = 'parser/serial_convergence_long.txt'
@@ -79,11 +81,12 @@ class OGSParserTest(unittest.TestCase):
         # some specific values
         record_id = namedtuple('id', 'time_step coupling_iteration coupling_iteration_process component')
         digits = 6
-        self.assertAlmostEqual(dfe.at[record_id(time_step=1.0, coupling_iteration=1, coupling_iteration_process=0,  component=-1), 'dx'],
-                               1.696400e+03, digits)
-        self.assertAlmostEqual(dfe.at[record_id(time_step=10.0, coupling_iteration=5, coupling_iteration_process=1,  component=-1), 'x'],
-                               1.066500e+00, digits)
-
+        self.assertAlmostEqual(
+            dfe.at[record_id(time_step=1.0, coupling_iteration=1, coupling_iteration_process=0, component=-1), 'dx'],
+            1.696400e+03, digits)
+        self.assertAlmostEqual(
+            dfe.at[record_id(time_step=10.0, coupling_iteration=5, coupling_iteration_process=1, component=-1), 'x'],
+            1.066500e+00, digits)
 
 
 if __name__ == '__main__':
