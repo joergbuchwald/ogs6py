@@ -484,6 +484,6 @@ class OGS:
         if outfile == "":
             outfile = self.logfile
         data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
-                maximum_lines=maximum_lines, petsc=petsc)
+                                 maximum_lines=maximum_lines, force_parallel=petsc)
         df = pd.DataFrame(data)
         return df
