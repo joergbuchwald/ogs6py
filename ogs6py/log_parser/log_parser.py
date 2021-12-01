@@ -78,7 +78,7 @@ def parse_file(file_name, maximum_lines=None, force_parallel=False, ogs_res=ogs_
 
 if __name__ == "__main__":
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], maximum_lines=None, force_parallel=True)
+    data = parse_file(sys.argv[1])
     df = pd.DataFrame(data)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
