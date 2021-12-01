@@ -28,8 +28,21 @@ def try_match_serial_line(line: str, line_nr: int, regex: re.Pattern, pattern_cl
     return None
 
 
-def parse_file(file_name, ogs_res, maximum_lines=None, petsc=True):
-    if petsc:
+def mpi_processes(file_name):
+    occurrences = 0
+    with open(file_name) as file:
+        lines = iter(file)
+        # There is no synchronisation barrier between both info, we count both and divide
+        while re.search("info: This is OpenGeoSys-6 version|info: OGS started on", next(lines)):
+            occurrences = occurrences + 1
+        processes = int(occurrences / 2)
+        return processes
+
+
+def parse_file(file_name, ogs_res, maximum_lines=None, force_parallel=False):
+    parallel_log = force_parallel or mpi_processes(file_name)>1
+
+    if parallel_log:
         process_regex = '\\[(\\d+)\\]\\ '
         try_match = try_match_parallel_line
     else:
@@ -66,7 +79,7 @@ if __name__ == "__main__":
     import ogs_regexes
 
     filename = sys.argv[1]
-    data = parse_file(sys.argv[1], ogs_regexes.ogs_regexes(), maximum_lines=None, petsc=True)
+    data = parse_file(sys.argv[1], ogs_regexes.ogs_regexes(), maximum_lines=None, force_parallel=True)
     df = pd.DataFrame(data)
     filename_prefix = filename.split('.')[0]
     df.to_csv(f"{filename_prefix}.csv")
