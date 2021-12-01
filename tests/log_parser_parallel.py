@@ -3,38 +3,13 @@ import unittest
 from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
 from ogs6py.log_parser.ogs_regexes import ogs_regexes
-import pandas as pd
 from collections import namedtuple, defaultdict
-
-
-def filter_time_analysis_by_time_step(df):
-    dfe_ts = df.pivot_table(['output_time', 'time_step_solution_time'], ['mpi_process', 'time_step'])
-    dfe_tsi = df.pivot_table(['assembly_time', 'linear_solver_time', 'dirichlet_time'],
-                             ['mpi_process', 'time_step', 'iteration_number']).groupby(
-        level=['mpi_process', 'time_step']).sum()
-    dfe = dfe_ts.merge(dfe_tsi, left_index=True, right_index=True)
-    return dfe
-
-
-def pandas_from_records(records):
-    df = pd.DataFrame(records)
-    # Some logs do not contain information about time_step and iteration
-    # These information must be collected by context (by surrounding log lines from same mpi_process)
-    # Logs are grouped by mpi_process to get only surrounding log lines from same mpi_process
-
-    # There are log lines that give the current time step (when time step starts).
-    # It can be assumed that in all following lines belong to this time steps, until next collected value of time step
-    df['time_step'] = df.groupby('mpi_process')[['time_step']].fillna(method='ffill').fillna(value=0)
-
-    # Back fill, because iteration number can be found in logs at the END of the iteration
-    df['iteration_number'] = df.groupby('mpi_process')[['iteration_number']].fillna(method='bfill')
-    return df
-
+from ogs6py.log_parser.common_ogs_analyses import pandas_from_records, analysis_by_time_step
 
 def log_types(records):
     d = defaultdict(list)
-    for i in records:
-        d[type(i)].append(i)
+    for record in records:
+        d[type(record)].append(record)
     return d
 
 
@@ -64,7 +39,7 @@ class OGSParserTest(unittest.TestCase):
                          'The number of logs of each type should be a multiple of the number of processes')
 
         df = pandas_from_records(records)
-        dfe = filter_time_analysis_by_time_step(df)
+        dfe = analysis_by_time_step(df)
 
         # some specific values
         record_id = namedtuple('id', 'mpi_process time_step')

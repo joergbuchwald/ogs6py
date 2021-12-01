@@ -52,9 +52,9 @@ def parse_file(file_name, ogs_res, maximum_lines=None, petsc=True):
             if (maximum_lines is not None) and (maximum_lines > number_of_lines_read):
                 break
 
-            for k, v in patterns:
-                if r := try_match(line, number_of_lines_read, k, v):
-                    records.append(v(*r))
+            for key, value in patterns:
+                if r := try_match(line, number_of_lines_read, key, value):
+                    records.append(value(*r))
                     break
 
         # TODO parse all DEBUG outputs in c++ sources and generate a full list
@@ -64,6 +64,7 @@ def parse_file(file_name, ogs_res, maximum_lines=None, petsc=True):
 
 if __name__ == "__main__":
     import ogs_regexes
+
     filename = sys.argv[1]
     data = parse_file(sys.argv[1], ogs_regexes.ogs_regexes(), maximum_lines=None, petsc=True)
     df = pd.DataFrame(data)
