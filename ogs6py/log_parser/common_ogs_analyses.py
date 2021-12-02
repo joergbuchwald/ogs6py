@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 
 def analysis_by_time_step(df):
     dfe_ts = df.pivot_table(['output_time', 'time_step_solution_time'], ['mpi_process', 'time_step'])
@@ -25,7 +25,6 @@ def analysis_convergence_newton_iteration(df):
         pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
                                                                ['time_step', 'process',
                                                                 'iteration_number', 'component'])
-            
     return pt
 
 
@@ -44,6 +43,9 @@ def analysis_convergence_coupling_iteration(df):
                                                     'component'])
     return pt
 
+def time_step_vs_iterations(df):
+    df = df.pivot_table(["iteration_number"],["time_step"], aggfunc=np.max)
+    return df
 
 def pandas_from_records(records):
     df = pd.DataFrame(records)
