@@ -12,15 +12,20 @@ def analysis_by_time_step(df):
 
 def analysis_convergence_newton_iteration(df):
     dfe_newton_iteration = df.copy()
-    # Eliminate all entries for coupling iteration (not of interest in this study)
-    dfe_newton_iteration['coupling_iteration'] = dfe_newton_iteration.groupby('mpi_process')[
-        ['coupling_iteration']].fillna(method='bfill')
-    dfe_newton_iteration = dfe_newton_iteration[~dfe_newton_iteration['coupling_iteration_process'].notna()]
-    dfe_newton_iteration = dfe_newton_iteration.dropna(subset=['x'])
-
-    pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
+    if 'coupling_iteration' in df:
+        # Eliminate all entries for coupling iteration (not of interest in this study)
+        dfe_newton_iteration['coupling_iteration'] = dfe_newton_iteration.groupby('mpi_process')[
+            ['coupling_iteration']].fillna(method='bfill')
+        dfe_newton_iteration = dfe_newton_iteration[~dfe_newton_iteration['coupling_iteration_process'].notna()]
+        dfe_newton_iteration = dfe_newton_iteration.dropna(subset=['x'])
+        pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
                                                                ['time_step', 'coupling_iteration', 'process',
                                                                 'iteration_number', 'component'])
+    else:
+        pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
+                                                               ['time_step', 'process',
+                                                                'iteration_number', 'component'])
+            
     return pt
 
 
