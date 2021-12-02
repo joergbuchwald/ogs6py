@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Log(object):
+class Log:
     line: int
 
 
