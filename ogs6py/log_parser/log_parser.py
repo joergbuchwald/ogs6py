@@ -8,7 +8,7 @@
 import re
 import sys
 import pandas as pd
-from .ogs_regexes import ogs_regexes
+from ogs6py.log_parser.ogs_regexes import ogs_regexes
 
 
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
@@ -40,7 +40,8 @@ def mpi_processes(file_name):
         return processes
 
 
-def parse_file(file_name, maximum_lines=None, force_parallel=False, ogs_res=ogs_regexes()):
+def parse_file(file_name, maximum_lines=None, force_parallel=False):
+    ogs_res = ogs_regexes()
     parallel_log = force_parallel or mpi_processes(file_name) > 1
 
     if parallel_log:
