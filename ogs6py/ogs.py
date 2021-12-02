@@ -21,6 +21,7 @@ from lxml import etree as ET
 from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
+import ogs6py.log_parser.common_ogs_analyses as parse_fcts
 
 class OGS:
     """Class for an OGS6 model.
@@ -568,24 +569,37 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None, petsc=False):
+    def parse_out(self, logfile=None, filter=None, maximum_lines=None, force_parallel=False):
         """Parses the logfile
 
         Parameters
         ----------
-        outfile : `str`, optional
+        logfile : `str`, optional
             name of the log file
             Default: File specified already as logfile by runmodel
-        maximum_timesteps : `int`
-            maximum number of timesteps to be taken into account
         maximum_lines : `int`
             maximum number of lines to be evaluated
-        petsc : `boolean`
-            switch whether ogs used the petsc solver
+        force_parallel : `boolean`
+            enforce analysis of parallel output
+        filter : `str`, optional
+            can be "by_time_step". "convergence_newton_iteration",
+            "convergence_coupling_iteration", or "time_step_vs_iterations"
+            if filter is None, the raw dataframe is returned.
         """
-        if outfile == "":
-            outfile = self.logfile
-        data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
-                                 maximum_lines=maximum_lines, force_parallel=petsc)
-        df = pd.DataFrame(data)
+        if logfile is None:
+            logfile = self.logfile
+        records = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        df = parse_fcts.pandas_from_records(records)
+        if filter == "by_time_step":
+            df = parse_fcts.analysis_by_time_step(df)
+        elif filter == "convergence_newton_iteration":
+            df = parse_fcts.analysis_convergence_newton_iteration(df)
+        elif filter == "convergence_coupling_iteration":
+            try:
+                df = parse_fcts.analysis_convergence_coupling_iteration(df)
+            except KeyError:
+                print("Filter can only be applied for files generated with a staggered scheme.")
+                print("Returning the raw dataframe only.")
+        elif filter == "time_step_vs_iterations":
+            df = parse_fcts.time_step_vs_iterations(df)
         return df
