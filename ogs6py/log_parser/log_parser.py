@@ -72,7 +72,5 @@ def parse_file(file_name, maximum_lines=None, force_parallel=False):
                     records.append(value(*r))
                     break
 
-        # TODO parse all DEBUG outputs in c++ sources and generate a full list
-        # records.append(UnknownLine(line))
     return records
 
