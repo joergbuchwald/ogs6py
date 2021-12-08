@@ -111,6 +111,11 @@ class TimeStepConvergenceCriterion(MPIProcess):
 @dataclass
 class CouplingIterationConvergence(MPIProcess):
     coupling_iteration_process: int
+    
+
+@dataclass
+class GenericCodePoint(MPIProcess):
+    message: str
 
 
 def ogs_regexes():
@@ -131,7 +136,9 @@ def ogs_regexes():
             ("info: ------- Checking convergence criterion for coupled solution of process #(\d+)",
              CouplingIterationConvergence),
             (
-                "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$",
-                ComponentConvergenceCriterion)
-
+                "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan)$",
+                ComponentConvergenceCriterion),
+            ("critical: (.*?)", GenericCodePoint),
+            ("error: (.*?)", GenericCodePoint)
+            ("warning: (.*?)", GenericCodePoint)
             ]
