@@ -65,7 +65,7 @@ def pandas_from_records(records):
         df['component'] = df.groupby('mpi_process')[['component']].fillna(value=-1)
     # Forward fill because process will be printed in the beginning - applied to all subsequent
     if 'process' in df:
-        df['process'] = df.groupby('mpi_process')[['process']].fillna(method='ffill')
+        df['process'] = df.groupby('mpi_process')[['process']].fillna(method='bfill')
     # Attention - coupling iteration applies to successor line and to all other predecessors - it needs further processing for specific analysis
     if 'coupling_iteration_process' in df:
         df['coupling_iteration_process'] = df.groupby('mpi_process')[['coupling_iteration_process']].fillna(
