@@ -131,7 +131,7 @@ def ogs_regexes():
             ("info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s", DirichletTime),
             ("info: \[time\] Linear solver took ([\d\.e+-]+) s", LinearSolverTime),
             ("info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s", IterationTime),
-            ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+)$",
+            ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan)$",
              TimeStepConvergenceCriterion),
             ("info: ------- Checking convergence criterion for coupled solution of process #(\d+)",
              CouplingIterationConvergence),
