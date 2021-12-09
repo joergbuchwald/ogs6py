@@ -49,6 +49,17 @@ def time_step_vs_iterations(df):
 
 def pandas_from_records(records):
     df = pd.DataFrame(records)
+
+    # Some columns that contain actual integer values are converted to float
+    # See https://pandas.pydata.org/pandas-docs/stable/user_guide/integer_na.html
+    # ToDo list of columns with integer values are know from regular expression
+    for column in df.columns:
+        try:
+            df[column] = df[column].astype('Int64')
+        except:
+            pass
+
+
     # Some logs do not contain information about time_step and iteration
     # These information must be collected by context (by surrounding log lines from same mpi_process)
     # Logs are grouped by mpi_process to get only surrounding log lines from same mpi_process
