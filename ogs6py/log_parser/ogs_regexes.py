@@ -131,12 +131,12 @@ def ogs_regexes():
             ("info: \[time\] Applying Dirichlet BCs took ([\d\.e+-]+) s", DirichletTime),
             ("info: \[time\] Linear solver took ([\d\.e+-]+) s", LinearSolverTime),
             ("info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s", IterationTime),
-            ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan)$",
+            ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
              TimeStepConvergenceCriterion),
             ("info: ------- Checking convergence criterion for coupled solution of process #(\d+)",
              CouplingIterationConvergence),
             (
-                "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan)$",
+                "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
                 ComponentConvergenceCriterion),
             ("critical: (.*?)", GenericCodePoint),
             ("error: (.*?)", GenericCodePoint)
