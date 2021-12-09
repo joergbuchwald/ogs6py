@@ -118,6 +118,19 @@ class GenericCodePoint(MPIProcess):
     message: str
 
 
+@dataclass
+class Error(MPIProcess):
+    error_message: str
+
+@dataclass
+class Critical(MPIProcess):
+    critical_message: str
+
+@dataclass
+class Warning(MPIProcess):
+    warning_message: str
+
+
 def ogs_regexes():
     return [("info: \[time\] Output of timestep (\d+) took ([\d\.e+-]+) s", TimeStepOutputTime),
             ("info: \[time\] Time step #(\d+) took ([\d\.e+-]+) s", TimeStepFinishedTime),
@@ -138,7 +151,7 @@ def ogs_regexes():
             (
                 "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
                 ComponentConvergenceCriterion),
-            ("critical: (.*?)", GenericCodePoint),
-            ("error: (.*?)", GenericCodePoint),
-            ("warning: (.*?)", GenericCodePoint)
+            ("critical: (.*)", GenericCodePoint),
+            ("error: (.*)", GenericCodePoint),
+            ("warning: (.*)", GenericCodePoint)
             ]

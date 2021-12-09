@@ -47,6 +47,12 @@ def time_step_vs_iterations(df):
     df = df.pivot_table(["iteration_number"],["time_step"], aggfunc=np.max)
     return df
 
+
+def check_error(df):
+    dfe = df.dropna(subset=['critical_message', 'error_message'], how='all')
+    return dfe[['critical_message', 'error_message', 'line']]
+
+
 def pandas_from_records(records):
     df = pd.DataFrame(records)
 
