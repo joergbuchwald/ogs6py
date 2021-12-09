@@ -151,7 +151,7 @@ def ogs_regexes():
             (
                 "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
                 ComponentConvergenceCriterion),
-            ("critical: (.*)", GenericCodePoint),
-            ("error: (.*)", GenericCodePoint),
-            ("warning: (.*)", GenericCodePoint)
+            ("critical: (.*)",Critical ),
+            ("error: (.*)", Error),
+            ("warning: (.*)", Warning)
             ]
