@@ -52,7 +52,7 @@ def pandas_from_records(records):
 
     # Some columns that contain actual integer values are converted to float
     # See https://pandas.pydata.org/pandas-docs/stable/user_guide/integer_na.html
-    # ToDo list of columns with integer values are know from regular expression
+    # ToDo list of columns with integer values are known from regular expression
     for column in df.columns:
         try:
             df[column] = df[column].astype('Int64')
