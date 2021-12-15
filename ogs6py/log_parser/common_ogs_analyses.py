@@ -19,12 +19,12 @@ def analysis_convergence_newton_iteration(df):
         dfe_newton_iteration = dfe_newton_iteration[~dfe_newton_iteration['coupling_iteration_process'].notna()]
         dfe_newton_iteration = dfe_newton_iteration.dropna(subset=['x'])
         pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
-                                                               ['time_step', 'coupling_iteration', 'process',
-                                                                'iteration_number', 'component'])
+                                              ['time_step', 'coupling_iteration', 'process',
+                                               'iteration_number', 'component'])
     else:
         pt = dfe_newton_iteration.pivot_table(['dx', 'x', 'dx_x'],
-                                                               ['time_step', 'process',
-                                                                'iteration_number', 'component'])
+                                              ['time_step', 'process',
+                                               'iteration_number', 'component'])
     return pt
 
 
@@ -39,12 +39,14 @@ def analysis_convergence_coupling_iteration(df):
         subset=['coupling_iteration_process']).dropna(subset=['x'])
 
     pt = dfe_convergence_coupling_iteration.pivot_table(['dx', 'x', 'dx_x'],
-                                                   ['time_step', 'coupling_iteration', 'coupling_iteration_process',
-                                                    'component'])
+                                                        ['time_step', 'coupling_iteration',
+                                                         'coupling_iteration_process',
+                                                         'component'])
     return pt
 
+
 def time_step_vs_iterations(df):
-    df = df.pivot_table(["iteration_number"],["time_step"], aggfunc=np.max)
+    df = df.pivot_table(["iteration_number"], ["time_step"], aggfunc=np.max)
     return df
 
 
@@ -54,17 +56,25 @@ def check_error(df):
 
 
 def check_simulation_termination(df):
+    # TODO extent with deeper analyses
+    # e.g. have all mpi process finished
     if 'error_message' in df or 'critical_message' in df:
         return False
     else:
         return True
 
-def simulation_termination(df):
+
+def analysis_simulation_termination(df):
     # For full print of messages consider setup jupyter notebook:
     # pd.set_option('display.max_colwidth', None)
-    df2 = df.dropna(subset=['critical_message', 'error_message'], how='all')[
-        ['line', 'mpi_process', 'error_message', 'critical_message']]
-    return df2
+    messages = ['error_message','critical_message','warning_message']
+    if any(message in df for message in messages):
+        df2 = df.dropna(subset=messages , how='all')[messages+['line', 'mpi_process']]
+        # ToDo Merge columns together a add a column for type (warning, error, critical)
+        return df2
+    else:
+        return pd.DataFrame()
+
 
 def fill_ogs_context(df):
     # Some columns that contain actual integer values are converted to float
@@ -75,7 +85,6 @@ def fill_ogs_context(df):
             df[column] = df[column].astype('Int64')
         except:
             pass
-
 
     # Some logs do not contain information about time_step and iteration
     # These information must be collected by context (by surrounding log lines from same mpi_process)

@@ -6,8 +6,8 @@ from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
 from collections import namedtuple, defaultdict
 from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_by_time_step, \
-    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, check_simulation_termination
-
+    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination, \
+    check_simulation_termination
 
 
 def log_types(records):
@@ -80,8 +80,12 @@ class OGSParserTest(unittest.TestCase):
         filename = 'parser/serial_convergence_long.txt'
         records = parse_file(filename)
         df = pd.DataFrame(records)
-        status = check_simulation_termination(df)
-        self.assertEqual(status, True)
+        dfe = analysis_simulation_termination(df)
+        status = dfe.empty  # No errors assumed
+        self.assertEqual(status, True)  #
+        if (not (status)):
+            print(dfe)
+        self.assertEqual(status, True)  #
         df = fill_ogs_context(df)
         dfe = analysis_convergence_coupling_iteration(df)
 
@@ -98,9 +102,15 @@ class OGSParserTest(unittest.TestCase):
     def test_serial_bad(self):
         filename = 'parser/serial_bad.txt'
         records = parse_file(filename)
+        self.assertEqual(len(records),4)
         df = pd.DataFrame(records)
-        status = check_simulation_termination(df)
-        self.assertEqual(status, False)
+        self.assertEqual(len(df), 4)
+        dfe = analysis_simulation_termination(df)
+        has_errors = not (dfe.empty)
+        self.assertEqual(has_errors, True)
+        if has_errors:
+            print(dfe)
+
 
 if __name__ == '__main__':
     unittest.main()
