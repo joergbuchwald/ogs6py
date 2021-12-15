@@ -589,7 +589,9 @@ class OGS:
         if logfile is None:
             logfile = self.logfile
         records = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
-        df = parse_fcts.pandas_from_records(records)
+        df = pd.DataFrame(records)
+
+        df = parse_fcts.fill_ogs_context(df)
         if filter == "by_time_step":
             df = parse_fcts.analysis_by_time_step(df)
         elif filter == "convergence_newton_iteration":

@@ -44,7 +44,8 @@ class OGSParserTest(unittest.TestCase):
         self.assertEqual(all(i % mpi_processes == 0 for i in num_of_record_type), True,
                          'The number of logs of each type should be a multiple of the number of processes')
 
-        df = pandas_from_records(records)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
         dfe = analysis_by_time_step(df)
 
         # some specific values
@@ -62,7 +63,8 @@ class OGSParserTest(unittest.TestCase):
     def test_serial_convergence_newton_iteration_long(self):
         filename = 'parser/serial_convergence_long.txt'
         records = parse_file(filename)
-        df = pandas_from_records(records)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
         dfe = analysis_convergence_newton_iteration(df)
 
         # some specific values
@@ -78,7 +80,10 @@ class OGSParserTest(unittest.TestCase):
     def test_serial_convergence_coupling_iteration_long(self):
         filename = 'parser/serial_convergence_long.txt'
         records = parse_file(filename)
-        df = pandas_from_records(records)
+        df = pd.DataFrame(records)
+        status = check_simulation_termination(df)
+        self.assertEqual(status, True)
+        df = fill_ogs_context(df)
         dfe = analysis_convergence_coupling_iteration(df)
 
         # some specific values

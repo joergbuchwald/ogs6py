@@ -66,6 +66,7 @@ def simulation_termination(df):
         ['line', 'mpi_process', 'error_message', 'critical_message']]
     return df2
 
+def fill_ogs_context(df):
     # Some columns that contain actual integer values are converted to float
     # See https://pandas.pydata.org/pandas-docs/stable/user_guide/integer_na.html
     # ToDo list of columns with integer values are known from regular expression
