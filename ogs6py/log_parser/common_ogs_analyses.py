@@ -53,8 +53,18 @@ def check_error(df):
     return dfe[['critical_message', 'error_message', 'line']]
 
 
-def pandas_from_records(records):
-    df = pd.DataFrame(records)
+def check_simulation_termination(df):
+    if 'error_message' in df or 'critical_message' in df:
+        return False
+    else:
+        return True
+
+def simulation_termination(df):
+    # For full print of messages consider setup jupyter notebook:
+    # pd.set_option('display.max_colwidth', None)
+    df2 = df.dropna(subset=['critical_message', 'error_message'], how='all')[
+        ['line', 'mpi_process', 'error_message', 'critical_message']]
+    return df2
 
     # Some columns that contain actual integer values are converted to float
     # See https://pandas.pydata.org/pandas-docs/stable/user_guide/integer_na.html

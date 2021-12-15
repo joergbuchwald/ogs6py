@@ -91,6 +91,12 @@ class OGSParserTest(unittest.TestCase):
             dfe.at[record_id(time_step=10.0, coupling_iteration=5, coupling_iteration_process=1, component=-1), 'x'],
             1.066500e+00, digits)
 
+    def test_serial_bad(self):
+        filename = 'parser/serial_bad.txt'
+        records = parse_file(filename)
+        df = pd.DataFrame(records)
+        status = check_simulation_termination(df)
+        self.assertEqual(status, False)
 
 if __name__ == '__main__':
     unittest.main()
