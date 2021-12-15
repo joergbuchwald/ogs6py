@@ -4,10 +4,9 @@ import pandas as pd
 
 from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
-from ogs6py.log_parser.ogs_regexes import ogs_regexes
 from collections import namedtuple, defaultdict
-from ogs6py.log_parser.common_ogs_analyses import pandas_from_records, analysis_by_time_step, \
-    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, check_error
+from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_by_time_step, \
+    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, check_simulation_termination
 
 
 
