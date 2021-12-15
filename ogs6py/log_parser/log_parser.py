@@ -6,9 +6,7 @@
 #              http://www.opengeosys.org/project/license
 
 import re
-import sys
-import pandas as pd
-from ogs6py.log_parser.ogs_regexes import ogs_regexes
+from ogs6py.ogs_regexes.ogs_regexes import ogs_regexes
 
 
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
