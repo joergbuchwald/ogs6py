@@ -115,10 +115,14 @@ def time_step_vs_iterations(df):
 def analysis_simulation_termination(df):
     # For full print of messages consider setup jupyter notebook:
     # pd.set_option('display.max_colwidth', None)
-    messages = ['error_message', 'critical_message', 'warning_message']
-    if any(message in df for message in messages):
-        df2 = df.dropna(subset=messages, how='all')[messages + ['line', 'mpi_process']]
+    interest = ['message']
+    context=['message','line','mpi_process','type']
+
+    if 'message' in df:
+        check_input(df,interest,context)
+        df2 = df.dropna(subset=interest)[context]
         # ToDo Merge columns together a add a column for type (warning, error, critical)
+        check_output(df2,interest,context)
         return df2
     else:
         return pd.DataFrame()

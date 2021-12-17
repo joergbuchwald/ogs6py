@@ -111,5 +111,18 @@ class OGSParserTest(unittest.TestCase):
             print(dfe)
 
 
+    def test_serial_warning_only(self):
+        filename = 'parser/serial_warning_only.txt'
+        records = parse_file(filename)
+        self.assertEqual(len(records),1)
+        df = pd.DataFrame(records)
+        self.assertEqual(len(df), 1)
+        dfe = analysis_simulation_termination(df)
+        has_errors = not (dfe.empty)
+        self.assertEqual(has_errors, True)
+        if has_errors:
+            print(dfe)
+
+
 if __name__ == '__main__':
     unittest.main()

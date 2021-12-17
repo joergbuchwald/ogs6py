@@ -7,10 +7,35 @@
 
 from dataclasses import dataclass
 
+class Info:
+    @staticmethod
+    def type_str():
+        return 'Info'
+
+
+class WarningType:
+    @staticmethod
+    def type_str():
+        return 'Warning'
+
+
+class ErrorType:
+    @staticmethod
+    def type_str():
+        return 'Error'
+
+
+class CriticalType:
+    @staticmethod
+    def type_str():
+        return 'Critical'
+
 
 @dataclass
 class Log:
+    type:str
     line: int
+
 
 
 @dataclass
@@ -19,48 +44,48 @@ class MPIProcess(Log):
 
 
 @dataclass
-class AssemblyTime(MPIProcess):
+class AssemblyTime(MPIProcess,Info):
     assembly_time: float
 
 
 @dataclass
-class TimeStep(MPIProcess):
+class TimeStep(MPIProcess, Info):
     time_step: int
 
 
 @dataclass
-class Iteration(TimeStep):
+class Iteration(TimeStep,Info):
     iteration_number: int
 
 
 @dataclass
-class IterationTime(MPIProcess):
+class IterationTime(MPIProcess,Info):
     iteration_number: int
     iteration_time: float
 
 
 @dataclass
-class TimeStepStartTime(MPIProcess):
+class TimeStepStartTime(MPIProcess,Info):
     time_step: int
     step_start_time: float
     step_size: float
 
 
 @dataclass
-class TimeStepOutputTime(MPIProcess):
+class TimeStepOutputTime(MPIProcess,Info):
     time_step: int
     output_time: float
 
 
 @dataclass
-class TimeStepSolutionTime(MPIProcess):
+class TimeStepSolutionTime(MPIProcess,Info):
     process: int
     time_step_solution_time: float
     time_step: int
 
 
 @dataclass
-class TimeStepSolutionTimeCoupledScheme(MPIProcess):
+class TimeStepSolutionTimeCoupledScheme(MPIProcess,Info):
     process: int
     time_step_solution_time: float
     time_step: int
@@ -68,33 +93,33 @@ class TimeStepSolutionTimeCoupledScheme(MPIProcess):
 
 
 @dataclass
-class TimeStepFinishedTime(MPIProcess):
+class TimeStepFinishedTime(MPIProcess,Info):
     time_step: int
     time_step_finished_time: float
 
 
 @dataclass
-class DirichletTime(MPIProcess):
+class DirichletTime(MPIProcess,Info):
     dirichlet_time: float
 
 
 @dataclass
-class LinearSolverTime(MPIProcess):
+class LinearSolverTime(MPIProcess,Info):
     linear_solver_time: float
 
 
 @dataclass
-class MeshReadTime(MPIProcess):
+class MeshReadTime(MPIProcess,Info):
     mesh_read_time: float
 
 
 @dataclass
-class SimulationExecutionTime(MPIProcess):
+class SimulationExecutionTime(MPIProcess,Info):
     execution_time: float
 
 
 @dataclass
-class ComponentConvergenceCriterion(MPIProcess):
+class ComponentConvergenceCriterion(MPIProcess,Info):
     component: int
     dx: float
     x: float
@@ -102,33 +127,33 @@ class ComponentConvergenceCriterion(MPIProcess):
 
 
 @dataclass
-class TimeStepConvergenceCriterion(MPIProcess):
+class TimeStepConvergenceCriterion(MPIProcess,Info):
     dx: float
     x: float
     dx_x: float
 
 
 @dataclass
-class CouplingIterationConvergence(MPIProcess):
+class CouplingIterationConvergence(MPIProcess,Info):
     coupling_iteration_process: int
     
 
 @dataclass
-class GenericCodePoint(MPIProcess):
+class GenericCodePoint(MPIProcess,Info):
     message: str
 
 
 @dataclass
-class Error(MPIProcess):
-    error_message: str
+class ErrorMessage(MPIProcess, ErrorType):
+    message: str
 
 @dataclass
-class Critical(MPIProcess):
-    critical_message: str
+class CriticalMessage(MPIProcess, CriticalType):
+    message: str
 
 @dataclass
-class Warning(MPIProcess):
-    warning_message: str
+class WarningMessage(MPIProcess, WarningType):
+    message: str
 
 
 def ogs_regexes():
@@ -151,7 +176,7 @@ def ogs_regexes():
             (
                 "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
                 ComponentConvergenceCriterion),
-            ("critical: (.*)",Critical ),
-            ("error: (.*)", Error),
-            ("warning: (.*)", Warning)
+            ("critical: (.*)", CriticalMessage),
+            ("error: (.*)", ErrorMessage),
+            ("warning: (.*)", WarningMessage)
             ]

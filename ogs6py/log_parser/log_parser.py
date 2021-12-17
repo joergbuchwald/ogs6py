@@ -12,8 +12,9 @@ from ogs6py.ogs_regexes.ogs_regexes import ogs_regexes
 def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
     if match := regex.match(line):
         # Line , Process, Type specific
-        types = (int, int,) + tuple(pattern_class.__annotations__.values())
-        match_with_line = (line_nr,) + match.groups()
+        ts=pattern_class.type_str()
+        types = (str,int, int,) + tuple(pattern_class.__annotations__.values())
+        match_with_line = (ts,line_nr,) + match.groups()
         return [ctor(s) for ctor, s in zip(types, match_with_line)]
     return None
 
@@ -21,8 +22,9 @@ def try_match_parallel_line(line: str, line_nr: int, regex: re.Pattern, pattern_
 def try_match_serial_line(line: str, line_nr: int, regex: re.Pattern, pattern_class):
     if match := regex.match(line):
         # Line , Process, Type specific
-        types = (int, int,) + tuple(pattern_class.__annotations__.values())
-        match_with_line = (line_nr, 0,) + match.groups()
+        ts=pattern_class.type_str()
+        types = (str, int, int,) + tuple(pattern_class.__annotations__.values())
+        match_with_line = (ts,line_nr, 0,) + match.groups()
         return [ctor(s) for ctor, s in zip(types, match_with_line)]
     return None
 
