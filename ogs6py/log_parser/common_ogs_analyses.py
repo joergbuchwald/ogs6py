@@ -15,8 +15,8 @@ def check_input(df, interest, context):
 def check_output(pt, interest, context):
     if pt.empty:
         raise Exception(
-            'The values of {} are not associated to all of {}. Call or see fill_ogs_context'.format(','.join(interest),','.join(context)))
-
+            'The values of {} are not associated to all of {}. Call or see fill_ogs_context'.format(','.join(interest),
+                                                                                                    ','.join(context)))
 
 
 # decorator for analyses
@@ -27,8 +27,17 @@ def pre_post_check(interest, context):
             pt = f(df)
             check_output(pt, interest, context)
             return pt
+
         return wrapped_f
+
     return wrap
+
+
+'''
+Analysis with focus on computation time per time step. It combines time step specific measurements 'output time'
+and 'time step solution time' with iteration specific measurements 'assembly time', 'linear solver time', 'Dirichlet time'.
+Time from iteration are accumulated.  
+'''
 
 
 def analysis_time_step(df):
@@ -48,7 +57,7 @@ def analysis_time_step(df):
 
 
 def analysis_simulation(df):
-    interest = ['execution_time']   #  'start_time'
+    interest = ['execution_time']  # 'start_time'
     context = ['mpi_process']
     check_input(df, interest, context)
 
