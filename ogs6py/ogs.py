@@ -593,7 +593,7 @@ class OGS:
 
         df = parse_fcts.fill_ogs_context(df)
         if filter == "by_time_step":
-            df = parse_fcts.analysis_by_time_step(df)
+            df = parse_fcts.analysis_time_step(df)
         elif filter == "convergence_newton_iteration":
             df = parse_fcts.analysis_convergence_newton_iteration(df)
         elif filter == "convergence_coupling_iteration":

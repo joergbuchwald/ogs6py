@@ -5,9 +5,8 @@ import pandas as pd
 from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
 from collections import namedtuple, defaultdict
-from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_by_time_step, \
-    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination, \
-    check_simulation_termination
+from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_time_step, \
+    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination
 
 
 def log_types(records):
@@ -45,7 +44,7 @@ class OGSParserTest(unittest.TestCase):
 
         df = pd.DataFrame(records)
         df = fill_ogs_context(df)
-        dfe = analysis_by_time_step(df)
+        dfe = analysis_time_step(df)
 
         # some specific values
         record_id = namedtuple('id', 'mpi_process time_step')
