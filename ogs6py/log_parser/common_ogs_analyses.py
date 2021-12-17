@@ -32,14 +32,15 @@ def pre_post_check(interest, context):
 
 
 def analysis_time_step(df):
-    interest = ['output_time', 'time_step_solution_time', 'assembly_time', 'linear_solver_time', 'dirichlet_time']
-    context = ['mpi_process', 'time_step', 'iteration_number']
+    interest1 = ['output_time', 'time_step_solution_time']
+    interest2 = ['assembly_time', 'linear_solver_time', 'dirichlet_time']
+    interest = [*interest1, *interest2]
+    context = ['mpi_process', 'time_step']
     check_input(df, interest, context)
 
-    dfe_ts = df.pivot_table(['output_time', 'time_step_solution_time'], ['mpi_process', 'time_step'])
-    dfe_tsi = df.pivot_table(['assembly_time', 'linear_solver_time', 'dirichlet_time'],
-                             ['mpi_process', 'time_step', 'iteration_number']).groupby(
-        level=['mpi_process', 'time_step']).sum()
+    dfe_ts = df.pivot_table(interest1, context)
+    # accumulates coupling iterations and newton iterations
+    dfe_tsi = df.pivot_table(interest2, context, aggfunc='sum')
 
     dfe = dfe_ts.merge(dfe_tsi, left_index=True, right_index=True)
     check_output(dfe, interest, context)
