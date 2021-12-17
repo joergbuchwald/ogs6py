@@ -47,6 +47,16 @@ def analysis_time_step(df):
     return dfe
 
 
+def analysis_simulation(df):
+    interest = ['execution_time']   #  'start_time'
+    context = ['mpi_process']
+    check_input(df, interest, context)
+
+    pt = df.pivot_table(interest, context)
+    check_output(pt, interest, context)
+    return pt
+
+
 def analysis_convergence_newton_iteration(df):
     dfe_newton_iteration = df.copy()
     interest = ['dx', 'x', 'dx_x']
