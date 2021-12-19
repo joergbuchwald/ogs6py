@@ -1,0 +1,12 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Buchwald
+    given-names: Jörg
+    orcid: https://orcid.org/0000-0001-5174-3603
+title: "ogs6py" 
+version: v0.33
+date-released: 2017-12-18
+doi: 10.21105/joss.03673
+license: BSD 3-Clause
+repository-code: "https://github.com/joergbuchwald/ogs6py"
