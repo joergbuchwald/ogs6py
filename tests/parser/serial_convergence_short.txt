@@ -1,0 +1,33 @@
+info: Convergence criterion: |dx|=9.9069e+05, |x|=1.2062e+07, |dx|/|x|=8.2136e-02
+info: [time] Iteration #1 took 0.000124721 s.
+info: Convergence criterion: |dx|=3.1610e+03, |x|=1.2060e+07, |dx|/|x|=2.6211e-04
+info: [time] Iteration #2 took 8.8936e-05 s.
+info: Convergence criterion: |dx|=4.0381e+00, |x|=1.2060e+07, |dx|/|x|=3.3483e-07
+info: [time] Iteration #3 took 8.5011e-05 s.
+info: Convergence criterion: |dx|=6.8069e-09, |x|=1.2060e+07, |dx|/|x|=5.6442e-16
+info: [time] Iteration #6 took 8.0922e-05 s.
+info: [time] Solving process #0 took 0.000552968 s in time step #1  coupling iteration #0
+info: Convergence criterion, component 0: |dx|=9.7122e-17, |x|=9.7122e-17, |dx|/|x|=1.0000e+00
+info: Convergence criterion, component 1: |dx|=1.9350e-01, |x|=1.9350e-01, |dx|/|x|=1.0000e+00
+info: [time] Iteration #1 took 0.000494426 s.
+info: Convergence criterion, component 0: |dx|=8.5618e-18, |x|=9.7494e-17, |dx|/|x|=8.7819e-02
+info: Convergence criterion, component 1: |dx|=4.0150e-15, |x|=1.9350e-01, |dx|/|x|=2.0749e-14
+info: [time] Iteration #2 took 0.000349078 s.
+info: [time] Solving process #1 took 0.000872719 s in time step #1  coupling iteration #0
+info: Convergence criterion: |dx|=1.6964e+03, |x|=1.2060e+07, |dx|/|x|=1.4066e-04
+info: [time] Iteration #1 took 9.4216e-05 s.
+info: Convergence criterion: |dx|=2.4522e+00, |x|=1.2060e+07, |dx|/|x|=2.0333e-07
+info: [time] Iteration #2 took 8.6385e-05 s.
+info: Convergence criterion: |dx|=3.5270e-03, |x|=1.2060e+07, |dx|/|x|=2.9245e-10
+info: [time] Iteration #3 took 8.3487e-05 s.
+info: Convergence criterion: |dx|=3.4098e-09, |x|=1.2060e+07, |dx|/|x|=2.8273e-16
+info: [time] Iteration #5 took 8.5175e-05 s.
+info: [time] Solving process #0 took 0.00043874 s in time step #1  coupling iteration #1
+info: Convergence criterion: |dx|=1.6964e+03, |x|=1.2060e+07, |dx|/|x|=1.4066e-04
+info: Convergence criterion, component 0: |dx|=1.2514e-17, |x|=9.4848e-17, |dx|/|x|=1.3194e-01
+info: Convergence criterion, component 1: |dx|=3.8075e-04, |x|=1.9388e-01, |dx|/|x|=1.9638e-03
+info: [time] Iteration #1 took 0.000342407 s.
+info: Convergence criterion, component 0: |dx|=7.4740e-18, |x|=9.2618e-17, |dx|/|x|=8.0697e-02
+info: Convergence criterion, component 1: |dx|=9.9346e-16, |x|=1.9388e-01, |dx|/|x|=5.1241e-15
+info: [time] Iteration #2 took 0.000331241 s.
+info: [time] Solving process #1 took 0.000702329 s in time step #1  coupling iteration #1

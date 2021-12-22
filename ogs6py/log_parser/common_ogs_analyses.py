@@ -141,11 +141,15 @@ def fill_ogs_context(df):
     # Some columns that contain actual integer values are converted to float
     # See https://pandas.pydata.org/pandas-docs/stable/user_guide/integer_na.html
     # ToDo list of columns with integer values are known from regular expression
+
+    intcolumns = ['line', 'mpi_process', 'time_step', 'iteration_number', 'coupling_iteration',
+                  'coupling_iteration_process', 'component', 'process']
     for column in df.columns:
-        try:
-            df[column] = df[column].astype('Int64')
-        except:
-            pass
+        if column in intcolumns:
+            try:
+                df[column] = df[column].astype('Int64')
+            except:
+                print('Could not convert column \'{0}\' to integer'.format(column))
 
     # Some logs do not contain information about time_step and iteration
     # These information must be collected by context (by surrounding log lines from same mpi_process)
