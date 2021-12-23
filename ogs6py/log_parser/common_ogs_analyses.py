@@ -113,8 +113,8 @@ def analysis_convergence_coupling_iteration(df):
 
 
 def time_step_vs_iterations(df):
-    interest = 'iteration_number'
-    context = 'time_step'
+    interest = ['iteration_number']
+    context = ['time_step']
     check_input(df, interest, context)
     pt = df.pivot_table(["iteration_number"], ["time_step"], aggfunc=np.max)
     check_output(pt, interest, context)

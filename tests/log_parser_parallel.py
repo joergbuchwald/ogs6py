@@ -6,7 +6,8 @@ from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
 from collections import namedtuple, defaultdict
 from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_time_step, \
-    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination
+    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination, \
+    time_step_vs_iterations
 
 
 def log_types(records):
@@ -122,6 +123,22 @@ class OGSParserTest(unittest.TestCase):
         self.assertEqual(has_errors, True)
         if has_errors:
             print(dfe)
+
+
+    def test_serial_time_vs_iterations(self):
+        filename = 'parser/serial_convergence_long.txt'
+        records = parse_file(filename)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
+        dfe = time_step_vs_iterations(df)
+        # some specific values
+        self.assertEqual(
+            dfe.at[0, 'iteration_number'], 1)
+        self.assertEqual(
+            dfe.at[1, 'iteration_number'], 6)
+        self.assertEqual(
+            dfe.at[10, 'iteration_number'], 5)
+
 
 
 if __name__ == '__main__':
