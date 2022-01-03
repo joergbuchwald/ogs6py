@@ -3,14 +3,12 @@
 """
 Created on Mon Dec 20 13:58:50 2021
 
-@author: dominik
+@author: dominik kern (tu freiberg)
 """
 from search_toolbox import coupling_parameter_search
 
-ogs_dir = "/home/dominik/OGS/release/bin"
-basename = "StaggeredInjectionProduction1D"
+basename = "StaggeredInjectionProduction1D"  # to derive filenames
 
-CPS = coupling_parameter_search(ogs_dir, basename)
-
-CPS.start(0.7, 0.1)
+CPS = coupling_parameter_search(basename)
+CPS.start(x_minus=0.16, x_plus=1.0, tol = 0.01)
 
