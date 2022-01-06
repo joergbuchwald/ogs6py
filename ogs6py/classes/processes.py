@@ -48,7 +48,7 @@ class Processes(build_tree.BuildTree):
             'attr': {},
             'children': {}
         }
-        self.sflux_vartree ={
+        self.sflux_vartree = {
             'tag': 'calculatesurfaceflux',
             'text': '',
             'attr': {},
