@@ -48,6 +48,12 @@ class Processes(build_tree.BuildTree):
             'attr': {},
             'children': {}
         }
+        self.sflux_vartree = {
+            'tag': 'calculatesurfaceflux',
+            'text': '',
+            'attr': {},
+            'children': {}
+            }
 
     def add_process_variable(self, **args):
         """
@@ -146,3 +152,42 @@ class Processes(build_tree.BuildTree):
                 'attr': {},
                 'children': {}
             }
+    def add_surfaceflux(self,**args):
+        """
+        Add SurfaceFlux
+
+        Parameters
+        ----------
+        mesh : `str`
+        property_name : `str`
+
+        Raises
+        ------
+        KeyError
+            DESCRIPTION.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._convertargs(args)
+
+        if "mesh" not in args:
+            raise KeyError("No surface mesh for flux analysis assigned")
+        if "property_name" not in args:
+            raise KeyError("No property name, e.g specific_flux, assigned")
+        self.tree['processes']['children']['process']['children'][
+                'calculatesurfaceflux'] = self.sflux_vartree
+        self.sflux_vartree['children']['mesh'] = {
+                'tag': 'mesh',
+                'text': args['mesh'],
+                'attr': {},
+                'children': {}
+                }
+        self.sflux_vartree['children']['property_name'] = {
+                'tag': 'property_name',
+                'text': args['property_name'],
+                'attr': {},
+                'children': {}
+                }
