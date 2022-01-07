@@ -23,7 +23,7 @@ info: *** Eigen solver computation
 info: -> solve with SparseLU
 info: ------------------------------------------------------------------
 info: [time] Linear solver took 3.4831e-05 s.
-info: Convergence criterion: |dx|=9.9069e+05, |x|=1.2062e+07, |dx|/|x|=8.2136e-02
+info: Convergence criterion: |dx|=9.9069e+05, |x|=1.2062e+07, |dx|/|x|=nan
 info: [time] Iteration #1 took 0.000124721 s.
 info: [time] Assembly took 6.2818e-05 s.
 info: [time] Applying Dirichlet BCs took 2.233e-06 s.

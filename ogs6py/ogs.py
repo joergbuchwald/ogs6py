@@ -569,7 +569,7 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parse_out(self, outfile="", maximum_timesteps=None, maximum_lines=None, petsc=False, coupled_processes=1):
+    def parse_out(self, logfile=None, filter=None, maximum_lines=None, force_parallel=False):
         """Parses the logfile
 
         Parameters
@@ -579,14 +579,29 @@ class OGS:
             Default: File specified already as logfile by runmodel
         maximum_lines : `int`
             maximum number of lines to be evaluated
-        petsc : `boolean`
-            True if ogs is used with the MPI/petsc (only proc 0 output is used
-        coupled_processes : `int`
-            Number of coupled processes in staggered scheme (1 for monolithic scheme)
+        force_parallel : `boolean`
+            enforce analysis of parallel output
+        filter : `str`, optional
+            can be "by_time_step". "convergence_newton_iteration",
+            "convergence_coupling_iteration", or "time_step_vs_iterations"
+            if filter is None, the raw dataframe is returned.
         """
-        if outfile == "":
-            outfile = self.logfile
-        data = parser.parse_file(outfile, maximum_timesteps=maximum_timesteps,
-                maximum_lines=maximum_lines, petsc=petsc, coupled_processes=coupled_processes)
-        df = pd.DataFrame(data)
+        if logfile is None:
+            logfile = self.logfile
+        records = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        df = pd.DataFrame(records)
+
+        df = parse_fcts.fill_ogs_context(df)
+        if filter == "by_time_step":
+            df = parse_fcts.analysis_time_step(df)
+        elif filter == "convergence_newton_iteration":
+            df = parse_fcts.analysis_convergence_newton_iteration(df)
+        elif filter == "convergence_coupling_iteration":
+            try:
+                df = parse_fcts.analysis_convergence_coupling_iteration(df)
+            except KeyError:
+                print("Filter can only be applied for files generated with a staggered scheme.")
+                print("Returning the raw dataframe only.")
+        elif filter == "time_step_vs_iterations":
+            df = parse_fcts.time_step_vs_iterations(df)
         return df

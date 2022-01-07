@@ -1,11 +1,13 @@
 import unittest
 
+import pandas as pd
+
 from ogs6py.log_parser.log_parser import parse_file
 # this needs to be replaced with regexes from specific ogs version
-from ogs6py.log_parser.ogs_regexes import ogs_regexes
 from collections import namedtuple, defaultdict
-from ogs6py.log_parser.common_ogs_analyses import pandas_from_records, analysis_by_time_step, \
-    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration
+from ogs6py.log_parser.common_ogs_analyses import fill_ogs_context, analysis_time_step, \
+    analysis_convergence_newton_iteration, analysis_convergence_coupling_iteration, analysis_simulation_termination, \
+    time_step_vs_iterations
 
 
 def log_types(records):
@@ -17,12 +19,12 @@ def log_types(records):
 
 class OGSParserTest(unittest.TestCase):
     def test_parallel_1_compare_serial_info(self):
-        filename_p = 'tests/parser/parallel_1_info.txt'
+        filename_p = 'parser/parallel_1_info.txt'
         # Only for MPI execution with 1 process we need to tell the log parser by force_parallel=True!
         records_p = parse_file(filename_p, force_parallel=True)
         num_of_record_type_p = [len(i) for i in log_types(records_p).values()]
 
-        filename_s = 'tests/parser/serial_info.txt'
+        filename_s = 'parser/serial_info.txt'
         records_s = parse_file(filename_s)
         num_of_record_type_s = [len(i) for i in log_types(records_s).values()]
 
@@ -30,7 +32,7 @@ class OGSParserTest(unittest.TestCase):
                                  'The number of logs for each type must be equal for parallel log and serial log')
 
     def test_parallel_3_debug(self):
-        filename = 'tests/parser/parallel_3_debug.txt'
+        filename = 'parser/parallel_3_debug.txt'
         records = parse_file(filename)
         mpi_processes = 3
 
@@ -41,8 +43,9 @@ class OGSParserTest(unittest.TestCase):
         self.assertEqual(all(i % mpi_processes == 0 for i in num_of_record_type), True,
                          'The number of logs of each type should be a multiple of the number of processes')
 
-        df = pandas_from_records(records)
-        dfe = analysis_by_time_step(df)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
+        dfe = analysis_time_step(df)
 
         # some specific values
         record_id = namedtuple('id', 'mpi_process time_step')
@@ -57,25 +60,33 @@ class OGSParserTest(unittest.TestCase):
                                digits)
 
     def test_serial_convergence_newton_iteration_long(self):
-        filename = 'tests/parser/serial_convergence_long.txt'
+        filename = 'parser/serial_convergence_long.txt'
         records = parse_file(filename)
-        df = pandas_from_records(records)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
         dfe = analysis_convergence_newton_iteration(df)
 
         # some specific values
         record_id = namedtuple('id', 'time_step coupling_iteration process iteration_number component')
         digits = 6
         self.assertAlmostEqual(
-            dfe.at[record_id(time_step=1.0, coupling_iteration=0, process=0, iteration_number=1, component=1), 'dx'],
-            1.935000e-01, digits)
+            dfe.at[record_id(time_step=1.0, coupling_iteration=0, process=0, iteration_number=1, component=-1), 'dx'],
+            9.906900e+05, digits)
         self.assertAlmostEqual(
-            dfe.at[record_id(time_step=10.0, coupling_iteration=5, process=1, iteration_number=1, component=-1), 'x'],
-            1.289000e+07, digits)
+            dfe.at[record_id(time_step=10.0, coupling_iteration=5, process=1, iteration_number=1, component=1), 'x'],
+            1.066500e+00, digits)
 
     def test_serial_convergence_coupling_iteration_long(self):
-        filename = 'tests/parser/serial_convergence_long.txt'
+        filename = 'parser/serial_convergence_long.txt'
         records = parse_file(filename)
-        df = pandas_from_records(records)
+        df = pd.DataFrame(records)
+        dfe = analysis_simulation_termination(df)
+        status = dfe.empty  # No errors assumed
+        self.assertEqual(status, True)  #
+        if (not (status)):
+            print(dfe)
+        self.assertEqual(status, True)  #
+        df = fill_ogs_context(df)
         dfe = analysis_convergence_coupling_iteration(df)
 
         # some specific values
@@ -87,6 +98,47 @@ class OGSParserTest(unittest.TestCase):
         self.assertAlmostEqual(
             dfe.at[record_id(time_step=10.0, coupling_iteration=5, coupling_iteration_process=1, component=-1), 'x'],
             1.066500e+00, digits)
+
+    def test_serial_critical(self):
+        filename = 'parser/serial_critical.txt'
+        records = parse_file(filename)
+        self.assertEqual(len(records),4)
+        df = pd.DataFrame(records)
+        self.assertEqual(len(df), 4)
+        dfe = analysis_simulation_termination(df)
+        has_errors = not (dfe.empty)
+        self.assertEqual(has_errors, True)
+        if has_errors:
+            print(dfe)
+
+
+    def test_serial_warning_only(self):
+        filename = 'parser/serial_warning_only.txt'
+        records = parse_file(filename)
+        self.assertEqual(len(records),1)
+        df = pd.DataFrame(records)
+        self.assertEqual(len(df), 1)
+        dfe = analysis_simulation_termination(df)
+        has_errors = not (dfe.empty)
+        self.assertEqual(has_errors, True)
+        if has_errors:
+            print(dfe)
+
+
+    def test_serial_time_vs_iterations(self):
+        filename = 'parser/serial_convergence_long.txt'
+        records = parse_file(filename)
+        df = pd.DataFrame(records)
+        df = fill_ogs_context(df)
+        dfe = time_step_vs_iterations(df)
+        # some specific values
+        self.assertEqual(
+            dfe.at[0, 'iteration_number'], 1)
+        self.assertEqual(
+            dfe.at[1, 'iteration_number'], 6)
+        self.assertEqual(
+            dfe.at[10, 'iteration_number'], 5)
+
 
 
 if __name__ == '__main__':
