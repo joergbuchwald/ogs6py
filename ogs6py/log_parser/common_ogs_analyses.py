@@ -36,7 +36,7 @@ def pre_post_check(interest, context):
 '''
 Analysis with focus on computation time per time step. It combines time step specific measurements 'output time'
 and 'time step solution time' with iteration specific measurements 'assembly time', 'linear solver time', 'Dirichlet time'.
-Time from iteration are accumulated.  
+Time from iteration are accumulated.
 '''
 
 
