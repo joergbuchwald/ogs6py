@@ -136,12 +136,18 @@ class TimeStepConvergenceCriterion(MPIProcess,Info):
 @dataclass
 class CouplingIterationConvergence(MPIProcess,Info):
     coupling_iteration_process: int
-    
+
 
 @dataclass
 class GenericCodePoint(MPIProcess,Info):
     message: str
 
+@dataclass
+class PhaseFieldEnergyVar(MPIProcess,Info):
+    elastic_energy: float
+    surface_energy: float
+    pressure_work: float
+    total_energy: float
 
 @dataclass
 class ErrorMessage(MPIProcess, ErrorType):
@@ -171,6 +177,8 @@ def ogs_regexes():
             ("info: \[time\] Iteration #(\d+) took ([\d\.e+-]+) s", IterationTime),
             ("info: Convergence criterion: \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
              TimeStepConvergenceCriterion),
+            ("info: Elastic energy: ([\d\.e+-]+) Surface energy: ([\d\.e+-]+) Pressure work: ([\d\.e+-]+) Total energy: ([\d\.e+-]+)",
+             PhaseFieldEnergyVar),
             ("info: ------- Checking convergence criterion for coupled solution of process #(\d+)",
              CouplingIterationConvergence),
             (
