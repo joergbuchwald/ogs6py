@@ -569,7 +569,7 @@ class OGS:
                          pretty_print=True)
         return True
 
-    def parse_out(self, logfile=None, filter=None, maximum_lines=None, force_parallel=False):
+    def parse_out(self, logfile=None, filter=None, maximum_lines=None, force_parallel=False, reset_index=True):
         """Parses the logfile
 
         Parameters
@@ -604,4 +604,6 @@ class OGS:
                 print("Returning the raw dataframe only.")
         elif filter == "time_step_vs_iterations":
             df = parse_fcts.time_step_vs_iterations(df)
+        if reset_index is True:
+            return df.reset_index()
         return df
