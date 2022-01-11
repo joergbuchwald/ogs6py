@@ -67,10 +67,10 @@ class coupling_parameter_search:
         return mean_coupling_iterations
 
 
-    def start(self, x_minus=0.0, x_plus=1.0, tol=0.025):
+    def start(self, x_minus=0.0, x_plus=1.0, abs_tol=0.025):
     
         print("--- search (scipy) minimum within [{:1.3f}, {:1.3f}] ---".format(x_minus, x_plus))
-        x_optimal = minimize_scalar(self.run_sim, bounds=(x_minus, x_plus), method='bounded', tol=tol)
+        x_optimal = minimize_scalar(self.run_sim, bounds=(x_minus, x_plus), method='bounded', options={'xatol':abs_tol})
         
         if x_optimal.success:
             print("--- optimal coupling scheme parameter = {} ---".format(x_optimal.x))
