@@ -296,7 +296,7 @@ class OGS:
         xpath : `str`, optional
             XPath of the tag
         occurrence : `int`, optional
-            Easy way to adress nonunique XPath addresses by their occurece
+            Easy way to adress nonunique XPath addresses by their occurence
             from the top of the XML file
             Default: -1
         """
@@ -352,7 +352,7 @@ class OGS:
                     occurrence.text = newmesh_stripped
 
     def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
-        """Replacing parametertypes and values
+        """Replacing parameter types and values
 
         Parameters
         ----------
@@ -510,7 +510,7 @@ class OGS:
                 for i, line in enumerate(file):
                     if i > num_lines-10:
                         print(line)
-            raise RuntimeError('OGS execution was not successfull.')
+            raise RuntimeError('OGS execution was not successful.')
 
     def write_input(self, keep_includes=False):
         """Writes the projectfile to disk
