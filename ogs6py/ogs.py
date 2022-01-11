@@ -504,7 +504,7 @@ class OGS:
         else:
             print(f"Error code: {returncode.returncode}")
             if write_logs is False:
-                raise RuntimeError('OGS execution was not successfull. Please set write_logs to True to obtain more information.')
+                raise RuntimeError('OGS execution was not successful. Please set write_logs to True to obtain more information.')
             num_lines = sum(1 for line in open(self.logfile))
             with open(self.logfile) as file:
                 for i, line in enumerate(file):
@@ -517,7 +517,7 @@ class OGS:
 
         Parameters
         ----------
-        keep_includes : `bolean`, optional
+        keep_includes : `boolean`, optional
         """
         if not self.tree is None:
             if keep_includes is True:
