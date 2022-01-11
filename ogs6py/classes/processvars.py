@@ -112,6 +112,12 @@ class ProcessVars(build_tree.BuildTree):
                             'component', text=args['component'], children={})
                 boundary_condition['children']['bc_object'] = self.populate_tree(
                         'bc_object', text=args['bc_object'], children={})
+            elif "u_0" in args:
+                if "alpha" in args:
+                    boundary_condition['children']['alpha'] = self.populate_tree(
+                            'alpha', text=args['alpha'], children={})
+                boundary_condition['children']['u_0'] = self.populate_tree(
+                        'u_0', text=args['u_0'], children={})
             else:
                 raise KeyError("Please provide the parameter for Dirichlet \
                                         or Neumann BC/bc_object for Python BC")
@@ -136,12 +142,19 @@ class ProcessVars(build_tree.BuildTree):
                             'component', text=args['component'], children={})
                 boundary_condition['children']['bc_object'] = self.populate_tree(
                         'bc_object', text=args['bc_object'], children={})
+            elif "u_0" in args:
+                if "alpha" in args:
+                    boundary_condition['children']['alpha'] = self.populate_tree(
+                            'alpha', text=args['alpha'], children={})
+                boundary_condition['children']['u_0'] = self.populate_tree(
+                        'u_0', text=args['u_0'], children={})
             else:
                 raise KeyError("Please provide the parameter for Dirichlet \
                                     or Neumann BC/bc_object for Python BC")
         else:
             raise KeyError("You should provide either a geometrical set \
                                 or a mesh to define BC for.")
+
     def add_st(self, **args):
         """
         add a source term
