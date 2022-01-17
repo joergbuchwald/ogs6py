@@ -1,0 +1,113 @@
+info: This is OpenGeoSys-6 version 6.4.1-91-g31c30ea65c.
+info: OGS started on 2021-11-02 16:36:59+0100.
+[0] info: Project configuration from file '/home/meisel/o/s/Tests/Data/Parabolic/LiquidFlow/SimpleSynthetics/XDMF/FunctionParameterTest_XDMF.prj' read.
+[0] info: FunctionParameter: p_0
+[0] info: FunctionParameter: p_polyline_left
+[0] info: FunctionParameter: p_polyline_right
+[0] info: No source terms for process variable 'pressure' found.
+[0] info: Configure mesh 'square_5x5_tris_32' for output.
+[0] info: Configure mesh 'square_5x5_tris_32_left_boundary' for output.
+[0] info: Configure mesh 'square_5x5_tris_32_right_boundary' for output.
+[0] info: Initialize processes.
+[0] info: Solve processes.
+[0] info: [time] Output of timestep 0 took 0.00969778 s.
+[0] info: === Time stepping at step #1 and time 0.3 with step size 0.3
+[0] info: Calculate non-equilibrium initial residuum.
+[0] info: [time] Assembly took 0.000432625 s.
+[0] info: [time] Applying Dirichlet BCs took 0.000106626 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 11 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000686643 s.
+[0] info: [time] Iteration #1 took 0.00125193 s.
+[0] info: [time] Solving process #0 took 0.00139481 s in time step #1 
+[0] info: [time] Time step #1 took 0.00148461 s.
+[0] info: [time] Output of timestep 1 took 0.000693623 s.
+[0] info: === Time stepping at step #2 and time 0.6 with step size 0.3
+[0] info: [time] Assembly took 0.000358571 s.
+[0] info: [time] Applying Dirichlet BCs took 0.000104345 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 2 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.00024814 s.
+[0] info: [time] Iteration #1 took 0.000733127 s.
+[0] info: [time] Solving process #0 took 0.000824425 s in time step #2 
+[0] info: [time] Time step #2 took 0.000902288 s.
+[0] info: [time] Output of timestep 2 took 0.000610092 s.
+[0] info: === Time stepping at step #3 and time 0.9 with step size 0.3
+[0] info: [time] Assembly took 0.000271521 s.
+[0] info: [time] Applying Dirichlet BCs took 5.6811e-05 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 0 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000195964 s.
+[0] info: [time] Iteration #1 took 0.000545715 s.
+[0] info: [time] Solving process #0 took 0.000634073 s in time step #3 
+[0] info: [time] Time step #3 took 0.000710026 s.
+[0] info: [time] Output of timestep 3 took 0.000609629 s.
+[0] info: === Time stepping at step #4 and time 1.2 with step size 0.3
+[0] info: [time] Assembly took 0.000269463 s.
+[0] info: [time] Applying Dirichlet BCs took 5.6326e-05 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 0 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000231277 s.
+[0] info: [time] Iteration #1 took 0.000578725 s.
+[0] info: [time] Solving process #0 took 0.000668993 s in time step #4 
+[0] info: [time] Time step #4 took 0.000746381 s.
+[0] info: [time] Output of timestep 4 took 0.000572854 s.
+[0] info: === Time stepping at step #5 and time 1.5 with step size 0.3
+[0] info: [time] Assembly took 0.000270271 s.
+[0] info: [time] Applying Dirichlet BCs took 6.1555e-05 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 0 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000192933 s.
+[0] info: [time] Iteration #1 took 0.000545425 s.
+[0] info: [time] Solving process #0 took 0.000634493 s in time step #5 
+[0] info: [time] Time step #5 took 0.000714066 s.
+[0] info: [time] Output of timestep 5 took 0.000585819 s.
+[0] info: === Time stepping at step #6 and time 1.8 with step size 0.3
+[0] info: [time] Assembly took 0.000269123 s.
+[0] info: [time] Applying Dirichlet BCs took 5.5258e-05 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 0 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000193724 s.
+[0] info: [time] Iteration #1 took 0.000539224 s.
+[0] info: [time] Solving process #0 took 0.000627067 s in time step #6 
+[0] info: [time] Time step #6 took 0.000703935 s.
+[0] info: [time] Output of timestep 6 took 0.00062956 s.
+[0] info: === Time stepping at step #7 and time 2 with step size 0.2
+[0] info: [time] Assembly took 0.000271149 s.
+[0] info: [time] Applying Dirichlet BCs took 5.6457e-05 s.
+
+================================================
+Linear solver cg with bjacobi preconditioner
+converged in 0 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.000196163 s.
+[0] info: [time] Iteration #1 took 0.000545469 s.
+[0] info: [time] Solving process #0 took 0.000636019 s in time step #7 
+[0] info: [time] Time step #7 took 0.000714908 s.
+[0] info: [time] Output of timestep 7 took 0.000592507 s.
+[0] info: The whole computation of the time stepping took 7 steps, in which
+	 the accepted steps are 7, and the rejected steps are 0.
+
+[0] info: [time] Execution took 0.0261487 s.
+[0] info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32.xdmf took 0.00021182 s.
+[0] info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32_left_boundary.xdmf took 0.00012457 s.
+[0] info: [time] Output of XDMF to square_5x5_tris_32_square_5x5_tris_32_right_boundary.xdmf took 0.000112784 s.
+[0] info: OGS terminated on 2021-11-02 16:36:59+0100.

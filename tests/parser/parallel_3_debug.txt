@@ -1,0 +1,366 @@
+info: This is OpenGeoSys-6 version 6.4.0-1102-gf7fffbb9ef.
+info: This is OpenGeoSys-6 version 6.4.0-1102-gf7fffbb9ef.
+info: This is OpenGeoSys-6 version 6.4.0-1102-gf7fffbb9ef.
+info: OGS started on 2021-09-15 15:32:43+0200.
+info: OGS started on 2021-09-15 15:32:43+0200.
+info: OGS started on 2021-09-15 15:32:43+0200.
+[2] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1e3_XDMF_np3_3files.prj' read.
+[1] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1e3_XDMF_np3_3files.prj' read.
+[0] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1e3_XDMF_np3_3files.prj' read.
+[0] warning: Consider switching from mesh and geometry input to multiple meshes input. See https://www.opengeosys.org/docs/tools/meshing-submeshes/constructmeshesfromgeometry/ tool for conversion.
+[0] debug: Reading mesh file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3.vtu'.
+[1] warning: Consider switching from mesh and geometry input to multiple meshes input. See https://www.opengeosys.org/docs/tools/meshing-submeshes/constructmeshesfromgeometry/ tool for conversion.
+[2] warning: Consider switching from mesh and geometry input to multiple meshes input. See https://www.opengeosys.org/docs/tools/meshing-submeshes/constructmeshesfromgeometry/ tool for conversion.
+[2] debug: Reading mesh file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3.vtu'.
+[1] debug: Reading mesh file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3.vtu'.
+[1] info: Reading corresponding part of mesh data from binary file /home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3 ...
+[2] info: Reading corresponding part of mesh data from binary file /home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3 ...
+[0] info: Reading corresponding part of mesh data from binary file /home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1_hex_1e3 ...
+[2] debug: name: 'D1_left_front_N1_right':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[2] debug: name: 'Linear_1_to_minus1':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[1] debug: name: 'D1_left_front_N1_right':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[1] debug: name: 'Linear_1_to_minus1':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[1] debug: [1] offset in the PropertyVector: 643
+[1] debug: [1] 622 tuples in partition.
+[0] debug: name: 'D1_left_front_N1_right':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[0] debug: name: 'Linear_1_to_minus1':	 is_int_data_type: 0, is_data_type_signed: 1, data_type_size_in_bytes: 8, number of components / tuples: 1 / 1895
+[0] debug: [0] offset in the PropertyVector: 0
+[0] debug: [0] 643 tuples in partition.
+[0] debug: [0] global offset: 0, offset within the PropertyVector: 0.
+[0] debug: [0] global offset: 15160, offset within the PropertyVector: 15160.
+[0] debug: name: 'MaterialIDs':	 is_int_data_type: 1, is_data_type_signed: 1, data_type_size_in_bytes: 4, number of components / tuples: 1 / 1233
+[0] debug: [0] offset in the PropertyVector: 0
+[0] debug: [0] 417 tuples in partition.
+[1] debug: [1] global offset: 0, offset within the PropertyVector: 5144.
+[1] debug: [1] global offset: 15160, offset within the PropertyVector: 20304.
+[1] debug: name: 'MaterialIDs':	 is_int_data_type: 1, is_data_type_signed: 1, data_type_size_in_bytes: 4, number of components / tuples: 1 / 1233
+[1] debug: [1] offset in the PropertyVector: 417
+[1] debug: [1] 399 tuples in partition.
+[2] debug: [2] offset in the PropertyVector: 1265
+[2] debug: [2] 630 tuples in partition.
+[2] debug: [2] global offset: 0, offset within the PropertyVector: 10120.
+[2] debug: [2] global offset: 15160, offset within the PropertyVector: 25280.
+[2] debug: name: 'MaterialIDs':	 is_int_data_type: 1, is_data_type_signed: 1, data_type_size_in_bytes: 4, number of components / tuples: 1 / 1233
+[2] debug: [2] offset in the PropertyVector: 816
+[2] debug: [2] 417 tuples in partition.
+[0] debug: [0] global offset: 0, offset within the PropertyVector: 0.
+[1] debug: [1] global offset: 0, offset within the PropertyVector: 1668.
+[2] debug: [2] global offset: 0, offset within the PropertyVector: 3264.
+[0] info: [time] Reading the mesh took 0.007326 s.
+[1] info: [time] Reading the mesh took 0.008351 s.
+[2] info: [time] Reading the mesh took 0.008551 s.
+[1] debug: Reading geometry file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml'.
+[2] debug: Reading geometry file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml'.
+[0] debug: Reading geometry file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml'.
+[1] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml' read.
+[0] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml' read.
+[2] debug: Project configuration from file '/home/meisel/o/s/Tests/Data/EllipticPETSc/cube_1x1x1.gml' read.
+[1] debug: The search length for mesh 'cube_1x1x1_hex_1e3' is 1.000000e-09.
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry left.
+[2] debug: The search length for mesh 'cube_1x1x1_hex_1e3' is 1.000000e-09.
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry left.
+[0] debug: The search length for mesh 'cube_1x1x1_hex_1e3' is 1.000000e-09.
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry left.
+[2] debug: Found 0 elements in the mesh
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry right.
+[1] debug: Found 29 elements in the mesh
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry right.
+[2] debug: Found 70 elements in the mesh
+[0] debug: Found 82 elements in the mesh
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry top.
+[2] debug: Found 0 elements in the mesh
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry bottom.
+[1] debug: Found 40 elements in the mesh
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry top.
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry right.
+[0] debug: Found 0 elements in the mesh
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry top.
+[2] debug: Found 67 elements in the mesh
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry front.
+[2] debug: Found 47 elements in the mesh
+[2] debug: Creating mesh from geometry cube_1x1x1_geometry back.
+[1] debug: Found 84 elements in the mesh
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry bottom.
+[1] debug: Found 0 elements in the mesh
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry front.
+[0] debug: Found 26 elements in the mesh
+[1] debug: Found 58 elements in the mesh
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry bottom.
+[1] debug: Creating mesh from geometry cube_1x1x1_geometry back.
+[0] debug: Found 46 elements in the mesh
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry front.
+[0] debug: Found 12 elements in the mesh
+[0] debug: Creating mesh from geometry cube_1x1x1_geometry back.
+[2] debug: Found 34 elements in the mesh
+[1] debug: Found 21 elements in the mesh
+[0] debug: Found 62 elements in the mesh
+[2] debug: Reading parameters:
+[2] info: ConstantParameter: p0
+[2] debug: Using value 0 for constant parameter.
+[2] info: ConstantParameter: p_Dirichlet_left
+[2] debug: Using value 1 for constant parameter.
+[2] info: ConstantParameter: p_Dirichlet_right
+[2] debug: Using value -1 for constant parameter.
+[2] debug: Parse process variables:
+[2] debug: Found parameter `p0'.
+[2] debug: Constructing process variable pressure
+[2] debug: Found mesh 'cube_1x1x1_geometry_left' with id 1.
+[2] debug: Found mesh 'cube_1x1x1_geometry_right' with id 2.
+[2] info: No source terms for process variable 'pressure' found.
+[2] debug: Reading media:
+[2] debug: Create Constant property diffusion.
+[2] debug: Create Constant property reference_temperature.
+[2] debug: Reading processes:
+[2] debug: Create SteadyStateDiffusion.
+[2] debug: Found process variable 'pressure' for config tag <process_variable>.
+[2] debug: Check the media properties of steady state diffusion process ...
+[2] debug: Media properties verified.
+[2] debug: Reading linear solver configuration.
+[1] debug: Reading parameters:
+[1] info: ConstantParameter: p0
+[1] debug: Using value 0 for constant parameter.
+[1] info: ConstantParameter: p_Dirichlet_left
+[1] debug: Using value 1 for constant parameter.
+[1] info: ConstantParameter: p_Dirichlet_right
+[1] debug: Using value -1 for constant parameter.
+[1] debug: Parse process variables:
+[1] debug: Found parameter `p0'.
+[1] debug: Constructing process variable pressure
+[1] debug: Found mesh 'cube_1x1x1_geometry_left' with id 1.
+[1] debug: Found mesh 'cube_1x1x1_geometry_right' with id 2.
+[1] info: No source terms for process variable 'pressure' found.
+[1] debug: Reading media:
+[1] debug: Create Constant property diffusion.
+[1] debug: Create Constant property reference_temperature.
+[1] debug: Reading processes:
+[1] debug: Create SteadyStateDiffusion.
+[1] debug: Found process variable 'pressure' for config tag <process_variable>.
+[1] debug: Check the media properties of steady state diffusion process ...
+[1] debug: Media properties verified.
+[1] debug: Reading linear solver configuration.
+[0] debug: Reading parameters:
+[0] info: ConstantParameter: p0
+[0] debug: Using value 0 for constant parameter.
+[0] info: ConstantParameter: p_Dirichlet_left
+[0] debug: Using value 1 for constant parameter.
+[0] info: ConstantParameter: p_Dirichlet_right
+[0] debug: Using value -1 for constant parameter.
+[0] debug: Parse process variables:
+[0] debug: Found parameter `p0'.
+[0] debug: Constructing process variable pressure
+[0] debug: Found mesh 'cube_1x1x1_geometry_left' with id 1.
+[0] debug: Found mesh 'cube_1x1x1_geometry_right' with id 2.
+[0] info: No source terms for process variable 'pressure' found.
+[0] debug: Reading media:
+[0] debug: Create Constant property diffusion.
+[0] debug: Create Constant property reference_temperature.
+[0] debug: Reading processes:
+[0] debug: Create SteadyStateDiffusion.
+[0] debug: Found process variable 'pressure' for config tag <process_variable>.
+[0] debug: Check the media properties of steady state diffusion process ...
+[0] debug: Media properties verified.
+[0] debug: Reading linear solver configuration.
+[2] debug: Reading non-linear solver configuration.
+[1] debug: Reading non-linear solver configuration.
+[1] debug: Reading time loop configuration.
+[0] debug: Reading non-linear solver configuration.
+[0] debug: Reading time loop configuration.
+[1] debug: Parse output configuration:
+[2] debug: Reading time loop configuration.
+[2] debug: Parse output configuration:
+[0] debug: Parse output configuration:
+[2] debug: adding output variable `pressure'
+[2] debug: adding output variable `v'
+[1] debug: adding output variable `pressure'
+[1] debug: adding output variable `v'
+[0] debug: adding output variable `pressure'
+[0] debug: adding output variable `v'
+[2] info: Initialize processes.
+[2] debug: Initialize process.
+[2] debug: Construct dof mappings.
+[1] info: Initialize processes.
+[1] debug: Initialize process.
+[1] debug: Construct dof mappings.
+[0] info: Initialize processes.
+[0] debug: Initialize process.
+[0] debug: Construct dof mappings.
+[2] debug: Compute sparsity pattern
+[2] debug: Initialize the extrapolator
+[2] debug: Create local assemblers.
+[2] debug: Create local assemblers.
+[2] debug: Calling local assembler builder for all mesh elements.
+[1] debug: Compute sparsity pattern
+[1] debug: Initialize the extrapolator
+[1] debug: Create local assemblers.
+[1] debug: Create local assemblers.
+[0] debug: Compute sparsity pattern
+[0] debug: Initialize the extrapolator
+[0] debug: Create local assemblers.
+[0] debug: Create local assemblers.
+[1] debug: Calling local assembler builder for all mesh elements.
+[0] debug: Calling local assembler builder for all mesh elements.
+[2] debug: Initialize boundary conditions.
+[2] debug: Constructing DirichletBoundaryCondition from config.
+[2] debug: Using parameter p_Dirichlet_left
+[2] debug: Found parameter `p_Dirichlet_left'.
+[2] debug: Constructing DirichletBoundaryCondition from config.
+[2] debug: Using parameter p_Dirichlet_right
+[2] debug: Found parameter `p_Dirichlet_right'.
+[2] debug: Found 88 nodes for Dirichlet BCs for the variable 0 and component 0
+[2] debug: Construct reduced local to global index map.
+[2] info: Solve processes.
+[1] debug: Initialize boundary conditions.
+[1] debug: Constructing DirichletBoundaryCondition from config.
+[1] debug: Using parameter p_Dirichlet_left
+[1] debug: Found parameter `p_Dirichlet_left'.
+[1] debug: Found 42 nodes for Dirichlet BCs for the variable 0 and component 0
+[1] debug: Construct reduced local to global index map.
+[1] debug: Constructing DirichletBoundaryCondition from config.
+[1] debug: Using parameter p_Dirichlet_right
+[1] debug: Found parameter `p_Dirichlet_right'.
+[1] debug: Found 55 nodes for Dirichlet BCs for the variable 0 and component 0
+[1] debug: Construct reduced local to global index map.
+[0] debug: Initialize boundary conditions.
+[0] debug: Constructing DirichletBoundaryCondition from config.
+[0] debug: Using parameter p_Dirichlet_left
+[0] debug: Found parameter `p_Dirichlet_left'.
+[0] debug: Found 103 nodes for Dirichlet BCs for the variable 0 and component 0
+[0] debug: Construct reduced local to global index map.
+[1] info: Solve processes.
+[0] debug: Constructing DirichletBoundaryCondition from config.
+[0] debug: Using parameter p_Dirichlet_right
+[0] debug: Found parameter `p_Dirichlet_right'.
+[0] info: Solve processes.
+[2] debug: Set the initial condition of variable pressure of process 0.
+[1] debug: Set the initial condition of variable pressure of process 0.
+[0] debug: Set the initial condition of variable pressure of process 0.
+[1] debug: Process output data.
+[2] debug: Process output data.
+[0] debug: Process output data.
+[2] debug:   process variable pressure
+[1] debug:   process variable pressure
+[0] debug:   process variable pressure
+[0] debug:   secondary variable v
+[1] debug:   secondary variable v
+[2] debug:   secondary variable v
+[0] debug: Computing new singular value decomposition
+[1] debug: Computing new singular value decomposition
+[2] debug: Computing new singular value decomposition
+[2] debug: HDF: dataset name: geometry, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 3
+[1] debug: HDF: dataset name: geometry, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 3
+[0] debug: HDF: dataset name: geometry, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 3
+[2] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 630, tuples: 3
+[1] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 622, tuples: 3
+[0] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 643, tuples: 3
+[1] debug: HDF: dataset name: geometry, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 3
+[2] debug: HDF: dataset name: geometry, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 3
+[2] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 630, tuples: 3
+[0] debug: HDF: dataset name: geometry, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 3
+[0] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 643, tuples: 3
+[1] debug: XDMF: dataset name: geometry, offset: 0 global_blocks: 622, tuples: 3
+[0] debug: HDF: dataset name: topology, offset: 0, data_space: 3753, chunk_space 3753, file_space: 3753, tuples: 1
+[1] debug: HDF: dataset name: topology, offset: 0, data_space: 3591, chunk_space 3591, file_space: 3591, tuples: 1
+[2] debug: HDF: dataset name: topology, offset: 0, data_space: 3753, chunk_space 3753, file_space: 3753, tuples: 1
+[1] debug: XDMF: dataset name: topology, offset: 0 global_blocks: 3591, tuples: 1
+[1] debug: HDF: dataset name: D1_left_front_N1_right, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 1
+[0] debug: XDMF: dataset name: topology, offset: 0 global_blocks: 3753, tuples: 1
+[0] debug: HDF: dataset name: D1_left_front_N1_right, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 1
+[2] debug: XDMF: dataset name: topology, offset: 0 global_blocks: 3753, tuples: 1
+[2] debug: HDF: dataset name: D1_left_front_N1_right, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 1
+[2] debug: XDMF: dataset name: D1_left_front_N1_right, offset: 0 global_blocks: 630, tuples: 1
+[0] debug: XDMF: dataset name: D1_left_front_N1_right, offset: 0 global_blocks: 643, tuples: 1
+[1] debug: XDMF: dataset name: D1_left_front_N1_right, offset: 0 global_blocks: 622, tuples: 1
+[2] debug: HDF: dataset name: Linear_1_to_minus1, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 1
+[0] debug: HDF: dataset name: Linear_1_to_minus1, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 1
+[1] debug: HDF: dataset name: Linear_1_to_minus1, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 1
+[0] debug: XDMF: dataset name: Linear_1_to_minus1, offset: 0 global_blocks: 643, tuples: 1
+[2] debug: XDMF: dataset name: Linear_1_to_minus1, offset: 0 global_blocks: 630, tuples: 1
+[1] debug: XDMF: dataset name: Linear_1_to_minus1, offset: 0 global_blocks: 622, tuples: 1
+[2] debug: HDF: dataset name: MaterialIDs, offset: 0, data_space: 417, chunk_space 417, file_space: 417, tuples: 1
+[0] debug: HDF: dataset name: MaterialIDs, offset: 0, data_space: 417, chunk_space 417, file_space: 417, tuples: 1
+[1] debug: HDF: dataset name: MaterialIDs, offset: 0, data_space: 399, chunk_space 399, file_space: 399, tuples: 1
+[0] debug: XDMF: dataset name: MaterialIDs, offset: 0 global_blocks: 417, tuples: 1
+[2] debug: XDMF: dataset name: MaterialIDs, offset: 0 global_blocks: 417, tuples: 1
+[1] debug: XDMF: dataset name: MaterialIDs, offset: 0 global_blocks: 399, tuples: 1
+[2] debug: HDF: dataset name: pressure, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 1
+[0] debug: HDF: dataset name: pressure, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 1
+[1] debug: HDF: dataset name: pressure, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 1
+[1] debug: XDMF: dataset name: pressure, offset: 0 global_blocks: 622, tuples: 1
+[0] debug: XDMF: dataset name: pressure, offset: 0 global_blocks: 643, tuples: 1
+[2] debug: XDMF: dataset name: pressure, offset: 0 global_blocks: 630, tuples: 1
+[2] debug: HDF: dataset name: v, offset: 0, data_space: 630, chunk_space 630, file_space: 630, tuples: 3
+[1] debug: HDF: dataset name: v, offset: 0, data_space: 622, chunk_space 622, file_space: 622, tuples: 3
+[0] debug: HDF: dataset name: v, offset: 0, data_space: 643, chunk_space 643, file_space: 643, tuples: 3
+[2] debug: XDMF: dataset name: v, offset: 0 global_blocks: 630, tuples: 3
+[1] debug: XDMF: dataset name: v, offset: 0 global_blocks: 622, tuples: 3
+[0] debug: XDMF: dataset name: v, offset: 0 global_blocks: 643, tuples: 3
+[0] debug: HDF Filepath: cube_1e3_np3.h5.
+[1] debug: HDF Filepath: cube_1e3_np3_1.h5.
+[2] debug: HDF Filepath: cube_1e3_np3_2.h5.
+[0] info: [time] Output of timestep 0 took 0.00554528 s.
+[0] info: === Time stepping at step #1 and time 0.1 with step size 0.1
+[0] info: Calculate non-equilibrium initial residuum.
+[1] info: [time] Output of timestep 0 took 0.00555 s.
+[1] info: === Time stepping at step #1 and time 0.1 with step size 0.1
+[1] info: Calculate non-equilibrium initial residuum.
+[2] info: [time] Output of timestep 0 took 0.00555212 s.
+[2] info: === Time stepping at step #1 and time 0.1 with step size 0.1
+[2] info: Calculate non-equilibrium initial residuum.
+[0] debug: Assemble SteadyStateDiffusion.
+[2] debug: Assemble SteadyStateDiffusion.
+[1] debug: Assemble SteadyStateDiffusion.
+[0] info: [time] Assembly took 0.0028916 s.
+[1] info: [time] Assembly took 0.00289207 s.
+[2] info: [time] Assembly took 0.00289213 s.
+[0] info: [time] Applying Dirichlet BCs took 0.000227611 s.
+[2] info: [time] Applying Dirichlet BCs took 0.000249945 s.
+[1] info: [time] Applying Dirichlet BCs took 0.000249567 s.
+[1] info: [time] Linear solver took 0.0049394 s.
+[2] info: [time] Linear solver took 0.00493946 s.
+
+================================================
+Linear solver bcgs with mg preconditioner
+converged in 15 iterations (relative convergence criterion fulfilled).
+================================================
+[0] info: [time] Linear solver took 0.0049821 s.
+[2] info: [time] Iteration #1 took 0.00816039 s.
+[0] info: [time] Iteration #1 took 0.00813947 s.
+[1] info: [time] Iteration #1 took 0.00816068 s.
+[1] info: [time] Solving process #0 took 0.00850492 s in time step #1 
+[0] info: [time] Solving process #0 took 0.00850708 s in time step #1 
+[2] info: [time] Solving process #0 took 0.00850432 s in time step #1 
+[2] info: [time] Time step #1 took 0.00875183 s.
+[2] debug: Process output data.
+[1] info: [time] Time step #1 took 0.00875223 s.
+[1] debug: Process output data.
+[0] info: [time] Time step #1 took 0.00874903 s.
+[0] debug: Process output data.
+[2] debug:   process variable pressure
+[1] debug:   process variable pressure
+[0] debug:   process variable pressure
+[1] debug:   secondary variable v
+[2] debug:   secondary variable v
+[0] debug:   secondary variable v
+[2] info: [time] Output of timestep 1 took 0.00182727 s.
+[2] info: The whole computation of the time stepping took 1 steps, in which
+	 the accepted steps are 1, and the rejected steps are 0.
+
+[2] info: [time] Execution took 0.0402821 s.
+[1] info: [time] Output of timestep 1 took 0.00183328 s.
+[1] info: The whole computation of the time stepping took 1 steps, in which
+	 the accepted steps are 1, and the rejected steps are 0.
+
+[1] info: [time] Execution took 0.0402877 s.
+[0] info: [time] Output of timestep 1 took 0.00187078 s.
+[0] info: The whole computation of the time stepping took 1 steps, in which
+	 the accepted steps are 1, and the rejected steps are 0.
+
+[0] info: [time] Execution took 0.040327 s.
+[0] info: [time] Output of XDMF to cube_1e3_np3_cube_1x1x1_hex_1e3.xdmf took 0.000106312 s.
+WARNING! There are options you set that were not used!
+WARNING! could be spelling mistake, etc!
+There is one unused database option. It is:
+Option left: name:-l value: debug
+[1] info: OGS terminated on 2021-09-15 15:32:44+0200.
+[2] info: OGS terminated on 2021-09-15 15:32:44+0200.
+[0] info: OGS terminated on 2021-09-15 15:32:44+0200.
