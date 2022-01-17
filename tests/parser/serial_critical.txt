@@ -1,0 +1,9 @@
+info: This is OpenGeoSys-6 version 6.4.1-91-g31c30ea65c.
+info: OGS started on 2021-11-02 16:36:59+0100.
+warning: Time step will be rejected due to nonlinear solver divergence.
+critical: /home/dominik/OGS/ogs/ProcessLib/TimeLoop.cpp:470 computeTimeStepping()
+error: The new step size of 86400 is the same as that of the previous rejected time step.
+Please re-run ogs with a proper adjustment in the numerical settings,
+e.g those for time stepper, local or global non-linear solver.
+info: OGS terminated on 2021-11-26 13:23:27+0100.
+error: OGS terminated with error.

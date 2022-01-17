@@ -1,0 +1,1654 @@
+info: This is OpenGeoSys-6 version 6.4.0-1629-gd2f1d5eac.dirty.
+info: OGS started on 2021-12-07 22:53:56+0100.
+info: FunctionParameter: nonequilibrium_stress
+info: ConstantParameter: displacement_ic
+info: ConstantParameter: b0
+info: ConstantParameter: b1
+info: ConstantParameter: e0
+info: ConstantParameter: e1
+info: ConstantParameter: e2
+info: ConstantParameter: ThermalConductivityClay
+info: ConstantParameter: IntrinsicPermClay
+info: ConstantParameter: IntrinsicPermClayEDZ
+info: ConstantParameter: E0
+info: ConstantParameter: nu0
+info: ConstantParameter: G0
+info: ConstantParameter: E1
+info: ConstantParameter: nu1
+info: ConstantParameter: E2
+info: ConstantParameter: nu2
+info: ConstantParameter: E3
+info: ConstantParameter: nu3
+info: ConstantParameter: G3
+info: ConstantParameter: E4
+info: ConstantParameter: nu4
+info: ConstantParameter: E5
+info: ConstantParameter: nu5
+info: ConstantParameter: E6
+info: ConstantParameter: nu6
+info: ConstantParameter: E7
+info: ConstantParameter: nu7
+info: ConstantParameter: E8
+info: ConstantParameter: nu8
+info: ConstantParameter: E9
+info: ConstantParameter: nu9
+info: ConstantParameter: E10
+info: ConstantParameter: nu10
+info: ConstantParameter: E11
+info: ConstantParameter: nu11
+info: ConstantParameter: E12
+info: ConstantParameter: nu12
+info: ConstantParameter: E13
+info: ConstantParameter: nu13
+info: ConstantParameter: E14
+info: ConstantParameter: nu14
+info: ConstantParameter: E15
+info: ConstantParameter: nu15
+info: ConstantParameter: E16
+info: ConstantParameter: nu16
+info: ConstantParameter: E17
+info: ConstantParameter: nu17
+info: ConstantParameter: temperature_ref
+info: ConstantParameter: displacement0
+info: ConstantParameter: null
+info: MeshNodeParameter: temperature_ic
+info: ConstantParameter: temperature_low
+info: ConstantParameter: temperature_high
+info: MeshNodeParameter: pressure_ic
+info: ConstantParameter: pressure_low
+info: ConstantParameter: pressure_high
+info: ConstantParameter: Qvalue
+info: CurveScaledParameter: temperature_source_term1
+info: CurveScaledParameter: temperature_source_term2
+info: CurveScaledParameter: temperature_source_term3
+info: No source terms for process variable 'pressure' found.
+info: No source terms for process variable 'temperature' found.
+info: Initialize processes.
+info: Solve processes.
+info: [time] Output of timestep 0 took 0.0479538 s.
+info: === Time stepping at step #1 and time 86400 with step size 86400
+info: Calculate non-equilibrium initial residuum.
+info: [time] Assembly took 0.229307 s.
+info: [time] Applying Dirichlet BCs took 0.00684125 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 57/10000
+info: 	 residual: 6.422864e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.64929 s.
+info: Convergence criterion, component 0: |dx|=5.6215e-01, |x|=3.6224e+04, |dx|/|x|=1.5519e-05
+info: Convergence criterion, component 1: |dx|=1.0572e+08, |x|=8.3394e+09, |dx|/|x|=1.2678e-02
+info: [time] Iteration #1 took 0.890726 s.
+info: [time] Assembly took 0.24373 s.
+info: [time] Applying Dirichlet BCs took 0.00492294 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 54/10000
+info: 	 residual: 5.892988e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.608529 s.
+info: Convergence criterion, component 0: |dx|=5.6087e-02, |x|=3.6224e+04, |dx|/|x|=1.5483e-06
+info: Convergence criterion, component 1: |dx|=3.8427e+06, |x|=8.3400e+09, |dx|/|x|=4.6076e-04
+info: [time] Iteration #2 took 0.862675 s.
+info: [time] Solving process #0 took 1.7535 s in time step #1 
+info: [time] Time step #1 took 1.83805 s.
+info: === Time stepping at step #2 and time 207360 with step size 120960
+info: [time] Assembly took 0.23388 s.
+info: [time] Applying Dirichlet BCs took 0.00625236 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 64/10000
+info: 	 residual: 3.158183e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.715322 s.
+info: Convergence criterion, component 0: |dx|=2.3178e-01, |x|=3.6224e+04, |dx|/|x|=6.3987e-06
+info: Convergence criterion, component 1: |dx|=1.3321e+08, |x|=8.3135e+09, |dx|/|x|=1.6024e-02
+info: [time] Iteration #1 took 0.960839 s.
+info: [time] Assembly took 0.248514 s.
+info: [time] Applying Dirichlet BCs took 0.00493765 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 27/10000
+info: 	 residual: 6.418510e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.314468 s.
+info: Convergence criterion, component 0: |dx|=7.1524e-02, |x|=3.6224e+04, |dx|/|x|=1.9745e-06
+info: Convergence criterion, component 1: |dx|=2.4506e+07, |x|=8.3141e+09, |dx|/|x|=2.9475e-03
+info: [time] Iteration #2 took 0.57334 s.
+info: [time] Assembly took 0.247412 s.
+info: [time] Applying Dirichlet BCs took 0.00595398 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 30/10000
+info: 	 residual: 9.454807e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.339891 s.
+info: Convergence criterion, component 0: |dx|=5.6575e-03, |x|=3.6224e+04, |dx|/|x|=1.5618e-07
+info: Convergence criterion, component 1: |dx|=3.4248e+06, |x|=8.3141e+09, |dx|/|x|=4.1193e-04
+info: [time] Iteration #3 took 0.598597 s.
+info: [time] Solving process #0 took 2.13373 s in time step #2 
+info: [time] Time step #2 took 2.2227 s.
+info: [time] Output of timestep 2 took 0.0167138 s.
+info: === Time stepping at step #3 and time 376704 with step size 169344
+info: [time] Assembly took 0.241988 s.
+info: [time] Applying Dirichlet BCs took 0.00666243 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 34/10000
+info: 	 residual: 9.574713e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.384436 s.
+info: Convergence criterion, component 0: |dx|=2.1301e-01, |x|=3.6224e+04, |dx|/|x|=5.8804e-06
+info: Convergence criterion, component 1: |dx|=1.4800e+08, |x|=8.2808e+09, |dx|/|x|=1.7872e-02
+info: [time] Iteration #1 took 0.638278 s.
+info: [time] Assembly took 0.248044 s.
+info: [time] Applying Dirichlet BCs took 0.00463255 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 33/10000
+info: 	 residual: 4.512615e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.382484 s.
+info: Convergence criterion, component 0: |dx|=9.9984e-02, |x|=3.6224e+04, |dx|/|x|=2.7602e-06
+info: Convergence criterion, component 1: |dx|=1.4119e+07, |x|=8.2824e+09, |dx|/|x|=1.7047e-03
+info: [time] Iteration #2 took 0.640598 s.
+info: [time] Assembly took 0.249962 s.
+info: [time] Applying Dirichlet BCs took 0.00706659 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 30/10000
+info: 	 residual: 6.268141e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.345895 s.
+info: Convergence criterion, component 0: |dx|=8.7223e-03, |x|=3.6224e+04, |dx|/|x|=2.4079e-07
+info: Convergence criterion, component 1: |dx|=2.7463e+05, |x|=8.2824e+09, |dx|/|x|=3.3158e-05
+info: [time] Iteration #3 took 0.608291 s.
+info: [time] Solving process #0 took 1.8881 s in time step #3 
+info: [time] Time step #3 took 1.97565 s.
+info: === Time stepping at step #4 and time 613786 with step size 237082
+info: [time] Assembly took 0.247671 s.
+info: [time] Applying Dirichlet BCs took 0.0074929 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 34/10000
+info: 	 residual: 7.667424e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.395315 s.
+info: Convergence criterion, component 0: |dx|=2.2582e-01, |x|=3.6224e+04, |dx|/|x|=6.2341e-06
+info: Convergence criterion, component 1: |dx|=1.8099e+08, |x|=8.2418e+09, |dx|/|x|=2.1960e-02
+info: [time] Iteration #1 took 0.655843 s.
+info: [time] Assembly took 0.25154 s.
+info: [time] Applying Dirichlet BCs took 0.00499193 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 6.333775e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.373545 s.
+info: Convergence criterion, component 0: |dx|=1.2853e-01, |x|=3.6224e+04, |dx|/|x|=3.5483e-06
+info: Convergence criterion, component 1: |dx|=2.2625e+07, |x|=8.2443e+09, |dx|/|x|=2.7443e-03
+info: [time] Iteration #2 took 0.635634 s.
+info: [time] Assembly took 0.250362 s.
+info: [time] Applying Dirichlet BCs took 0.00652274 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 31/10000
+info: 	 residual: 9.026091e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.35343 s.
+info: Convergence criterion, component 0: |dx|=1.3838e-02, |x|=3.6224e+04, |dx|/|x|=3.8201e-07
+info: Convergence criterion, component 1: |dx|=9.8567e+05, |x|=8.2443e+09, |dx|/|x|=1.1956e-04
+info: [time] Iteration #3 took 0.615715 s.
+info: [time] Solving process #0 took 1.90803 s in time step #4 
+info: [time] Time step #4 took 1.99533 s.
+info: [time] Output of timestep 4 took 0.017558 s.
+info: === Time stepping at step #5 and time 945700 with step size 331914
+info: [time] Assembly took 0.241391 s.
+info: [time] Applying Dirichlet BCs took 0.00688703 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 36/10000
+info: 	 residual: 8.370056e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.415771 s.
+info: Convergence criterion, component 0: |dx|=2.4803e-01, |x|=3.6224e+04, |dx|/|x|=6.8472e-06
+info: Convergence criterion, component 1: |dx|=2.1459e+08, |x|=8.1951e+09, |dx|/|x|=2.6186e-02
+info: [time] Iteration #1 took 0.669515 s.
+info: [time] Assembly took 0.252511 s.
+info: [time] Applying Dirichlet BCs took 0.00494538 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 8.477541e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.405518 s.
+info: Convergence criterion, component 0: |dx|=1.5922e-01, |x|=3.6224e+04, |dx|/|x|=4.3955e-06
+info: Convergence criterion, component 1: |dx|=3.0409e+07, |x|=8.1987e+09, |dx|/|x|=3.7090e-03
+info: [time] Iteration #2 took 0.668397 s.
+info: [time] Assembly took 0.252526 s.
+info: [time] Applying Dirichlet BCs took 0.00649958 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 33/10000
+info: 	 residual: 8.845507e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.379441 s.
+info: Convergence criterion, component 0: |dx|=1.9355e-02, |x|=3.6224e+04, |dx|/|x|=5.3431e-07
+info: Convergence criterion, component 1: |dx|=1.8638e+06, |x|=8.1988e+09, |dx|/|x|=2.2732e-04
+info: [time] Iteration #3 took 0.643949 s.
+info: [time] Solving process #0 took 1.98272 s in time step #5 
+info: [time] Time step #5 took 2.07189 s.
+info: === Time stepping at step #6 and time 1.41038e+06 with step size 464680
+info: [time] Assembly took 0.244044 s.
+info: [time] Applying Dirichlet BCs took 0.00705139 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 38/10000
+info: 	 residual: 5.898202e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.432034 s.
+info: Convergence criterion, component 0: |dx|=2.7364e-01, |x|=3.6224e+04, |dx|/|x|=7.5543e-06
+info: Convergence criterion, component 1: |dx|=2.6427e+08, |x|=8.1386e+09, |dx|/|x|=3.2471e-02
+info: [time] Iteration #1 took 0.688722 s.
+info: [time] Assembly took 0.253192 s.
+info: [time] Applying Dirichlet BCs took 0.00486559 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 42/10000
+info: 	 residual: 8.341572e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.478211 s.
+info: Convergence criterion, component 0: |dx|=4.0170e-01, |x|=3.6224e+04, |dx|/|x|=1.1090e-05
+info: Convergence criterion, component 1: |dx|=6.2974e+07, |x|=8.1436e+09, |dx|/|x|=7.7329e-03
+info: [time] Iteration #2 took 0.741701 s.
+info: [time] Assembly took 0.259139 s.
+info: [time] Applying Dirichlet BCs took 0.00726465 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 44/10000
+info: 	 residual: 6.921931e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.623298 s.
+info: Convergence criterion, component 0: |dx|=3.6393e-01, |x|=3.6224e+04, |dx|/|x|=1.0047e-05
+info: Convergence criterion, component 1: |dx|=2.2169e+07, |x|=8.1437e+09, |dx|/|x|=2.7222e-03
+info: [time] Iteration #3 took 0.89793 s.
+info: [time] Assembly took 0.392507 s.
+info: [time] Applying Dirichlet BCs took 0.00742594 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 37/10000
+info: 	 residual: 4.418392e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.588674 s.
+info: Convergence criterion, component 0: |dx|=1.7344e-02, |x|=3.6224e+04, |dx|/|x|=4.7880e-07
+info: Convergence criterion, component 1: |dx|=1.8936e+07, |x|=8.1437e+09, |dx|/|x|=2.3252e-03
+info: [time] Iteration #4 took 0.997336 s.
+info: [time] Assembly took 0.409433 s.
+info: [time] Applying Dirichlet BCs took 0.00989139 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 9.598818e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.624386 s.
+info: Convergence criterion, component 0: |dx|=4.5365e-02, |x|=3.6224e+04, |dx|/|x|=1.2524e-06
+info: Convergence criterion, component 1: |dx|=1.3123e+08, |x|=8.1444e+09, |dx|/|x|=1.6112e-02
+info: [time] Iteration #5 took 1.05239 s.
+info: [time] Assembly took 0.402945 s.
+info: [time] Applying Dirichlet BCs took 0.00750294 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 43/10000
+info: 	 residual: 9.702761e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.686493 s.
+info: Convergence criterion, component 0: |dx|=4.3691e+00, |x|=3.6225e+04, |dx|/|x|=1.2061e-04
+info: Convergence criterion, component 1: |dx|=1.1838e+08, |x|=8.1437e+09, |dx|/|x|=1.4537e-02
+info: [time] Iteration #6 took 1.10557 s.
+info: [time] Assembly took 0.402503 s.
+info: [time] Applying Dirichlet BCs took 0.00984768 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 44/10000
+info: 	 residual: 4.804565e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.691552 s.
+info: Convergence criterion, component 0: |dx|=4.3637e+00, |x|=3.6224e+04, |dx|/|x|=1.2047e-04
+info: Convergence criterion, component 1: |dx|=4.2738e+07, |x|=8.1438e+09, |dx|/|x|=5.2479e-03
+info: [time] Iteration #7 took 1.1126 s.
+info: [time] Assembly took 0.406675 s.
+info: [time] Applying Dirichlet BCs took 0.00735678 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 8.776326e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.610585 s.
+info: Convergence criterion, component 0: |dx|=4.0852e-02, |x|=3.6224e+04, |dx|/|x|=1.1278e-06
+info: Convergence criterion, component 1: |dx|=5.8986e+07, |x|=8.1438e+09, |dx|/|x|=7.2431e-03
+info: [time] Iteration #8 took 1.0337 s.
+info: [time] Assembly took 0.399673 s.
+info: [time] Applying Dirichlet BCs took 0.00949297 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 41/10000
+info: 	 residual: 2.674765e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.651392 s.
+info: Convergence criterion, component 0: |dx|=6.5949e-02, |x|=3.6224e+04, |dx|/|x|=1.8206e-06
+info: Convergence criterion, component 1: |dx|=4.3958e+07, |x|=8.1436e+09, |dx|/|x|=5.3978e-03
+info: [time] Iteration #9 took 1.06918 s.
+info: [time] Assembly took 0.401182 s.
+info: [time] Applying Dirichlet BCs took 0.00739258 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 8.765584e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.634812 s.
+info: Convergence criterion, component 0: |dx|=5.7123e-02, |x|=3.6224e+04, |dx|/|x|=1.5770e-06
+info: Convergence criterion, component 1: |dx|=2.7360e+07, |x|=8.1437e+09, |dx|/|x|=3.3597e-03
+info: [time] Iteration #10 took 1.05191 s.
+info: [time] Assembly took 0.404481 s.
+info: [time] Applying Dirichlet BCs took 0.00949814 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 6.867052e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.613398 s.
+info: Convergence criterion, component 0: |dx|=2.0971e-02, |x|=3.6224e+04, |dx|/|x|=5.7893e-07
+info: Convergence criterion, component 1: |dx|=3.7825e+07, |x|=8.1436e+09, |dx|/|x|=4.6447e-03
+info: [time] Iteration #11 took 1.03583 s.
+info: [time] Assembly took 0.397981 s.
+info: [time] Applying Dirichlet BCs took 0.00714688 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 2.814055e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.626129 s.
+info: Convergence criterion, component 0: |dx|=1.1371e-01, |x|=3.6224e+04, |dx|/|x|=3.1391e-06
+info: Convergence criterion, component 1: |dx|=3.7727e+07, |x|=8.1436e+09, |dx|/|x|=4.6327e-03
+info: [time] Iteration #12 took 1.0398 s.
+info: [time] Solving process #0 took 11.8273 s in time step #6 
+error: The nonlinear solver failed in time step #6 at t = 1.41038e+06 s for process #0.
+info: [time] Time step #6 took 11.8274 s.
+warning: Time step will be rejected due to nonlinear solver divergence.
+warning: Time step 6 was rejected 1 times and it will be repeated with a reduced step size.
+info: === Time stepping at step #6 and time 1.17804e+06 with step size 232340
+info: [time] Assembly took 0.399553 s.
+info: [time] Applying Dirichlet BCs took 0.0108995 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 4.577547e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.500765 s.
+info: Convergence criterion, component 0: |dx|=1.4244e-01, |x|=3.6224e+04, |dx|/|x|=3.9323e-06
+info: Convergence criterion, component 1: |dx|=1.2703e+08, |x|=8.1688e+09, |dx|/|x|=1.5551e-02
+info: [time] Iteration #1 took 0.919669 s.
+info: [time] Assembly took 0.39529 s.
+info: [time] Applying Dirichlet BCs took 0.00731874 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 31/10000
+info: 	 residual: 8.518624e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.48305 s.
+info: Convergence criterion, component 0: |dx|=8.4660e-02, |x|=3.6224e+04, |dx|/|x|=2.3372e-06
+info: Convergence criterion, component 1: |dx|=1.3254e+07, |x|=8.1703e+09, |dx|/|x|=1.6223e-03
+info: [time] Iteration #2 took 0.894187 s.
+info: [time] Assembly took 0.395329 s.
+info: [time] Applying Dirichlet BCs took 0.00947286 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 5.291524e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.501895 s.
+info: Convergence criterion, component 0: |dx|=7.7450e-03, |x|=3.6224e+04, |dx|/|x|=2.1381e-07
+info: Convergence criterion, component 1: |dx|=3.0491e+06, |x|=8.1703e+09, |dx|/|x|=3.7320e-04
+info: [time] Iteration #3 took 0.915115 s.
+info: [time] Solving process #0 took 2.73035 s in time step #6 
+info: [time] Time step #6 took 2.87033 s.
+info: [time] Output of timestep 6 took 0.0255757 s.
+info: === Time stepping at step #7 and time 1.50332e+06 with step size 325276
+info: [time] Assembly took 0.438241 s.
+info: [time] Applying Dirichlet BCs took 0.0104643 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 33/10000
+info: 	 residual: 9.775209e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.501148 s.
+info: Convergence criterion, component 0: |dx|=1.7044e-01, |x|=3.6224e+04, |dx|/|x|=4.7052e-06
+info: Convergence criterion, component 1: |dx|=1.6689e+08, |x|=8.1314e+09, |dx|/|x|=2.0524e-02
+info: [time] Iteration #1 took 0.958033 s.
+info: [time] Assembly took 0.389008 s.
+info: [time] Applying Dirichlet BCs took 0.00712704 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 36/10000
+info: 	 residual: 7.819552e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.573218 s.
+info: Convergence criterion, component 0: |dx|=1.2597e-01, |x|=3.6224e+04, |dx|/|x|=3.4777e-06
+info: Convergence criterion, component 1: |dx|=9.8595e+07, |x|=8.1337e+09, |dx|/|x|=1.2122e-02
+info: [time] Iteration #2 took 0.977829 s.
+info: [time] Assembly took 0.397642 s.
+info: [time] Applying Dirichlet BCs took 0.00954944 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 37/10000
+info: 	 residual: 9.314862e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.569427 s.
+info: Convergence criterion, component 0: |dx|=4.5738e-01, |x|=3.6224e+04, |dx|/|x|=1.2627e-05
+info: Convergence criterion, component 1: |dx|=5.2861e+07, |x|=8.1336e+09, |dx|/|x|=6.4991e-03
+info: [time] Iteration #3 took 0.985116 s.
+info: [time] Assembly took 0.393093 s.
+info: [time] Applying Dirichlet BCs took 0.00713468 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 4.172611e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.633211 s.
+info: Convergence criterion, component 0: |dx|=4.5063e-01, |x|=3.6224e+04, |dx|/|x|=1.2440e-05
+info: Convergence criterion, component 1: |dx|=5.6517e+06, |x|=8.1336e+09, |dx|/|x|=6.9486e-04
+info: [time] Iteration #4 took 1.04194 s.
+info: [time] Solving process #0 took 3.96372 s in time step #7 
+info: [time] Time step #7 took 4.10418 s.
+info: === Time stepping at step #8 and time 1.9587e+06 with step size 455386
+info: [time] Assembly took 0.379819 s.
+info: [time] Applying Dirichlet BCs took 0.0106987 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 6.826312e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.594508 s.
+info: Convergence criterion, component 0: |dx|=3.2147e-01, |x|=3.6224e+04, |dx|/|x|=8.8747e-06
+info: Convergence criterion, component 1: |dx|=6.4237e+08, |x|=8.1076e+09, |dx|/|x|=7.9230e-02
+info: [time] Iteration #1 took 0.993502 s.
+info: [time] Assembly took 0.398946 s.
+info: [time] Applying Dirichlet BCs took 0.00730728 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 6.590429e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.620046 s.
+info: Convergence criterion, component 0: |dx|=8.4033e-01, |x|=3.6224e+04, |dx|/|x|=2.3199e-05
+info: Convergence criterion, component 1: |dx|=1.6409e+09, |x|=8.1496e+09, |dx|/|x|=2.0135e-01
+info: [time] Iteration #2 took 1.03482 s.
+info: [time] Assembly took 0.404981 s.
+info: [time] Applying Dirichlet BCs took 0.00992845 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 8.907663e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.651683 s.
+info: Convergence criterion, component 0: |dx|=2.0208e+01, |x|=3.6218e+04, |dx|/|x|=5.5795e-04
+info: Convergence criterion, component 1: |dx|=1.0157e+09, |x|=8.0867e+09, |dx|/|x|=1.2560e-01
+info: [time] Iteration #3 took 1.07821 s.
+info: [time] Assembly took 0.433973 s.
+info: [time] Applying Dirichlet BCs took 0.00751913 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 43/10000
+info: 	 residual: 9.525422e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.737511 s.
+info: Convergence criterion, component 0: |dx|=2.0217e+01, |x|=3.6224e+04, |dx|/|x|=5.5811e-04
+info: Convergence criterion, component 1: |dx|=1.7780e+07, |x|=8.0868e+09, |dx|/|x|=2.1987e-03
+info: [time] Iteration #4 took 1.18858 s.
+info: [time] Assembly took 0.435356 s.
+info: [time] Applying Dirichlet BCs took 0.0107866 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 38/10000
+info: 	 residual: 4.937952e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.643814 s.
+info: Convergence criterion, component 0: |dx|=1.0259e-02, |x|=3.6224e+04, |dx|/|x|=2.8321e-07
+info: Convergence criterion, component 1: |dx|=5.4677e+06, |x|=8.0867e+09, |dx|/|x|=6.7614e-04
+info: [time] Iteration #5 took 1.09901 s.
+info: [time] Solving process #0 took 5.39552 s in time step #8 
+info: [time] Time step #8 took 5.56327 s.
+info: [time] Output of timestep 8 took 0.0252806 s.
+info: === Time stepping at step #9 and time 2.41409e+06 with step size 455386
+info: [time] Assembly took 0.395775 s.
+info: [time] Applying Dirichlet BCs took 0.0104509 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 1.578095e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.618294 s.
+info: Convergence criterion, component 0: |dx|=1.6921e-01, |x|=3.6224e+04, |dx|/|x|=4.6711e-06
+info: Convergence criterion, component 1: |dx|=1.8991e+08, |x|=8.0405e+09, |dx|/|x|=2.3620e-02
+info: [time] Iteration #1 took 1.03371 s.
+info: [time] Assembly took 0.456678 s.
+info: [time] Applying Dirichlet BCs took 0.00753743 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 50/10000
+info: 	 residual: 9.791128e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.829314 s.
+info: Convergence criterion, component 0: |dx|=1.3333e-01, |x|=3.6224e+04, |dx|/|x|=3.6808e-06
+info: Convergence criterion, component 1: |dx|=5.7806e+07, |x|=8.0440e+09, |dx|/|x|=7.1862e-03
+info: [time] Iteration #2 took 1.30209 s.
+info: [time] Assembly took 0.423893 s.
+info: [time] Applying Dirichlet BCs took 0.00982219 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 45/10000
+info: 	 residual: 2.076446e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.782542 s.
+info: Convergence criterion, component 0: |dx|=2.9515e-01, |x|=3.6224e+04, |dx|/|x|=8.1479e-06
+info: Convergence criterion, component 1: |dx|=5.2840e+07, |x|=8.0439e+09, |dx|/|x|=6.5689e-03
+info: [time] Iteration #3 took 1.2252 s.
+info: [time] Assembly took 0.405269 s.
+info: [time] Applying Dirichlet BCs took 0.00724918 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 44/10000
+info: 	 residual: 9.953902e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.71313 s.
+info: Convergence criterion, component 0: |dx|=2.9258e-01, |x|=3.6224e+04, |dx|/|x|=8.0770e-06
+info: Convergence criterion, component 1: |dx|=1.8542e+07, |x|=8.0440e+09, |dx|/|x|=2.3050e-03
+info: [time] Iteration #4 took 1.13422 s.
+info: [time] Assembly took 0.397835 s.
+info: [time] Applying Dirichlet BCs took 0.00953633 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 41/10000
+info: 	 residual: 5.402619e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.64413 s.
+info: Convergence criterion, component 0: |dx|=2.9287e-02, |x|=3.6224e+04, |dx|/|x|=8.0851e-07
+info: Convergence criterion, component 1: |dx|=8.3829e+07, |x|=8.0446e+09, |dx|/|x|=1.0421e-02
+info: [time] Iteration #5 took 1.06042 s.
+info: [time] Assembly took 0.396156 s.
+info: [time] Applying Dirichlet BCs took 0.00710167 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 38/10000
+info: 	 residual: 7.047271e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.641592 s.
+info: Convergence criterion, component 0: |dx|=2.5024e-01, |x|=3.6224e+04, |dx|/|x|=6.9081e-06
+info: Convergence criterion, component 1: |dx|=5.1686e+08, |x|=8.0552e+09, |dx|/|x|=6.4164e-02
+info: [time] Iteration #6 took 1.05368 s.
+info: [time] Assembly took 0.434126 s.
+info: [time] Applying Dirichlet BCs took 0.01055 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 41/10000
+info: 	 residual: 2.957127e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.764559 s.
+info: Convergence criterion, component 0: |dx|=1.4438e+01, |x|=3.6219e+04, |dx|/|x|=3.9862e-04
+info: Convergence criterion, component 1: |dx|=4.2684e+08, |x|=8.0440e+09, |dx|/|x|=5.3063e-02
+info: [time] Iteration #7 took 1.21957 s.
+info: [time] Assembly took 0.454995 s.
+info: [time] Applying Dirichlet BCs took 0.00760243 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 42/10000
+info: 	 residual: 9.139302e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.69527 s.
+info: Convergence criterion, component 0: |dx|=1.4462e+01, |x|=3.6224e+04, |dx|/|x|=3.9924e-04
+info: Convergence criterion, component 1: |dx|=3.4744e+06, |x|=8.0440e+09, |dx|/|x|=4.3192e-04
+info: [time] Iteration #8 took 1.16661 s.
+info: [time] Solving process #0 took 9.1963 s in time step #9 
+info: [time] Time step #9 took 9.33971 s.
+info: === Time stepping at step #10 and time 2.86947e+06 with step size 455386
+info: [time] Assembly took 0.383848 s.
+info: [time] Applying Dirichlet BCs took 0.0104821 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 7.725154e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.623074 s.
+info: Convergence criterion, component 0: |dx|=2.1733e-01, |x|=3.6224e+04, |dx|/|x|=5.9997e-06
+info: Convergence criterion, component 1: |dx|=4.3557e+08, |x|=8.0102e+09, |dx|/|x|=5.4377e-02
+info: [time] Iteration #1 took 1.02597 s.
+info: [time] Assembly took 0.397036 s.
+info: [time] Applying Dirichlet BCs took 0.00724633 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 49/10000
+info: 	 residual: 2.821494e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.778303 s.
+info: Convergence criterion, component 0: |dx|=1.3432e+01, |x|=3.6220e+04, |dx|/|x|=3.7084e-04
+info: Convergence criterion, component 1: |dx|=3.8580e+08, |x|=8.0042e+09, |dx|/|x|=4.8200e-02
+info: [time] Iteration #2 took 1.19109 s.
+info: [time] Assembly took 0.396069 s.
+info: [time] Applying Dirichlet BCs took 0.00969804 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 60/10000
+info: 	 residual: 3.813423e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.94528 s.
+info: Convergence criterion, component 0: |dx|=1.4383e+01, |x|=3.6224e+04, |dx|/|x|=3.9705e-04
+info: Convergence criterion, component 1: |dx|=2.2072e+09, |x|=8.2890e+09, |dx|/|x|=2.6628e-01
+info: [time] Iteration #3 took 1.35949 s.
+info: [time] Assembly took 0.398378 s.
+info: [time] Applying Dirichlet BCs took 0.00710696 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 49/10000
+info: 	 residual: 8.708149e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.769061 s.
+info: Convergence criterion, component 0: |dx|=1.7178e+02, |x|=3.6277e+04, |dx|/|x|=4.7352e-03
+info: Convergence criterion, component 1: |dx|=3.0885e+09, |x|=8.2349e+09, |dx|/|x|=3.7506e-01
+info: [time] Iteration #4 took 1.18331 s.
+info: [time] Assembly took 0.399066 s.
+info: [time] Applying Dirichlet BCs took 0.00954084 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 89/10000
+info: 	 residual: 4.941597e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.41299 s.
+info: Convergence criterion, component 0: |dx|=7.8062e+02, |x|=3.6033e+04, |dx|/|x|=2.1664e-02
+info: Convergence criterion, component 1: |dx|=1.9688e+09, |x|=8.0024e+09, |dx|/|x|=2.4602e-01
+info: [time] Iteration #5 took 1.83044 s.
+info: [time] Assembly took 0.399867 s.
+info: [time] Applying Dirichlet BCs took 0.00748963 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 79/10000
+info: 	 residual: 2.706591e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.25762 s.
+info: Convergence criterion, component 0: |dx|=6.2453e+02, |x|=3.6224e+04, |dx|/|x|=1.7241e-02
+info: Convergence criterion, component 1: |dx|=2.9428e+08, |x|=8.0064e+09, |dx|/|x|=3.6756e-02
+info: [time] Iteration #6 took 1.67384 s.
+info: [time] Assembly took 0.399117 s.
+info: [time] Applying Dirichlet BCs took 0.00941814 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 56/10000
+info: 	 residual: 9.484738e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.899059 s.
+info: Convergence criterion, component 0: |dx|=5.8990e+00, |x|=3.6224e+04, |dx|/|x|=1.6284e-04
+info: Convergence criterion, component 1: |dx|=4.0946e+08, |x|=8.0054e+09, |dx|/|x|=5.1148e-02
+info: [time] Iteration #7 took 1.31601 s.
+info: [time] Assembly took 0.401001 s.
+info: [time] Applying Dirichlet BCs took 0.0073584 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 67/10000
+info: 	 residual: 8.361884e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.07221 s.
+info: Convergence criterion, component 0: |dx|=4.1593e+02, |x|=3.6096e+04, |dx|/|x|=1.1523e-02
+info: Convergence criterion, component 1: |dx|=1.4838e+10, |x|=1.6805e+10, |dx|/|x|=8.8296e-01
+info: [time] Iteration #8 took 1.48922 s.
+info: [time] Assembly took 0.399256 s.
+info: [time] Applying Dirichlet BCs took 0.00961422 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 67/10000
+info: 	 residual: 8.860224e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.05646 s.
+info: Convergence criterion, component 0: |dx|=1.1684e+04, |x|=4.1178e+04, |dx|/|x|=2.8375e-01
+info: Convergence criterion, component 1: |dx|=1.5054e+10, |x|=8.3803e+09, |dx|/|x|=1.7964e+00
+info: [time] Iteration #9 took 1.47378 s.
+info: [time] Assembly took 0.394676 s.
+info: [time] Applying Dirichlet BCs took 0.00746417 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 338/10000
+info: 	 residual: 8.336222e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 5.43313 s.
+info: Convergence criterion, component 0: |dx|=1.4198e+04, |x|=3.5440e+04, |dx|/|x|=4.0063e-01
+info: Convergence criterion, component 1: |dx|=7.7242e+10, |x|=7.7698e+10, |dx|/|x|=9.9414e-01
+info: [time] Iteration #10 took 5.84426 s.
+info: [time] Assembly took 0.3999 s.
+info: [time] Applying Dirichlet BCs took 0.00964079 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 10000/10000
+info: 	 residual: nan
+
+error: Failed during Eigen linear solve
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 142.758 s.
+error: Newton: The linear solver failed.
+info: [time] Solving process #0 took 161.556 s in time step #10 
+error: The nonlinear solver failed in time step #10 at t = 2.86947e+06 s for process #0.
+info: [time] Time step #10 took 161.556 s.
+warning: Time step will be rejected due to nonlinear solver divergence.
+warning: Time step 10 was rejected 1 times and it will be repeated with a reduced step size.
+info: === Time stepping at step #10 and time 2.64178e+06 with step size 227693
+info: [time] Assembly took 0.40345 s.
+info: [time] Applying Dirichlet BCs took 0.0110637 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 29/10000
+info: 	 residual: 8.920024e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.450036 s.
+info: Convergence criterion, component 0: |dx|=7.1785e-02, |x|=3.6224e+04, |dx|/|x|=1.9817e-06
+info: Convergence criterion, component 1: |dx|=8.5218e+07, |x|=8.0232e+09, |dx|/|x|=1.0621e-02
+info: [time] Iteration #1 took 0.872718 s.
+info: [time] Assembly took 0.385176 s.
+info: [time] Applying Dirichlet BCs took 0.00710531 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 30/10000
+info: 	 residual: 7.043035e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.467375 s.
+info: Convergence criterion, component 0: |dx|=5.0739e-02, |x|=3.6224e+04, |dx|/|x|=1.4007e-06
+info: Convergence criterion, component 1: |dx|=5.6310e+06, |x|=8.0240e+09, |dx|/|x|=7.0178e-04
+info: [time] Iteration #2 took 0.868068 s.
+info: [time] Solving process #0 took 1.74152 s in time step #10 
+info: [time] Time step #10 took 1.87741 s.
+info: [time] Output of timestep 10 took 0.0228315 s.
+info: === Time stepping at step #11 and time 2.96055e+06 with step size 318770
+info: [time] Assembly took 0.369178 s.
+info: [time] Applying Dirichlet BCs took 0.010537 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 36/10000
+info: 	 residual: 2.619924e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.535602 s.
+info: Convergence criterion, component 0: |dx|=9.5477e-02, |x|=3.6224e+04, |dx|/|x|=2.6358e-06
+info: Convergence criterion, component 1: |dx|=1.1520e+08, |x|=7.9954e+09, |dx|/|x|=1.4408e-02
+info: [time] Iteration #1 took 0.9236 s.
+info: [time] Assembly took 0.391193 s.
+info: [time] Applying Dirichlet BCs took 0.00708263 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 34/10000
+info: 	 residual: 6.411552e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.523513 s.
+info: Convergence criterion, component 0: |dx|=7.1830e-02, |x|=3.6224e+04, |dx|/|x|=1.9829e-06
+info: Convergence criterion, component 1: |dx|=1.3609e+07, |x|=7.9968e+09, |dx|/|x|=1.7019e-03
+info: [time] Iteration #2 took 0.930132 s.
+info: [time] Assembly took 0.388416 s.
+info: [time] Applying Dirichlet BCs took 0.00956139 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 37/10000
+info: 	 residual: 7.915251e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.566542 s.
+info: Convergence criterion, component 0: |dx|=6.6981e-03, |x|=3.6224e+04, |dx|/|x|=1.8491e-07
+info: Convergence criterion, component 1: |dx|=8.9028e+06, |x|=7.9968e+09, |dx|/|x|=1.1133e-03
+info: [time] Iteration #3 took 0.973145 s.
+info: [time] Assembly took 0.395758 s.
+info: [time] Applying Dirichlet BCs took 0.00728552 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 8.210655e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.533224 s.
+info: Convergence criterion, component 0: |dx|=7.2029e-03, |x|=3.6224e+04, |dx|/|x|=1.9885e-07
+info: Convergence criterion, component 1: |dx|=2.4728e+07, |x|=7.9968e+09, |dx|/|x|=3.0923e-03
+info: [time] Iteration #4 took 0.944555 s.
+info: [time] Assembly took 0.389124 s.
+info: [time] Applying Dirichlet BCs took 0.0100079 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 36/10000
+info: 	 residual: 5.541623e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.547375 s.
+info: Convergence criterion, component 0: |dx|=4.6542e-02, |x|=3.6224e+04, |dx|/|x|=1.2848e-06
+info: Convergence criterion, component 1: |dx|=2.6027e+07, |x|=7.9967e+09, |dx|/|x|=3.2547e-03
+info: [time] Iteration #5 took 0.955017 s.
+info: [time] Assembly took 0.394085 s.
+info: [time] Applying Dirichlet BCs took 0.00711684 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 37/10000
+info: 	 residual: 4.868910e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.564201 s.
+info: Convergence criterion, component 0: |dx|=4.4664e-02, |x|=3.6224e+04, |dx|/|x|=1.2330e-06
+info: Convergence criterion, component 1: |dx|=1.5176e+07, |x|=7.9968e+09, |dx|/|x|=1.8978e-03
+info: [time] Iteration #6 took 0.973708 s.
+info: [time] Assembly took 0.391467 s.
+info: [time] Applying Dirichlet BCs took 0.00987135 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 44/10000
+info: 	 residual: 2.179793e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.684971 s.
+info: Convergence criterion, component 0: |dx|=1.2563e-02, |x|=3.6224e+04, |dx|/|x|=3.4682e-07
+info: Convergence criterion, component 1: |dx|=1.4438e+07, |x|=7.9968e+09, |dx|/|x|=1.8055e-03
+info: [time] Iteration #7 took 1.0949 s.
+info: [time] Assembly took 0.392809 s.
+info: [time] Applying Dirichlet BCs took 0.00728786 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 9.586310e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.609786 s.
+info: Convergence criterion, component 0: |dx|=1.2552e-02, |x|=3.6224e+04, |dx|/|x|=3.4650e-07
+info: Convergence criterion, component 1: |dx|=1.2253e+07, |x|=7.9968e+09, |dx|/|x|=1.5323e-03
+info: [time] Iteration #8 took 1.01845 s.
+info: [time] Assembly took 0.393477 s.
+info: [time] Applying Dirichlet BCs took 0.00945839 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 40/10000
+info: 	 residual: 7.691983e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.614597 s.
+info: Convergence criterion, component 0: |dx|=4.9089e-03, |x|=3.6224e+04, |dx|/|x|=1.3552e-07
+info: Convergence criterion, component 1: |dx|=1.5088e+07, |x|=7.9968e+09, |dx|/|x|=1.8868e-03
+info: [time] Iteration #9 took 1.02615 s.
+info: [time] Assembly took 0.431021 s.
+info: [time] Applying Dirichlet BCs took 0.00775071 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 38/10000
+info: 	 residual: 8.951584e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.602475 s.
+info: Convergence criterion, component 0: |dx|=1.2216e-02, |x|=3.6224e+04, |dx|/|x|=3.3725e-07
+info: Convergence criterion, component 1: |dx|=4.1768e+07, |x|=7.9970e+09, |dx|/|x|=5.2230e-03
+info: [time] Iteration #10 took 1.05012 s.
+info: [time] Assembly took 0.3948 s.
+info: [time] Applying Dirichlet BCs took 0.00952456 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 9.796769e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.540102 s.
+info: Convergence criterion, component 0: |dx|=1.1831e-01, |x|=3.6224e+04, |dx|/|x|=3.2660e-06
+info: Convergence criterion, component 1: |dx|=2.4867e+08, |x|=7.9995e+09, |dx|/|x|=3.1085e-02
+info: [time] Iteration #11 took 0.952551 s.
+info: [time] Assembly took 0.39471 s.
+info: [time] Applying Dirichlet BCs took 0.00724971 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 41/10000
+info: 	 residual: 3.477196e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.63655 s.
+info: Convergence criterion, component 0: |dx|=9.6083e+00, |x|=3.6221e+04, |dx|/|x|=2.6527e-04
+info: Convergence criterion, component 1: |dx|=5.0141e+08, |x|=8.0075e+09, |dx|/|x|=6.2617e-02
+info: [time] Iteration #12 took 1.04709 s.
+info: [time] Solving process #0 took 11.8907 s in time step #11 
+error: The nonlinear solver failed in time step #11 at t = 2.96055e+06 s for process #0.
+info: [time] Time step #11 took 11.8908 s.
+warning: Time step will be rejected due to nonlinear solver divergence.
+warning: Time step 11 was rejected 1 times and it will be repeated with a reduced step size.
+info: === Time stepping at step #11 and time 2.80117e+06 with step size 159385
+info: [time] Assembly took 0.396625 s.
+info: [time] Applying Dirichlet BCs took 0.0110059 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 29/10000
+info: 	 residual: 9.641519e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.44637 s.
+info: Convergence criterion, component 0: |dx|=4.7516e-02, |x|=3.6224e+04, |dx|/|x|=1.3117e-06
+info: Convergence criterion, component 1: |dx|=5.6176e+07, |x|=8.0100e+09, |dx|/|x|=7.0132e-03
+info: [time] Iteration #1 took 0.862368 s.
+info: [time] Assembly took 0.388334 s.
+info: [time] Applying Dirichlet BCs took 0.00730171 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 28/10000
+info: 	 residual: 7.629213e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.438159 s.
+info: Convergence criterion, component 0: |dx|=3.1481e-02, |x|=3.6224e+04, |dx|/|x|=8.6907e-07
+info: Convergence criterion, component 1: |dx|=2.6270e+06, |x|=8.0103e+09, |dx|/|x|=3.2795e-04
+info: [time] Iteration #2 took 0.842075 s.
+info: [time] Solving process #0 took 1.70526 s in time step #11 
+info: [time] Time step #11 took 1.84068 s.
+info: === Time stepping at step #12 and time 3.02431e+06 with step size 223139
+info: [time] Assembly took 0.374342 s.
+info: [time] Applying Dirichlet BCs took 0.010335 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 29/10000
+info: 	 residual: 5.670410e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.438343 s.
+info: Convergence criterion, component 0: |dx|=6.2627e-02, |x|=3.6224e+04, |dx|/|x|=1.7289e-06
+info: Convergence criterion, component 1: |dx|=7.7407e+07, |x|=7.9910e+09, |dx|/|x|=9.6869e-03
+info: [time] Iteration #1 took 0.831295 s.
+info: [time] Assembly took 0.387664 s.
+info: [time] Applying Dirichlet BCs took 0.00732031 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 5.779980e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.489176 s.
+info: Convergence criterion, component 0: |dx|=4.5375e-02, |x|=3.6224e+04, |dx|/|x|=1.2526e-06
+info: Convergence criterion, component 1: |dx|=4.6339e+06, |x|=7.9916e+09, |dx|/|x|=5.7984e-04
+info: [time] Iteration #2 took 0.89235 s.
+info: [time] Solving process #0 took 1.72439 s in time step #12 
+info: [time] Time step #12 took 1.86072 s.
+info: [time] Output of timestep 12 took 0.0232578 s.
+info: === Time stepping at step #13 and time 3.3367e+06 with step size 312395
+info: [time] Assembly took 0.372362 s.
+info: [time] Applying Dirichlet BCs took 0.0100449 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 8.357766e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.486857 s.
+info: Convergence criterion, component 0: |dx|=8.4077e-02, |x|=3.6224e+04, |dx|/|x|=2.3211e-06
+info: Convergence criterion, component 1: |dx|=1.0628e+08, |x|=7.9649e+09, |dx|/|x|=1.3344e-02
+info: [time] Iteration #1 took 0.877539 s.
+info: [time] Assembly took 0.386527 s.
+info: [time] Applying Dirichlet BCs took 0.00724155 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 34/10000
+info: 	 residual: 5.661962e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.530831 s.
+info: Convergence criterion, component 0: |dx|=6.5465e-02, |x|=3.6224e+04, |dx|/|x|=1.8072e-06
+info: Convergence criterion, component 1: |dx|=8.3916e+06, |x|=7.9662e+09, |dx|/|x|=1.0534e-03
+info: [time] Iteration #2 took 0.933353 s.
+info: [time] Assembly took 0.396646 s.
+info: [time] Applying Dirichlet BCs took 0.0095869 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 6.746392e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.545117 s.
+info: Convergence criterion, component 0: |dx|=4.9525e-03, |x|=3.6224e+04, |dx|/|x|=1.3672e-07
+info: Convergence criterion, component 1: |dx|=1.1162e+06, |x|=7.9662e+09, |dx|/|x|=1.4012e-04
+info: [time] Iteration #3 took 0.960038 s.
+info: [time] Solving process #0 took 2.77215 s in time step #13 
+info: [time] Time step #13 took 2.91207 s.
+info: === Time stepping at step #14 and time 3.77405e+06 with step size 437353
+info: [time] Assembly took 0.287651 s.
+info: [time] Applying Dirichlet BCs took 0.00746799 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 5.572743e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.396459 s.
+info: Convergence criterion, component 0: |dx|=1.3071e+02, |x|=3.6280e+04, |dx|/|x|=3.6029e-03
+info: Convergence criterion, component 1: |dx|=1.4460e+08, |x|=7.9287e+09, |dx|/|x|=1.8238e-02
+info: [time] Iteration #1 took 0.697379 s.
+info: [time] Assembly took 0.269088 s.
+info: [time] Applying Dirichlet BCs took 0.00528755 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 52/10000
+info: 	 residual: 2.937045e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.595836 s.
+info: Convergence criterion, component 0: |dx|=2.2087e+00, |x|=3.6280e+04, |dx|/|x|=6.0879e-05
+info: Convergence criterion, component 1: |dx|=7.1522e+09, |x|=1.0695e+10, |dx|/|x|=6.6874e-01
+info: [time] Iteration #2 took 0.876151 s.
+info: [time] Assembly took 0.270134 s.
+info: [time] Applying Dirichlet BCs took 0.00730391 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 47/10000
+info: 	 residual: 5.635488e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.54115 s.
+info: Convergence criterion, component 0: |dx|=2.6391e+01, |x|=3.6288e+04, |dx|/|x|=7.2726e-04
+info: Convergence criterion, component 1: |dx|=5.2558e+09, |x|=9.6392e+09, |dx|/|x|=5.4525e-01
+info: [time] Iteration #3 took 0.824496 s.
+info: [time] Assembly took 0.270186 s.
+info: [time] Applying Dirichlet BCs took 0.00541201 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 55/10000
+info: 	 residual: 5.769910e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.633503 s.
+info: Convergence criterion, component 0: |dx|=1.3318e+02, |x|=3.6239e+04, |dx|/|x|=3.6751e-03
+info: Convergence criterion, component 1: |dx|=4.2821e+09, |x|=8.7213e+09, |dx|/|x|=4.9099e-01
+info: [time] Iteration #4 took 0.91507 s.
+info: [time] Assembly took 0.270248 s.
+info: [time] Applying Dirichlet BCs took 0.00694216 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 46/10000
+info: 	 residual: 8.232454e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.533869 s.
+info: Convergence criterion, component 0: |dx|=1.1532e+02, |x|=3.6280e+04, |dx|/|x|=3.1785e-03
+info: Convergence criterion, component 1: |dx|=8.6243e+09, |x|=1.1256e+10, |dx|/|x|=7.6620e-01
+info: [time] Iteration #5 took 0.816978 s.
+info: [time] Assembly took 0.301281 s.
+info: [time] Applying Dirichlet BCs took 0.00563338 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 56/10000
+info: 	 residual: 7.693183e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.653734 s.
+info: Convergence criterion, component 0: |dx|=7.7575e+01, |x|=3.6267e+04, |dx|/|x|=2.1390e-03
+info: Convergence criterion, component 1: |dx|=7.0302e+09, |x|=8.6713e+09, |dx|/|x|=8.1074e-01
+info: [time] Iteration #6 took 0.96661 s.
+info: [time] Assembly took 0.276059 s.
+info: [time] Applying Dirichlet BCs took 0.00689779 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 58/10000
+info: 	 residual: 5.643803e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.66679 s.
+info: Convergence criterion, component 0: |dx|=6.0621e+01, |x|=3.6272e+04, |dx|/|x|=1.6713e-03
+info: Convergence criterion, component 1: |dx|=1.2780e+09, |x|=8.8630e+09, |dx|/|x|=1.4420e-01
+info: [time] Iteration #7 took 0.955733 s.
+info: [time] Assembly took 0.272811 s.
+info: [time] Applying Dirichlet BCs took 0.00528738 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 56/10000
+info: 	 residual: 5.839114e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.655022 s.
+info: Convergence criterion, component 0: |dx|=1.4970e+02, |x|=3.6322e+04, |dx|/|x|=4.1214e-03
+info: Convergence criterion, component 1: |dx|=8.0288e+08, |x|=8.7184e+09, |dx|/|x|=9.2091e-02
+info: [time] Iteration #8 took 0.93917 s.
+info: [time] Assembly took 0.272192 s.
+info: [time] Applying Dirichlet BCs took 0.00711389 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 74/10000
+info: 	 residual: 8.803990e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.857607 s.
+info: Convergence criterion, component 0: |dx|=1.8424e+02, |x|=3.6261e+04, |dx|/|x|=5.0809e-03
+info: Convergence criterion, component 1: |dx|=3.8798e+08, |x|=8.8526e+09, |dx|/|x|=4.3827e-02
+info: [time] Iteration #9 took 1.14307 s.
+info: [time] Assembly took 0.270608 s.
+info: [time] Applying Dirichlet BCs took 0.0054778 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 64/10000
+info: 	 residual: 3.806682e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.740913 s.
+info: Convergence criterion, component 0: |dx|=6.4148e+01, |x|=3.6280e+04, |dx|/|x|=1.7681e-03
+info: Convergence criterion, component 1: |dx|=4.6916e+08, |x|=8.6753e+09, |dx|/|x|=5.4080e-02
+info: [time] Iteration #10 took 1.0229 s.
+info: [time] Assembly took 0.271824 s.
+info: [time] Applying Dirichlet BCs took 0.00700441 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 52/10000
+info: 	 residual: 7.195620e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.605243 s.
+info: Convergence criterion, component 0: |dx|=2.7230e+00, |x|=3.6281e+04, |dx|/|x|=7.5053e-05
+info: Convergence criterion, component 1: |dx|=3.5991e+08, |x|=8.8070e+09, |dx|/|x|=4.0866e-02
+info: [time] Iteration #11 took 0.889943 s.
+info: [time] Assembly took 0.297575 s.
+info: [time] Applying Dirichlet BCs took 0.00575621 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 70/10000
+info: 	 residual: 8.469940e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.05423 s.
+info: Convergence criterion, component 0: |dx|=5.0659e+00, |x|=3.6282e+04, |dx|/|x|=1.3963e-04
+info: Convergence criterion, component 1: |dx|=3.1878e+08, |x|=8.7160e+09, |dx|/|x|=3.6574e-02
+info: [time] Iteration #12 took 1.36633 s.
+info: [time] Solving process #0 took 11.4148 s in time step #14 
+error: The nonlinear solver failed in time step #14 at t = 3.77405e+06 s for process #0.
+info: [time] Time step #14 took 11.4148 s.
+warning: Time step will be rejected due to nonlinear solver divergence.
+warning: Time step 14 was rejected 1 times and it will be repeated with a reduced step size.
+info: === Time stepping at step #14 and time 3.55538e+06 with step size 218677
+info: [time] Assembly took 0.402312 s.
+info: [time] Applying Dirichlet BCs took 0.0107938 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 29/10000
+info: 	 residual: 8.172071e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.455124 s.
+info: Convergence criterion, component 0: |dx|=5.2550e-02, |x|=3.6224e+04, |dx|/|x|=1.4507e-06
+info: Convergence criterion, component 1: |dx|=7.0070e+07, |x|=7.9484e+09, |dx|/|x|=8.8157e-03
+info: [time] Iteration #1 took 0.877025 s.
+info: [time] Assembly took 0.398353 s.
+info: [time] Applying Dirichlet BCs took 0.00715677 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 32/10000
+info: 	 residual: 5.733719e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.504168 s.
+info: Convergence criterion, component 0: |dx|=4.0501e-02, |x|=3.6224e+04, |dx|/|x|=1.1181e-06
+info: Convergence criterion, component 1: |dx|=3.9552e+06, |x|=7.9489e+09, |dx|/|x|=4.9757e-04
+info: [time] Iteration #2 took 0.918139 s.
+info: [time] Solving process #0 took 1.79621 s in time step #14 
+info: [time] Time step #14 took 1.93814 s.
+info: [time] Output of timestep 14 took 0.023985 s.
+info: === Time stepping at step #15 and time 3.86152e+06 with step size 306147
+info: [time] Assembly took 0.374727 s.
+info: [time] Applying Dirichlet BCs took 0.0101798 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 31/10000
+info: 	 residual: 8.112498e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.464957 s.
+info: Convergence criterion, component 0: |dx|=2.8696e+02, |x|=3.6340e+04, |dx|/|x|=7.8967e-03
+info: Convergence criterion, component 1: |dx|=9.6689e+07, |x|=7.9224e+09, |dx|/|x|=1.2204e-02
+info: [time] Iteration #1 took 0.858359 s.
+info: [time] Assembly took 0.395075 s.
+info: [time] Applying Dirichlet BCs took 0.00716475 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 9.790382e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.548224 s.
+info: Convergence criterion, component 0: |dx|=2.7082e-01, |x|=3.6340e+04, |dx|/|x|=7.4525e-06
+info: Convergence criterion, component 1: |dx|=8.9666e+06, |x|=7.9217e+09, |dx|/|x|=1.1319e-03
+info: [time] Iteration #2 took 0.958894 s.
+info: [time] Assembly took 0.395563 s.
+info: [time] Applying Dirichlet BCs took 0.00951334 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 35/10000
+info: 	 residual: 6.645093e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.546407 s.
+info: Convergence criterion, component 0: |dx|=3.4233e-02, |x|=3.6340e+04, |dx|/|x|=9.4204e-07
+info: Convergence criterion, component 1: |dx|=2.9405e+05, |x|=7.9217e+09, |dx|/|x|=3.7120e-05
+info: [time] Iteration #3 took 0.960085 s.
+info: [time] Solving process #0 took 2.7788 s in time step #15 
+info: [time] Time step #15 took 2.92189 s.
+info: === Time stepping at step #16 and time 4.29013e+06 with step size 428606
+info: [time] Assembly took 0.376454 s.
+info: [time] Applying Dirichlet BCs took 0.0105242 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 41/10000
+info: 	 residual: 9.285836e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.630801 s.
+info: Convergence criterion, component 0: |dx|=2.5046e+02, |x|=3.6473e+04, |dx|/|x|=6.8671e-03
+info: Convergence criterion, component 1: |dx|=1.3334e+08, |x|=7.8841e+09, |dx|/|x|=1.6913e-02
+info: [time] Iteration #1 took 1.02628 s.
+info: [time] Assembly took 0.400973 s.
+info: [time] Applying Dirichlet BCs took 0.00720448 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 6.821863e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.601909 s.
+info: Convergence criterion, component 0: |dx|=6.2045e-01, |x|=3.6473e+04, |dx|/|x|=1.7011e-05
+info: Convergence criterion, component 1: |dx|=1.3632e+07, |x|=7.8835e+09, |dx|/|x|=1.7292e-03
+info: [time] Iteration #2 took 1.01873 s.
+info: [time] Assembly took 0.401371 s.
+info: [time] Applying Dirichlet BCs took 0.00948576 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 39/10000
+info: 	 residual: 5.254574e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.601152 s.
+info: Convergence criterion, component 0: |dx|=3.8655e-02, |x|=3.6473e+04, |dx|/|x|=1.0598e-06
+info: Convergence criterion, component 1: |dx|=2.8739e+05, |x|=7.8835e+09, |dx|/|x|=3.6454e-05
+info: [time] Iteration #3 took 1.02056 s.
+info: [time] Solving process #0 took 3.06698 s in time step #16 
+info: [time] Time step #16 took 3.20976 s.
+info: [time] Output of timestep 16 took 0.03463 s.
+info: === Time stepping at step #17 and time 4.89018e+06 with step size 600048
+info: [time] Assembly took 0.375392 s.
+info: [time] Applying Dirichlet BCs took 0.0103445 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 48/10000
+info: 	 residual: 8.023765e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.734871 s.
+info: Convergence criterion, component 0: |dx|=2.2761e+02, |x|=3.6615e+04, |dx|/|x|=6.2164e-03
+info: Convergence criterion, component 1: |dx|=1.7884e+08, |x|=7.8322e+09, |dx|/|x|=2.2834e-02
+info: [time] Iteration #1 took 1.12921 s.
+info: [time] Assembly took 0.396386 s.
+info: [time] Applying Dirichlet BCs took 0.00647818 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 44/10000
+info: 	 residual: 3.764742e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.682369 s.
+info: Convergence criterion, component 0: |dx|=1.1555e+00, |x|=3.6614e+04, |dx|/|x|=3.1560e-05
+info: Convergence criterion, component 1: |dx|=1.9812e+07, |x|=7.8323e+09, |dx|/|x|=2.5295e-03
+info: [time] Iteration #2 took 1.09372 s.
+info: [time] Assembly took 0.399345 s.
+info: [time] Applying Dirichlet BCs took 0.00654366 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 43/10000
+info: 	 residual: 2.253090e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.664767 s.
+info: Convergence criterion, component 0: |dx|=6.8794e-02, |x|=3.6614e+04, |dx|/|x|=1.8789e-06
+info: Convergence criterion, component 1: |dx|=3.6652e+05, |x|=7.8323e+09, |dx|/|x|=4.6796e-05
+info: [time] Iteration #3 took 1.07921 s.
+info: [time] Solving process #0 took 3.30345 s in time step #17 
+info: [time] Time step #17 took 3.44639 s.
+info: === Time stepping at step #18 and time 5.73025e+06 with step size 840068
+info: [time] Assembly took 0.385839 s.
+info: [time] Applying Dirichlet BCs took 0.0103112 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 49/10000
+info: 	 residual: 7.625153e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.753906 s.
+info: Convergence criterion, component 0: |dx|=2.0259e+02, |x|=3.6756e+04, |dx|/|x|=5.5117e-03
+info: Convergence criterion, component 1: |dx|=2.2865e+08, |x|=7.7650e+09, |dx|/|x|=2.9446e-02
+info: [time] Iteration #1 took 1.15864 s.
+info: [time] Assembly took 0.399351 s.
+info: [time] Applying Dirichlet BCs took 0.00795523 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 46/10000
+info: 	 residual: 7.920529e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.718 s.
+info: Convergence criterion, component 0: |dx|=1.9303e+00, |x|=3.6756e+04, |dx|/|x|=5.2518e-05
+info: Convergence criterion, component 1: |dx|=2.5990e+07, |x|=7.7665e+09, |dx|/|x|=3.3464e-03
+info: [time] Iteration #2 took 1.13397 s.
+info: [time] Assembly took 0.396897 s.
+info: [time] Applying Dirichlet BCs took 0.0105911 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 45/10000
+info: 	 residual: 7.291038e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.702964 s.
+info: Convergence criterion, component 0: |dx|=1.3662e-01, |x|=3.6756e+04, |dx|/|x|=3.7170e-06
+info: Convergence criterion, component 1: |dx|=6.5025e+05, |x|=7.7665e+09, |dx|/|x|=8.3725e-05
+info: [time] Iteration #3 took 1.11897 s.
+info: [time] Solving process #0 took 3.41289 s in time step #18 
+info: [time] Time step #18 took 3.55496 s.
+info: [time] Output of timestep 18 took 0.0374532 s.
+info: === Time stepping at step #19 and time 6.90634e+06 with step size 1.17609e+06
+info: [time] Assembly took 0.371844 s.
+info: [time] Applying Dirichlet BCs took 0.0101692 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 48/10000
+info: 	 residual: 8.421470e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.738471 s.
+info: Convergence criterion, component 0: |dx|=7.7922e+02, |x|=3.7225e+04, |dx|/|x|=2.0933e-02
+info: Convergence criterion, component 1: |dx|=3.0615e+08, |x|=7.6706e+09, |dx|/|x|=3.9912e-02
+info: [time] Iteration #1 took 1.12927 s.
+info: [time] Assembly took 0.397289 s.
+info: [time] Applying Dirichlet BCs took 0.00651158 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 54/10000
+info: 	 residual: 8.015115e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.842818 s.
+info: Convergence criterion, component 0: |dx|=1.1225e+01, |x|=3.7221e+04, |dx|/|x|=3.0156e-04
+info: Convergence criterion, component 1: |dx|=1.1701e+08, |x|=7.6680e+09, |dx|/|x|=1.5259e-02
+info: [time] Iteration #2 took 1.25516 s.
+info: [time] Assembly took 0.407724 s.
+info: [time] Applying Dirichlet BCs took 0.00645106 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 51/10000
+info: 	 residual: 2.847164e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.789072 s.
+info: Convergence criterion, component 0: |dx|=1.0933e+00, |x|=3.7221e+04, |dx|/|x|=2.9373e-05
+info: Convergence criterion, component 1: |dx|=6.8148e+06, |x|=7.6703e+09, |dx|/|x|=8.8846e-04
+info: [time] Iteration #3 took 1.21179 s.
+info: [time] Solving process #0 took 3.59775 s in time step #19 
+info: [time] Time step #19 took 3.74152 s.
+info: === Time stepping at step #20 and time 8.55287e+06 with step size 1.64653e+06
+info: [time] Assembly took 0.37637 s.
+info: [time] Applying Dirichlet BCs took 0.0105491 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 59/10000
+info: 	 residual: 3.117692e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.91211 s.
+info: Convergence criterion, component 0: |dx|=5.2336e+02, |x|=3.7610e+04, |dx|/|x|=1.3915e-02
+info: Convergence criterion, component 1: |dx|=4.2161e+08, |x|=7.5657e+09, |dx|/|x|=5.5726e-02
+info: [time] Iteration #1 took 1.30768 s.
+info: [time] Assembly took 0.403366 s.
+info: [time] Applying Dirichlet BCs took 0.00784442 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 56/10000
+info: 	 residual: 6.058241e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.877427 s.
+info: Convergence criterion, component 0: |dx|=1.5790e+01, |x|=3.7604e+04, |dx|/|x|=4.1989e-04
+info: Convergence criterion, component 1: |dx|=1.2105e+08, |x|=7.5830e+09, |dx|/|x|=1.5963e-02
+info: [time] Iteration #2 took 1.29718 s.
+info: [time] Assembly took 0.399402 s.
+info: [time] Applying Dirichlet BCs took 0.0105014 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 57/10000
+info: 	 residual: 2.876966e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.897026 s.
+info: Convergence criterion, component 0: |dx|=2.5669e+00, |x|=3.7605e+04, |dx|/|x|=6.8259e-05
+info: Convergence criterion, component 1: |dx|=7.1017e+06, |x|=7.5857e+09, |dx|/|x|=9.3620e-04
+info: [time] Iteration #3 took 1.31566 s.
+info: [time] Solving process #0 took 3.92186 s in time step #20 
+info: [time] Time step #20 took 4.06497 s.
+info: [time] Output of timestep 20 took 0.0379855 s.
+info: === Time stepping at step #21 and time 1e+07 with step size 1.44713e+06
+info: [time] Assembly took 0.376896 s.
+info: [time] Applying Dirichlet BCs took 0.0102722 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 53/10000
+info: 	 residual: 8.008184e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.807298 s.
+info: Convergence criterion, component 0: |dx|=7.3315e+02, |x|=3.8108e+04, |dx|/|x|=1.9238e-02
+info: Convergence criterion, component 1: |dx|=4.5271e+08, |x|=7.5411e+09, |dx|/|x|=6.0032e-02
+info: [time] Iteration #1 took 1.20295 s.
+info: [time] Assembly took 0.396976 s.
+info: [time] Applying Dirichlet BCs took 0.00773139 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 64/10000
+info: 	 residual: 8.842821e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 1.00279 s.
+info: Convergence criterion, component 0: |dx|=3.3350e+01, |x|=3.8098e+04, |dx|/|x|=8.7538e-04
+info: Convergence criterion, component 1: |dx|=2.0531e+08, |x|=7.5906e+09, |dx|/|x|=2.7048e-02
+info: [time] Iteration #2 took 1.41605 s.
+info: [time] Assembly took 0.399831 s.
+info: [time] Applying Dirichlet BCs took 0.0105386 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 59/10000
+info: 	 residual: 9.751017e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.924637 s.
+info: Convergence criterion, component 0: |dx|=7.5594e+00, |x|=3.8099e+04, |dx|/|x|=1.9841e-04
+info: Convergence criterion, component 1: |dx|=2.4135e+07, |x|=7.6009e+09, |dx|/|x|=3.1753e-03
+info: [time] Iteration #3 took 1.34357 s.
+info: [time] Assembly took 0.398734 s.
+info: [time] Applying Dirichlet BCs took 0.00715769 s.
+info: ------------------------------------------------------------------
+info: *** Eigen solver computation
+info: -> solve with IDRSTABL (precon DIAGONAL)
+info: 	 iteration: 58/10000
+info: 	 residual: 9.913425e-11
+
+info: ------------------------------------------------------------------
+info: [time] Linear solver took 0.90283 s.
+info: Convergence criterion, component 0: |dx|=3.8178e-01, |x|=3.8099e+04, |dx|/|x|=1.0021e-05
+info: Convergence criterion, component 1: |dx|=1.5272e+06, |x|=7.6006e+09, |dx|/|x|=2.0094e-04
+info: [time] Iteration #4 took 1.31728 s.
+info: [time] Solving process #0 took 5.28005 s in time step #21 
+info: [time] Time step #21 took 5.42212 s.
+info: The whole computation of the time stepping took 25 steps, in which
+	 the accepted steps are 21, and the rejected steps are 4.
+
+info: [time] Output of timestep 25 took 0.0367706 s.
+info: [time] Execution took 266.08 s.
+info: [time] Output of XDMF to run_85_TRM_2d_nocompesate_mesh_100x100_domain.xdmf took 0.000423771 s.
+info: OGS terminated on 2021-12-07 22:58:22+0100.
