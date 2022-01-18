@@ -493,9 +493,9 @@ class OGS:
             cmd += f"{self.prjfile}"
         startt = time.time()
         if sys.platform == "win32":
-            returncode = subprocess.run([cmd], shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            returncode = subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         else:
-            returncode = subprocess.run([cmd], shell=True, executable="/bin/bash", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            returncode = subprocess.run(cmd, shell=True, executable="/bin/bash", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
