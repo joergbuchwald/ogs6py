@@ -240,7 +240,7 @@ class OGS:
                 newelement.append(ET.SubElement(entry, "include"))
                 newelement[i].set("file", add_include['file'])
 
-    def add_block(self, blocktag, parent_xpath="./", taglist=None, textlist=None):
+    def add_block(self, blocktag, block_attrib=None, parent_xpath="./", taglist=None, textlist=None):
         """General method to add a Block
 
         A block consists of an enclosing tag containing a number of
@@ -250,6 +250,7 @@ class OGS:
         ----------
         blocktag : `str`
             name of the enclosing tag
+        block_attrib : 'dict', optional
         parent_xpath : `str`, optional
             XPath of the parent tag
         taglist : `list`
@@ -257,7 +258,7 @@ class OGS:
         textlist : `list`
             list of strings retaining the corresponding values
         """
-        self.add_blocks.append({'blocktag': blocktag, 'parent_xpath': parent_xpath,
+        self.add_blocks.append({'blocktag': blocktag, 'block_attrib': block_attrib, 'parent_xpath': parent_xpath,
         'taglist': taglist, 'textlist': textlist})
 
     def _add_blocks(self, root):
@@ -267,6 +268,9 @@ class OGS:
                 newelement = []
                 for i, entry in enumerate(parent):
                     newelement.append(ET.SubElement(entry, add_block['blocktag']))
+                    if not add_block['block_attrib'] is None:
+                        for key, val in add_block['block_attrib'].items():
+                            newelement[-1].attrib[key] = val
             subtaglist = []
             for blocktagentry in newelement:
                 for i, taglistentry in enumerate(add_block['taglist']):
