@@ -19,4 +19,3 @@ basename = "StaggeredInjectionProduction1D"  # to derive filenames
 
 CPS = coupling_parameter_search(basename)
 CPS.start(x_minus=0.16, x_plus=1.0, abs_tol=0.01)
-
