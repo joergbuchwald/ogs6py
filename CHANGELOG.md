@@ -2,6 +2,13 @@
 
 All notable changes to **ogs6py** will be documented in this file.
 
+## [0.35]
+
+### Changes
+* major update of the logfile parser which is now based on record
+* script added for optimizing coupling parameter for staggered scheme
+* added method for surface flux and robin BC
+
 ## [0.34]
 
 ### Changes
