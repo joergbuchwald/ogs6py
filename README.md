@@ -205,5 +205,10 @@ df = model.parse_out("examples/out_thm.log")
 
 which returns a pandas dataframe.
 
-## 5. FAQ/Troubleshooting
+## 5. Examples
+There are examples that have been used in OGS workflows and may be generalized to other use cases
+- generating an input file (prj) from a file template by reading parameters from a data file (csv),
+- finding the optimal coupling scheme parameter for the staggered scheme.
+
+## 6. FAQ/Troubleshooting
 - _OGS exectution fails and nothing is written to the logfile._ Please check whether OGS is executed correctly from the terminal. A common issue is related to the fact that the interactive python environment differs from the environment in the terminal. Usually, this can be fixed by setting the required environment variables via a wrapper command. E.g., `model.run_model(wrapper="source /opt/intel/oneapi/setvars.sh intel64 &&")`.

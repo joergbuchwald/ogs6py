@@ -37,7 +37,7 @@ class OGS:
         Filename of the input project file
     XMLSTRING : `str`,optional
     OMP_NUM_THREADS : `int`, optional
-        Sets the envirornvariable befaure OGS execution to restrict number of OMP Threads
+        Sets the environmentvariable before OGS execution to restrict number of OMP Threads
     """
     def __init__(self, **args):
         self.geo = geo.Geo()
@@ -290,7 +290,7 @@ class OGS:
             element.getparent().remove(element)
 
     def replace_text(self, value, xpath=".", occurrence=-1):
-        """General method for replacing text between obening and closing tags
+        """General method for replacing text between opening and closing tags
 
 
         Parameters
@@ -300,7 +300,7 @@ class OGS:
         xpath : `str`, optional
             XPath of the tag
         occurrence : `int`, optional
-            Easy way to adress nonunique XPath addresses by their occurece
+            Easy way to adress nonunique XPath addresses by their occurence
             from the top of the XML file
             Default: -1
         """
@@ -508,20 +508,20 @@ class OGS:
         else:
             print(f"Error code: {returncode.returncode}")
             if write_logs is False:
-                raise RuntimeError('OGS execution was not successfull. Please set write_logs to True to obtain more information.')
+                raise RuntimeError('OGS execution was not successful. Please set write_logs to True to obtain more information.')
             num_lines = sum(1 for line in open(self.logfile))
             with open(self.logfile) as file:
                 for i, line in enumerate(file):
                     if i > num_lines-10:
                         print(line)
-            raise RuntimeError('OGS execution was not successfull.')
+            raise RuntimeError('OGS execution was not successful.')
 
     def write_input(self, keep_includes=False):
         """Writes the projectfile to disk
 
         Parameters
         ----------
-        keep_includes : `bolean`, optional
+        keep_includes : `boolean`, optional
         """
         if not self.tree is None:
             if keep_includes is True:
