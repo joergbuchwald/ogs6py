@@ -68,13 +68,14 @@ class TestiOGS(unittest.TestCase):
                                 type="Constant",
                                 value="0.6")
         model.media.add_property(medium_id="0",
-                                phase_type="AqueousLiquid",
-                                name="density",
-                                type="Linear",
-                                reference_value="999.1",
-                                variable_name="phase_pressure",
-                                reference_condition="1e5",
-                                slope="4.5999999999999996e-10")
+                            phase_type="AqueousLiquid",
+                            name="density",
+                            type="Linear",
+                            reference_value="999.1",
+                            independent_variables={"phase_pressure": {
+                                "reference_condition": "1e5",
+                                "slope": "4.5999999999999996e-10"
+                                }})
         model.media.add_property(medium_id="0",
                                 phase_type="AqueousLiquid",
                                 name="thermal_expansivity",
