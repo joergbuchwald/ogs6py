@@ -39,9 +39,32 @@ model.media.add_property(medium_id="0",
                             name="density",
                             type="Linear",
                             reference_value="999.1",
-                            variable_name="temperature",
-                            reference_condition="273.15",
-                            slope="-4e-4")
+                            independent_variables={"temperature": {
+                                "reference_condition":273.15,
+                                "slope":-4e-4},
+                                "phase_pressure": {
+                                "reference_condition": 1e5,
+                                "slope": 1e-20
+                                }})
+# Alternative density models using property type Exponential or Function
+#model.media.add_property(medium_id="0",
+#                            phase_type="AqueousLiquid",
+#                            name="density",
+#                            type="Exponential",
+#                            reference_value="999.1",
+#                            offset="0.0",
+#                            exponent={"variable_name": "temperature",
+#                                "reference_condition":273.15,
+#                                "factor":-4e-4})
+#model.media.add_property(medium_id="0",
+#                            phase_type="AqueousLiquid",
+#                            name="density",
+#                            type="Function",
+#                            expression="999.1",
+#                            dvalues={"temperature": {
+#                                "expression":0.0},
+#                                "phase_pressure": {
+#                                "expression": 0.0}})
 model.media.add_property(medium_id="0",
                             phase_type="AqueousLiquid",
                             name="thermal_expansivity",
