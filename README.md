@@ -157,14 +157,13 @@ E.g., to iterate over three Young's moduli one can use the replace parameter met
 Es = [1,2,3]
 filename = "simple_mechanics.prj"
 for E in Es:
-    model = OGS(INPUT_FILE=filename, PROJECT_FILE=filename, MKL=True)
+    model = OGS(INPUT_FILE=filename, PROJECT_FILE=filename)
     model.replace_parameter(name="E", value=E)
     model.replace_text("out_E="+str(E), xpath="./time_loop/output/prefix")
     model.write_input()
     model.run_model(path="~/github/ogs/build_mkl/bin")
 ```
 
-The `MKL=True` option executes `source /opt/intel/mkl/bin/mklvars.sh intel64` before the ogs call.
 Instead of the `replace_parameter` method, the more general `replace_text` method can also be used to replace the young modulus in this example:
 
 
