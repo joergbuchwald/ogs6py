@@ -49,7 +49,7 @@ Time from iteration are accumulated.
 
 
 def analysis_time_step(df):
-    interest1 = ['output_time', 'time_step_solution_time']
+    interest1 = ['output_time', 'time_step_solution_time', 'step_size']
     interest2 = ['assembly_time', 'linear_solver_time', 'dirichlet_time']
     interest = [*interest1, *interest2]
     context = ['mpi_process', 'time_step']
