@@ -1,3 +1,4 @@
+from . import display
 from . import mesh
 from . import geo
 from . import python_script

@@ -18,7 +18,7 @@ import time
 import shutil
 import pandas as pd
 from lxml import etree as ET
-from ogs6py.classes import (geo, mesh, python_script, processes, media, timeloop,
+from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
@@ -38,6 +38,8 @@ class OGS:
     XMLSTRING : `str`,optional
     OMP_NUM_THREADS : `int`, optional
         Sets the environmentvariable before OGS execution to restrict number of OMP Threads
+    VERBOSE : `bool`, optional
+        Default: False
     """
     def __init__(self, **args):
         self.geo = geo.Geo()
@@ -61,6 +63,10 @@ class OGS:
         self.add_blocks = []
         self.add_entries = []
         self.add_includes = []
+        if "VERBOSE" in args:
+            self.verbose = args["VERBOSE"]
+        else:
+            self.verbose = False
         if "OMP_NUM_THREADS" in args:
             self.threads = args["OMP_NUM_THREADS"]
         else:
@@ -68,12 +74,14 @@ class OGS:
         if "PROJECT_FILE" in args:
             self.prjfile = args['PROJECT_FILE']
         else:
-            print("PROJECT_FILE not given. Calling it default.prj.")
+            print("PROJECT_FILE for output not given. Calling it default.prj.")
             self.prjfile = "default.prj"
         if "INPUT_FILE" in args:
             if os.path.isfile(args['INPUT_FILE']) is True:
                 self.inputfile = args['INPUT_FILE']
                 _ = self._get_root()
+                if self.verbose is True:
+                    display.Display(self.tree)
             else:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
         else:
@@ -535,6 +543,8 @@ class OGS:
             self.tree_ = ET.fromstring(self.tree_string, parser=parse)
             self.tree = ET.ElementTree(self.tree_)
             ET.indent(self.tree, space="    ")
+            if self.verbose is True:
+                display.Display(self.tree)
             self.tree.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
@@ -567,6 +577,8 @@ class OGS:
         self.tree_ = ET.fromstring(self.tree_string, parser=parse)
         self.tree = ET.ElementTree(self.tree_)
         ET.indent(self.tree, space="    ")
+        if self.verbose is True:
+            display.Display(self.tree)
         self.tree.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
