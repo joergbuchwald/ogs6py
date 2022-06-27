@@ -194,10 +194,10 @@ class OGS:
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
-    def add_entry(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
+    def add_element(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
         """General method to add an Entry
 
-        Entry contains of a single tag containing 'text',
+        An element is a single tag containing 'text',
         attributes and anttribute values
 
         Parameters

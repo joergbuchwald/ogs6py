@@ -276,7 +276,7 @@ class TestiOGS(unittest.TestCase):
         model.linsolvers.add_lin_solver(name="general_linear_solver",
                                     kind="eigen",
                                     solver_type="PardisoLU")
-        model.add_entry(parent_xpath="./linear_solvers/linear_solver/eigen", tag="scaling", text="1")
+        model.add_element(parent_xpath="./linear_solvers/linear_solver/eigen", tag="scaling", text="1")
         model.add_block("parameter", parent_xpath="./parameters", taglist=["name", "type", "value"], textlist=["T1", "Constant", "300"])
         model.write_input()
         with open("tunnel_ogs6py.prj", "rb") as f:
@@ -358,7 +358,7 @@ class TestiOGS(unittest.TestCase):
     def test_add_entry(self):
         prjfile = "tunnel_ogs6py_add_entry.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
-        model.add_entry(tag="geometry", parent_xpath=".", text="geometry.gml")
+        model.add_element(tag="geometry", parent_xpath=".", text="geometry.gml")
         model.write_input()
         root = ET.parse(prjfile)
         find = root.findall("./geometry")
