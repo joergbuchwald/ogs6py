@@ -496,7 +496,10 @@ class OGS:
             cmd += wrapper + " "
         cmd += f"{ogs_path} "
         if not container_path is None:
-            cmd += "exec " + f"{container_path} " + "ogs "
+            if not wrapper is None:
+                cmd = env_export + "singularity exec " + f"{container_path} " + wrapper + " "
+            else:
+                cmd = env_export + "singularity exec " + f"{container_path} " + "ogs "
         if not args is None:
             cmd += f"{args} "
         if write_logs is True:
