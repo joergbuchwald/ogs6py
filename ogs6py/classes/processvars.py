@@ -178,15 +178,18 @@ class ProcessVars(build_tree.BuildTree):
         if args['process_variable_name'] not in self.tree['process_variables']['children']:
             raise KeyError(
                     "You need to set initial condition for that process variable first.")
-        self.tree['process_variables']['children'][args['process_variable_name']]['children'][
+        if "source_terms" not in self.tree['process_variables']['children'][
+                args['process_variable_name']]['children']:
+            self.tree['process_variables']['children'][args['process_variable_name']]['children'][
                 'source_terms'] = self.populate_tree('source_terms', children={})
         source_terms = self.tree['process_variables']['children'][args['process_variable_name']][
                 'children']['source_terms']
         if "geometrical_set" in args:
             if "geometry" in args:
+                cpnts = args.get('component','0')
                 source_terms['children'][args['geometrical_set'] +
-                        args['geometry']] = self.populate_tree('source_term', children={})
-                source_term = source_terms['children'][args['geometrical_set'] + args['geometry']]
+                        args['geometry'] + cpnts] = self.populate_tree('source_term', children={})
+                source_term = source_terms['children'][args['geometrical_set'] + args['geometry']+cpnts]
                 source_term['children']['type'] = self.populate_tree('type', text=args['type'],
                         children={})
                 source_term['children']['geometrical_set'] = self.populate_tree(
@@ -211,9 +214,10 @@ class ProcessVars(build_tree.BuildTree):
             else:
                 raise KeyError("You need to provide a geometry.")
         elif "mesh" in args:
-            source_terms['children'][args['mesh']] = self.populate_tree(
+            cpnts = args.get('component','0')
+            source_terms['children'][args['mesh']+cpnts] = self.populate_tree(
                     'source_term', children={})
-            source_term = source_terms['children'][args['mesh']]
+            source_term = source_terms['children'][args['mesh']+cpnts]
             source_term['children']['type'] = self.populate_tree(
                         'type', text=args['type'], children={})
             source_term['children']['mesh'] = self.populate_tree(
