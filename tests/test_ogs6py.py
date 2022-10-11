@@ -283,7 +283,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '3664e20f5ac0f151949b8aeeb9afabca')
+        self.assertEqual(file_hash.hexdigest(), '08784407fde0c8a1d4e7a379437a9911')
 
     def test_replace_text(self):
         prjfile = "tunnel_ogs6py_replace.prj"
@@ -389,7 +389,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '68ff996f4e6bfbe6fffd5e156275ac08')
+        self.assertEqual(file_hash.hexdigest(), 'ab3a785a29f2347d31769057348dc81a')
         with open("solid.xml", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):

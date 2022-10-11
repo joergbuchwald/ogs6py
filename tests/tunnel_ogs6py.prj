@@ -185,6 +185,7 @@
         <parameter>
             <name>Initial_stress</name>
             <type>Function</type>
+            <mesh>tunnel</mesh>
             <expression>-5e6</expression>
             <expression>-5e6</expression>
             <expression>-5e6</expression>
@@ -246,6 +247,11 @@
             <name>heat_bv</name>
             <type>Constant</type>
             <value>25</value>
+        </parameter>
+        <parameter>
+            <name>T1</name>
+            <type>Constant</type>
+            <value>300</value>
         </parameter>
     </parameters>
     <curves>
@@ -377,6 +383,7 @@
             <name>general_linear_solver</name>
             <eigen>
                 <solver_type>PardisoLU</solver_type>
+                <scaling>1</scaling>
             </eigen>
         </linear_solver>
     </linear_solvers>
