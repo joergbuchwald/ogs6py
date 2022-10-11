@@ -527,6 +527,34 @@ class OGS:
                         print(line)
             raise RuntimeError('OGS execution was not successful.')
 
+    def build_tree(self):
+        self.root = ET.Element("OpenGeoSysProject")
+        if len(self.geo.tree['geometry']['text']) > 0:
+            self.__dict2xml(self.root, self.geo.tree)
+        self.__dict2xml(self.root, self.mesh.tree)
+        if len(self.pyscript.tree['pythonscript']['text']) > 0:
+            self.__dict2xml(self.root, self.pyscript.tree)
+        self.__dict2xml(self.root, self.processes.tree)
+        if len(self.media.tree['media']['children']) > 0:
+            self.__dict2xml(self.root, self.media.tree)
+        self.__dict2xml(self.root, self.timeloop.tree)
+        if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
+            self.__dict2xml(self.root, self.local_coordinate_system.tree)
+        self.__dict2xml(self.root, self.parameters.tree)
+        if len(self.curves.tree['curves']['children']) > 0:
+            self.__dict2xml(self.root, self.curves.tree)
+        self.__dict2xml(self.root, self.processvars.tree)
+        self.__dict2xml(self.root, self.nonlinsolvers.tree)
+        self.__dict2xml(self.root, self.linsolvers.tree)
+        self._add_blocks(self.root)
+        self._add_entries(self.root)
+        self._add_includes(self.root)
+        # Reparsing for pretty_print to work properly
+        parse = ET.XMLParser(remove_blank_text=True)
+        tree_string = ET.tostring(self.root, pretty_print=True)
+        tree_ = ET.fromstring(tree_string, parser=parse)
+        self.tree = ET.ElementTree(tree_)
+
     def write_input(self, keep_includes=False):
         """Writes the projectfile to disk
 
@@ -553,32 +581,7 @@ class OGS:
                             xml_declaration=True,
                             pretty_print=True)
             return True
-        self.root = ET.Element("OpenGeoSysProject")
-        if len(self.geo.tree['geometry']['text']) > 0:
-            self.__dict2xml(self.root, self.geo.tree)
-        self.__dict2xml(self.root, self.mesh.tree)
-        if len(self.pyscript.tree['pythonscript']['text']) > 0:
-            self.__dict2xml(self.root, self.pyscript.tree)
-        self.__dict2xml(self.root, self.processes.tree)
-        if len(self.media.tree['media']['children']) > 0:
-            self.__dict2xml(self.root, self.media.tree)
-        self.__dict2xml(self.root, self.timeloop.tree)
-        if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
-            self.__dict2xml(self.root, self.local_coordinate_system.tree)
-        self.__dict2xml(self.root, self.parameters.tree)
-        if len(self.curves.tree['curves']['children']) > 0:
-            self.__dict2xml(self.root, self.curves.tree)
-        self.__dict2xml(self.root, self.processvars.tree)
-        self.__dict2xml(self.root, self.nonlinsolvers.tree)
-        self.__dict2xml(self.root, self.linsolvers.tree)
-        self._add_blocks(self.root)
-        self._add_entries(self.root)
-        self._add_includes(self.root)
-        # Reparsing for pretty_print to work properly
-        parse = ET.XMLParser(remove_blank_text=True)
-        self.tree_string = ET.tostring(self.root, pretty_print=True)
-        self.tree_ = ET.fromstring(self.tree_string, parser=parse)
-        self.tree = ET.ElementTree(self.tree_)
+        self.build_tree()
         ET.indent(self.tree, space="    ")
         if self.verbose is True:
             display.Display(self.tree)
