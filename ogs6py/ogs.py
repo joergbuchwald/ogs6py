@@ -363,8 +363,34 @@ class OGS:
                 if occurrence.text == oldmesh_stripped:
                     occurrence.text = newmesh_stripped
 
-    def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
+    def replace_parameter(self, name=None, parametertype=None, taglist=None, textlist=None):
         """Replacing parametertypes and values
+
+        Parameters
+        ----------
+        name : `str`
+            parametername
+        parametertype : `str`
+            parametertype
+        taglist : `list`
+            list of tags needed for parameter spec
+        textlist : `list`
+            values of parameter
+        """
+        root = self._get_root()
+        parameterpath = "./parameters/parameter"
+        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
+        parameterpointer.getparent().remove(parameterpointer)
+        if not "name" in taglist:
+            taglist.insert(0,"name")
+            textlist.insert(0,name)
+        if not parametertype in taglist:
+            taglist.insert(1,"type")
+            textlist.insert(1,parametertype)
+        self.add_block("parameter", parent_xpath="./parameters", taglist=taglist, textlist=textlist)
+
+    def replace_parameter_value(self, name=None, value=None, valuetag="value"):
+        """Replacing parameter values
 
         Parameters
         ----------
@@ -381,9 +407,9 @@ class OGS:
         root = self._get_root()
         parameterpath = "./parameters/parameter"
         parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
-        self._set_type_value(parameterpointer, value, parametertype, valuetag=valuetag)
+        self._set_type_value(parameterpointer, value, None, valuetag=valuetag)
 
-    def replace_phase_property(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
+    def replace_phase_property_value(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
             propertytype=None, valuetag="value"):
         """Replaces properties in medium phases
 
@@ -410,7 +436,7 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def replace_medium_property(self, mediumid=None, name=None, value=None, propertytype=None,
+    def replace_medium_property_value(self, mediumid=None, name=None, value=None, propertytype=None,
             valuetag="value"):
         """Replaces properties in medium (not belonging to any phase)
 
@@ -433,6 +459,41 @@ class OGS:
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
+
+    def restart(self, restart_suffix="restart"):
+        filetype = None
+        pvdfile = None
+        try:
+            filetype = self.root.find("./time_loop/output/type").text
+            pvdfile = ET.parse(self.root.find("./time_loop/output/prefix").text+".pvd")
+            if not filetype.tag == "VTK":
+                print("Output filetype not supported. Please use VTK")
+        except:
+            print("PVD file of the previous run could not be found.")
+        tree =  ET.parse(pvdfile)
+        xpath="./Collection/DataSet"
+        root = tree.getroot()
+        find_xpath = root.findall(xpath)
+        lastfile = find_xpath[-1].attrib['file']
+        last_time = find_xpath[-1].attrib['timestep']
+        try:
+            bulk_mesh = self.root.find("./mesh").text
+        except AttributeError:
+            try:
+                bulk_mesh = self.root.find("./meshes/mesh").text
+            except AttributeError:
+                print("Can't find bulk mesh.")
+        self.replace_mesh(bulk_mesh, lastfile)
+        self.root.find("./output/prefix").text = self.root.find("./output/prefix").text + restart_suffix
+        t_initials = self.root.findall("./processes/process/time_stepping/t_initial")
+        for t_initial in t_initials:
+            t_initial.text = last_time
+        process_vars = self.root.findall("./process_variables/process_variable/name")
+        ic_names = self.root.findall("./process_variables/process_variable/initial_condition")
+        for i, process_var in enumerate(process_vars):
+            self.replace_parameter(self, name=ic_names[i], parametertype="MeshNode", taglist=["mesh","fieldname"],
+                               textlist=[lastfile.replace(".vtu",""), process_var.text])
+
 
     def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True):
         """Command to run OGS.
