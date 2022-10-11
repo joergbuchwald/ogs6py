@@ -70,6 +70,9 @@ class Parameters(build_tree.BuildTree):
             parameter['children']['field_name'] = self.populate_tree(
                         'field_name', text=args['field_name'], children={})
         elif args["type"] == "Function":
+            if "mesh" in args:
+                parameter['children']['mesh'] = self.populate_tree(
+                        'mesh', text=args['mesh'], children={})
             if isinstance(args['expression'],str) is True:
                 parameter['children']['expression'] = self.populate_tree(
                         'expression', text=args['expression'], children={})
