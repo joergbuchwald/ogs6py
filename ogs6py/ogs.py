@@ -358,13 +358,39 @@ class OGS:
                     occurrence.text = newmesh
                     switch = True
             else:
-                oldmesh_stripped = os.path.split(oldmesh)[1].split(".")[0]
-                newmesh_stripped = os.path.split(newmesh)[1].split(".")[0]
+                oldmesh_stripped = os.path.split(oldmesh)[1].replace(".vtu","")
+                newmesh_stripped = os.path.split(newmesh)[1].replace(".vtu","")
                 if occurrence.text == oldmesh_stripped:
                     occurrence.text = newmesh_stripped
 
-    def replace_parameter(self, name=None, value=None, parametertype=None, valuetag="value"):
+    def replace_parameter(self, name=None, parametertype=None, taglist=None, textlist=None):
         """Replacing parametertypes and values
+
+        Parameters
+        ----------
+        name : `str`
+            parametername
+        parametertype : `str`
+            parametertype
+        taglist : `list`
+            list of tags needed for parameter spec
+        textlist : `list`
+            values of parameter
+        """
+        root = self._get_root()
+        parameterpath = "./parameters/parameter"
+        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
+        parameterpointer.getparent().remove(parameterpointer)
+        if not "name" in taglist:
+            taglist.insert(0,"name")
+            textlist.insert(0,name)
+        if not parametertype in taglist:
+            taglist.insert(1,"type")
+            textlist.insert(1,parametertype)
+        self.add_block("parameter", parent_xpath="./parameters", taglist=taglist, textlist=textlist)
+
+    def replace_parameter_value(self, name=None, value=None, valuetag="value"):
+        """Replacing parameter values
 
         Parameters
         ----------
@@ -381,9 +407,9 @@ class OGS:
         root = self._get_root()
         parameterpath = "./parameters/parameter"
         parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
-        self._set_type_value(parameterpointer, value, parametertype, valuetag=valuetag)
+        self._set_type_value(parameterpointer, value, None, valuetag=valuetag)
 
-    def replace_phase_property(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
+    def replace_phase_property_value(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
             propertytype=None, valuetag="value"):
         """Replaces properties in medium phases
 
@@ -410,7 +436,7 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def replace_medium_property(self, mediumid=None, name=None, value=None, propertytype=None,
+    def replace_medium_property_value(self, mediumid=None, name=None, value=None, propertytype=None,
             valuetag="value"):
         """Replaces properties in medium (not belonging to any phase)
 
@@ -433,6 +459,81 @@ class OGS:
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
+
+    def set(self, **args):
+        """
+        Sets directly a uniquely defined property
+        List of properties is given in the dictory below
+        """
+        property_db = {
+                "t_initial": "./time_loop/processes/process/time_stepping/t_initial",
+                "t_end": "./time_loop/processes/process/time_stepping/t_end",
+                "mass_lumping": "./processes/process/mass_lumping",
+                "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type"}
+        for arg in args:
+            self.replace_text(args[arg], xpath=property_db[arg])
+
+
+    def restart(self, restart_suffix="_restart", t_initial=None, t_end=None, zero_displacement=False):
+        """Prepares the project file for a restart.
+
+        Takes the last time step from the PVD file mentioned in the PRJ file.
+        Sets initial conditions accordingly.
+
+        Parameters
+        ----------
+        restart_suffix : `str`,
+            suffix by which the output prefix is appended
+        t_initial : `float`, optional
+            first time step, takes the last from previous simulation if None
+        t_end : `float`, optional
+            last time step, the same as in previous run if None
+        zero_displacement: `bolean`, False
+            sets the initial displacement to zero if True
+        """
+
+        root_prj = self._get_root()
+        filetype = root_prj.find("./time_loop/output/type").text
+        pvdfile = root_prj.find("./time_loop/output/prefix").text+".pvd"
+        if not filetype == "VTK":
+            raise RuntimeError("Output fil (*args: object) Please use VTK")
+        tree =  ET.parse(pvdfile)
+        xpath="./Collection/DataSet"
+        root_pvd = tree.getroot()
+        find_xpath = root_pvd.findall(xpath)
+        lastfile = find_xpath[-1].attrib['file']
+        last_time = find_xpath[-1].attrib['timestep']
+        try:
+            bulk_mesh = root_prj.find("./mesh").text
+        except AttributeError:
+            try:
+                bulk_mesh = root_prj.find("./meshes/mesh").text
+            except AttributeError:
+                print("Can't find bulk mesh.")
+        self.replace_mesh(bulk_mesh, lastfile)
+        root_prj.find("./time_loop/output/prefix").text = root_prj.find("./time_loop/output/prefix").text + restart_suffix
+        t_initials = root_prj.findall("./time_loop/processes/process/time_stepping/t_initial")
+        t_ends = root_prj.findall("./time_loop/processes/process/time_stepping/t_end")
+        for i, t0 in enumerate(t_initials):
+            if t_initial is None:
+                t0.text = last_time
+            else:
+                t0.text = str(t_initial)
+            if not t_end is None:
+                t_ends[i].text = str(t_end)
+        process_vars = root_prj.findall("./process_variables/process_variable/name")
+        ic_names = root_prj.findall("./process_variables/process_variable/initial_condition")
+        for i, process_var in enumerate(process_vars):
+            if process_var.text == "displacement" and zero_displacement is True:
+                zero = {"1": "0", "2": "0 0", "3": "0 0 0"}
+                cpnts = root_prj.find("./process_variables/process_variable[name='displacement']/components").text
+                self.replace_parameter(name=ic_names[i].text, parametertype="Constant", taglist=["values"],
+                               textlist=[zero[cpnts]])
+            else:
+                self.replace_parameter(name=ic_names[i].text, parametertype="MeshNode", taglist=["mesh","field_name"],
+                               textlist=[lastfile.replace(".vtu",""), process_var.text])
+        self.remove_element("./processes/process/initial_stress")
+
 
     def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True):
         """Command to run OGS.

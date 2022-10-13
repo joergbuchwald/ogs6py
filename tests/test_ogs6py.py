@@ -311,7 +311,7 @@ class TestiOGS(unittest.TestCase):
     def test_replace_phase_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
-        model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=5)
+        model.replace_phase_property_value(mediumid=0, phase="Solid", name="thermal_expansivity", value=5)
         model.write_input()
         root = ET.parse(prjfile)
         find = root.findall("./media/medium/phases/phase[type='Solid']/properties/property[name='thermal_expansivity']/value")
@@ -319,7 +319,7 @@ class TestiOGS(unittest.TestCase):
     def test_replace_medium_property(self):
         prjfile = "tunnel_ogs6py_replace.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
-        model.replace_medium_property(mediumid=0, name="porosity", value=42)
+        model.replace_medium_property_value(mediumid=0, name="porosity", value=42)
         model.write_input()
         root = ET.parse(prjfile)
         find = root.findall("./media/medium/properties/property[name='porosity']/value")
@@ -327,7 +327,7 @@ class TestiOGS(unittest.TestCase):
     def test_replace_parameter(self):
         prjfile = "tunnel_ogs6py_replace.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/tunnel_ogs6py.prj", PROJECT_FILE=prjfile)
-        model.replace_parameter(name="E", value=32)
+        model.replace_parameter_value(name="E", value=32)
         model.write_input()
         root = ET.parse(prjfile)
         find = root.findall("./parameters/parameter[name='E']/value")
@@ -398,7 +398,7 @@ class TestiOGS(unittest.TestCase):
     def test_replace_property_in_include(self):
         prjfile = "tunnel_ogs6py_includetest.prj"
         model = ogs6py.OGS(INPUT_FILE="tests/includetest.prj", PROJECT_FILE=prjfile)
-        model.replace_phase_property(mediumid=0, phase="Solid", name="thermal_expansivity", value=1e-3)
+        model.replace_phase_property_value(mediumid=0, phase="Solid", name="thermal_expansivity", value=1e-3)
         model.write_input(keep_includes=True)
         with open(prjfile, "rb") as f:
             file_hash = hashlib.md5()
