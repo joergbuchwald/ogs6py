@@ -468,8 +468,18 @@ class OGS:
         property_db = {
                 "t_initial": "./time_loop/processes/process/time_stepping/t_initial",
                 "t_end": "./time_loop/processes/process/time_stepping/t_end",
+                "output_prefix": "./time_loop/output/prefix",
+                "reltols": "./time_loop/processes/process/convergence_criterion/reltols",
+                "abstols": "./time_loop/processes/process/convergence_criterion/abstols",
                 "mass_lumping": "./processes/process/mass_lumping",
-                "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type"}
+                "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type",
+                "eigen_precon": "./linear_solvers/linear_solver/eigen/precon_type",
+                "eigen_max_iteration_step": "./linear_solvers/linear_solver/eigen/max_iteration_step",
+                "eigen_error_tolerance": "./linear_solvers/linear_solver/eigen/error_tolerance",
+                "eigen_scaling": "./linear_solvers/linear_solver/eigen/scaling",
+                "petsc_prefix": "./linear_solvers/linear_solver/petsc/prefix",
+                "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters"
+                }
         for arg in args:
             self.replace_text(args[arg], xpath=property_db[arg])
 
