@@ -358,8 +358,8 @@ class OGS:
                     occurrence.text = newmesh
                     switch = True
             else:
-                oldmesh_stripped = os.path.split(oldmesh)[1].split(".")[0]
-                newmesh_stripped = os.path.split(newmesh)[1].split(".")[0]
+                oldmesh_stripped = os.path.split(oldmesh)[1].replace(".vtu","")
+                newmesh_stripped = os.path.split(newmesh)[1].replace(".vtu","")
                 if occurrence.text == oldmesh_stripped:
                     occurrence.text = newmesh_stripped
 
@@ -460,39 +460,79 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
 
-    def restart(self, restart_suffix="restart"):
-        filetype = None
-        pvdfile = None
-        try:
-            filetype = self.root.find("./time_loop/output/type").text
-            pvdfile = ET.parse(self.root.find("./time_loop/output/prefix").text+".pvd")
-            if not filetype.tag == "VTK":
-                print("Output filetype not supported. Please use VTK")
-        except:
-            print("PVD file of the previous run could not be found.")
+    def set(self, **args):
+        """
+        Sets directly a uniquely defined property
+        List of properties is given in the dictory below
+        """
+        property_db = {
+                "t_initial": "./time_loop/processes/process/time_stepping/t_initial",
+                "t_end": "./time_loop/processes/process/time_stepping/t_end",
+                "mass_lumping": "./processes/process/mass_lumping",
+                "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type"}
+        for arg in args:
+            self.replace_text(args[arg], xpath=property_db[arg])
+
+
+    def restart(self, restart_suffix="_restart", t_initial=None, t_end=None, zero_displacement=False):
+        """Prepares the project file for a restart.
+
+        Takes the last time step from the PVD file mentioned in the PRJ file.
+        Sets initial conditions accordingly.
+
+        Parameters
+        ----------
+        restart_suffix : `str`,
+            suffix by which the output prefix is appended
+        t_initial : `float`, optional
+            first time step, takes the last from previous simulation if None
+        t_end : `float`, optional
+            last time step, the same as in previous run if None
+        zero_displacement: `bolean`, False
+            sets the initial displacement to zero if True
+        """
+
+        root_prj = self._get_root()
+        filetype = root_prj.find("./time_loop/output/type").text
+        pvdfile = root_prj.find("./time_loop/output/prefix").text+".pvd"
+        if not filetype == "VTK":
+            raise RuntimeError("Output fil (*args: object) Please use VTK")
         tree =  ET.parse(pvdfile)
         xpath="./Collection/DataSet"
-        root = tree.getroot()
-        find_xpath = root.findall(xpath)
+        root_pvd = tree.getroot()
+        find_xpath = root_pvd.findall(xpath)
         lastfile = find_xpath[-1].attrib['file']
         last_time = find_xpath[-1].attrib['timestep']
         try:
-            bulk_mesh = self.root.find("./mesh").text
+            bulk_mesh = root_prj.find("./mesh").text
         except AttributeError:
             try:
-                bulk_mesh = self.root.find("./meshes/mesh").text
+                bulk_mesh = root_prj.find("./meshes/mesh").text
             except AttributeError:
                 print("Can't find bulk mesh.")
         self.replace_mesh(bulk_mesh, lastfile)
-        self.root.find("./output/prefix").text = self.root.find("./output/prefix").text + restart_suffix
-        t_initials = self.root.findall("./processes/process/time_stepping/t_initial")
-        for t_initial in t_initials:
-            t_initial.text = last_time
-        process_vars = self.root.findall("./process_variables/process_variable/name")
-        ic_names = self.root.findall("./process_variables/process_variable/initial_condition")
+        root_prj.find("./time_loop/output/prefix").text = root_prj.find("./time_loop/output/prefix").text + restart_suffix
+        t_initials = root_prj.findall("./time_loop/processes/process/time_stepping/t_initial")
+        t_ends = root_prj.findall("./time_loop/processes/process/time_stepping/t_end")
+        for i, t0 in enumerate(t_initials):
+            if t_initial is None:
+                t0.text = last_time
+            else:
+                t0.text = str(t_initial)
+            if not t_end is None:
+                t_ends[i].text = str(t_end)
+        process_vars = root_prj.findall("./process_variables/process_variable/name")
+        ic_names = root_prj.findall("./process_variables/process_variable/initial_condition")
         for i, process_var in enumerate(process_vars):
-            self.replace_parameter(self, name=ic_names[i], parametertype="MeshNode", taglist=["mesh","fieldname"],
+            if process_var.text == "displacement" and zero_displacement is True:
+                zero = {"1": "0", "2": "0 0", "3": "0 0 0"}
+                cpnts = root_prj.find("./process_variables/process_variable[name='displacement']/components").text
+                self.replace_parameter(name=ic_names[i].text, parametertype="Constant", taglist=["values"],
+                               textlist=[zero[cpnts]])
+            else:
+                self.replace_parameter(name=ic_names[i].text, parametertype="MeshNode", taglist=["mesh","field_name"],
                                textlist=[lastfile.replace(".vtu",""), process_var.text])
+        self.remove_element("./processes/process/initial_stress")
 
 
     def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True):
