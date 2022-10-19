@@ -60,8 +60,6 @@ class OGS:
         self.tree = None
         self.include_elements = []
         self.include_files = []
-        self.add_blocks = []
-        self.add_entries = []
         self.add_includes = []
         if "VERBOSE" in args:
             self.verbose = args["VERBOSE"]
@@ -120,7 +118,7 @@ class OGS:
             if self.inputfile is not None:
                 self.tree = ET.parse(self.inputfile)
             else:
-                raise RuntimeError("No input file given.")
+                self.build_tree()
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
@@ -213,20 +211,15 @@ class OGS:
         attrib_value : `str`
             value of the attribute keyword
         """
-        self.add_entries.append({'parent_xpath': parent_xpath, 'tag': tag,
-        'text': text, 'attrib': attrib, 'attrib_value': attrib_value})
-
-    def _add_entries(self, root):
-        for add_entry in self.add_entries:
-            parent = root.findall(add_entry['parent_xpath'])
-            if not add_entry['tag'] is None:
-                newelement = []
-                for i, entry in enumerate(parent):
-                    newelement.append(ET.SubElement(entry, add_entry['tag']))
-                    if not add_entry['text'] is None:
-                        newelement[i].text = str(add_entry['text'])
-                    if (add_entry['attrib'] is not None and add_entry['attrib_value'] is not None):
-                        newelement[i].set(add_entry['attrib'], add_entry['attrib_value'])
+        root = self._get_root()
+        parents = root.findall(parent_xpath)
+        for parent in parents:
+            if not tag is None:
+                q = ET.SubElement(parent, tag)
+                if not text is None:
+                    q.text = text
+                if not attrib is None:
+                    q.set(attrib, attrib_value)
 
     def add_include(self, parent_xpath="./", file=""):
         """add include element
@@ -266,24 +259,17 @@ class OGS:
         textlist : `list`
             list of strings retaining the corresponding values
         """
-        self.add_blocks.append({'blocktag': blocktag, 'block_attrib': block_attrib, 'parent_xpath': parent_xpath,
-        'taglist': taglist, 'textlist': textlist})
-
-    def _add_blocks(self, root):
-        for add_block in self.add_blocks:
-            parent = root.findall(add_block['parent_xpath'])
-            if not add_block['blocktag'] is None:
-                newelement = []
-                for i, entry in enumerate(parent):
-                    newelement.append(ET.SubElement(entry, add_block['blocktag']))
-                    if not add_block['block_attrib'] is None:
-                        for key, val in add_block['block_attrib'].items():
-                            newelement[-1].attrib[key] = val
-            subtaglist = []
-            for blocktagentry in newelement:
-                for i, taglistentry in enumerate(add_block['taglist']):
-                    subtaglist.append(ET.SubElement(blocktagentry, taglistentry))
-                    subtaglist[-1].text = str(add_block['textlist'][i])
+        root = self._get_root()
+        parents = root.findall(parent_xpath)
+        for parent in parents:
+            q = ET.SubElement(parent, blocktag)
+            if not block_attrib is None:
+                for key, val in block_attrib.items():
+                    q.set(key,val)
+            for i, tag in enumerate(taglist):
+                r = ET.SubElement(q, tag)
+                if not textlist[i] is None:
+                    r.text = textlist[i]
 
     def remove_element(self, xpath):
         """Removes an element
@@ -378,16 +364,18 @@ class OGS:
             values of parameter
         """
         root = self._get_root()
-        parameterpath = "./parameters/parameter"
-        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
-        parameterpointer.getparent().remove(parameterpointer)
-        if not "name" in taglist:
-            taglist.insert(0,"name")
-            textlist.insert(0,name)
-        if not parametertype in taglist:
-            taglist.insert(1,"type")
-            textlist.insert(1,parametertype)
-        self.add_block("parameter", parent_xpath="./parameters", taglist=taglist, textlist=textlist)
+        parameterpath = "./parameters/parameter[name=\'"+name+"\']"
+        parent = root.find(parameterpath)
+        children = parent.getchildren()
+        for child in children:
+            if not child.tag in ["name","type"]:
+                self.remove_element(f"{parameterpath}/{child.tag}")
+        paramtype = root.find(f"{parameterpath}/type")
+        paramtype.text = parametertype
+        for i, tag in enumerate(taglist):
+            if not tag in ["name","type"]:
+                self.add_element(parent_xpath=parameterpath,
+                                 tag=tag, text=textlist[i])
 
     def replace_parameter_value(self, name=None, value=None, valuetag="value"):
         """Replacing parameter values
@@ -657,8 +645,6 @@ class OGS:
         self.__dict2xml(self.root, self.processvars.tree)
         self.__dict2xml(self.root, self.nonlinsolvers.tree)
         self.__dict2xml(self.root, self.linsolvers.tree)
-        self._add_blocks(self.root)
-        self._add_entries(self.root)
         self._add_includes(self.root)
         # Reparsing for pretty_print to work properly
         parse = ET.XMLParser(remove_blank_text=True)
@@ -677,8 +663,6 @@ class OGS:
             if keep_includes is True:
                 self.__replace_blocks_by_includes()
             root = self.tree.getroot()
-            self._add_blocks(root)
-            self._add_entries(root)
             self._add_includes(root)
             parse = ET.XMLParser(remove_blank_text=True)
             self.tree_string = ET.tostring(root, pretty_print=True)
