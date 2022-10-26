@@ -2,6 +2,20 @@
 
 All notable changes to **ogs6py** will be documented in this file.
 
+
+## [0.370]
+
+### Changes
+* replacement method can be used together with writing files from scratch
+* added direct setter for frqeuently used signle value properties
+* added restart method
+
+## [0.36]
+
+### Changes
+* minor bugfixes
+
+
 ## [0.35]
 
 ### Changes
