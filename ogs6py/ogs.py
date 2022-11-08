@@ -523,6 +523,7 @@ class OGS:
         ic_names = root_prj.findall("./process_variables/process_variable/initial_condition")
         for i, process_var in enumerate(process_vars):
             if process_var.text == "displacement" and zero_displacement is True:
+                print("Please make sure that epsilon_ip is removed from the VTU file before you run OGS.")
                 zero = {"1": "0", "2": "0 0", "3": "0 0 0"}
                 cpnts = root_prj.find("./process_variables/process_variable[name='displacement']/components").text
                 self.replace_parameter(name=ic_names[i].text, parametertype="Constant", taglist=["values"],
