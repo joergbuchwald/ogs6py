@@ -204,11 +204,11 @@ class OGS:
             XPath of the parent tag
         tag : `str`
             tag name
-        text : `str`
+        text : `str`, `int` or `float`
             content
         attrib : `str`
             attribute keyword
-        attrib_value : `str`
+        attrib_value : `str`, `int` or `float`
             value of the attribute keyword
         """
         root = self._get_root()
@@ -217,9 +217,9 @@ class OGS:
             if not tag is None:
                 q = ET.SubElement(parent, tag)
                 if not text is None:
-                    q.text = text
+                    q.text = str(text)
                 if not attrib is None:
-                    q.set(attrib, attrib_value)
+                    q.set(attrib, str(attrib_value))
 
     def add_include(self, parent_xpath="./", file=""):
         """add include element
@@ -257,7 +257,7 @@ class OGS:
         taglist : `list`
             list of strings containing the keys
         textlist : `list`
-            list of strings retaining the corresponding values
+            list of strings, ints or floats retaining the corresponding values
         """
         root = self._get_root()
         parents = root.findall(parent_xpath)
@@ -269,7 +269,7 @@ class OGS:
             for i, tag in enumerate(taglist):
                 r = ET.SubElement(q, tag)
                 if not textlist[i] is None:
-                    r.text = textlist[i]
+                    r.text = str(textlist[i])
 
     def remove_element(self, xpath):
         """Removes an element
@@ -336,14 +336,19 @@ class OGS:
         newmesh : `str`
         """
         root = self._get_root()
+        bulkmesh = root.find("./mesh")
+        try:
+            if bulkmesh.text == oldmesh:
+                bulkmesh.text = newmesh
+        except:
+            pass
+        all_occurrences_meshsection = root.findall("./meshes/mesh")
+        for occurrence in all_occurrences_meshsection:
+            if occurrence.text == oldmesh:
+                occurrence.text = newmesh
         all_occurrences = root.findall(".//mesh")
-        switch = False
         for occurrence in all_occurrences:
-            if switch is False:
-                if occurrence.text == oldmesh:
-                    occurrence.text = newmesh
-                    switch = True
-            else:
+            if not occurrence in all_occurrences_meshsection:
                 oldmesh_stripped = os.path.split(oldmesh)[1].replace(".vtu","")
                 newmesh_stripped = os.path.split(newmesh)[1].replace(".vtu","")
                 if occurrence.text == oldmesh_stripped:
