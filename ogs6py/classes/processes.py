@@ -48,6 +48,12 @@ class Processes(build_tree.BuildTree):
             'attr': {},
             'children': {}
         }
+        self.bhe_tree = {                           
+            'tag': 'borehole_heat_exchangers',
+            'text': '',
+            'attr': {},
+            'children': {}
+        } 
         self.sflux_vartree = {
             'tag': 'calculatesurfaceflux',
             'text': '',
@@ -72,7 +78,7 @@ class Processes(build_tree.BuildTree):
                 raise KeyError("process_variable_name missing.")
             self.tree['processes']['children']['process']['children'][
                     'process_variables'] = self.proc_vartree
-            self.proc_vartree['children'][args['process_variable']] = {
+            self.proc_vartree['children'][args['process_variable_name']] = {
                     'tag': args['process_variable'],
                     'text': args['process_variable_name'],
                     'attr': {},
@@ -152,6 +158,86 @@ class Processes(build_tree.BuildTree):
                 'attr': {},
                 'children': {}
             }
+
+
+    def add_bhe_type(self, **args):      
+        self.tree['processes']['children']['process']['children']['borehole_heat_exchangers'] = {
+            'borehole_heat_exchangers': {
+                'tag': 'borehole_heat_exchangers',
+                'text': '',
+                'attr': {},
+                'children': {}
+            }
+        }
+        if 'bhe_type' in args:
+            if not 'bhe_type' in args:
+                raise KeyError('BHE type missing.')
+            else:
+                self.tree['processes']['children']['process']['children']['borehole_heat_exchangers'] = self.bhe_tree
+                self.bhe_tree['children']['borehole_heat_exchanger'] = {
+                    'tag': 'borehole_heat_exchanger',
+                    'text': '',
+                    'attr': {},
+                    'children': {}
+                }
+                self.bhe_tree['children']['borehole_heat_exchanger']['children']['type'] = {
+                    'tag': 'type',
+                    'text': args['bhe_type'],
+                    'attr': {},
+                    'children': {}
+                }
+    def add_bhe_component(self, **args):      
+        if not 'comp_type' in args:
+            raise KeyError("No bhe component name specified.")
+        else:
+            self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']] = {
+                    'tag': args['comp_type'],
+                    'text': '',
+                    'attr': {},
+                    'children': {}
+                }
+            bhe_component = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]
+            if args['comp_type'] == 'borehole':
+                bhe_component['children']['length'] = self.populate_tree('length', text = args['length'], children={})
+                bhe_component['children']['diameter'] = self.populate_tree('diameter', text = args['diameter'], children={})
+            elif args['comp_type'] == 'pipes':
+                self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
+                    'tag': 'inlet',
+                    'text': '',
+                    'attr': {},
+                    'children': {}
+                }
+                self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
+                    'tag': 'outlet',
+                    'text': '',
+                    'attr': {},
+                    'children': {}
+                }                
+                inlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet']
+                outlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet']
+                inlet['children']['diameter'] = self.populate_tree('diameter', text = args['inlet_diameter'], children={})
+                inlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['inlet_wall_thickness'], children={})
+                inlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['inlet_wall_thermal_conductivity'], children={})
+                outlet['children']['diameter'] = self.populate_tree('diameter', text = args['outlet_diameter'], children={})
+                outlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['outlet_wall_thickness'], children={})
+                outlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['outlet_wall_thermal_conductivity'], children={})
+                bhe_component['children']['distance_between_pipes'] = self.populate_tree('distance_between_pipes', text = args['distance_between_pipes'], children={})
+                bhe_component['children']['longitudinal_dispersion_length'] = self.populate_tree('longitudinal_dispersion_length', text = args['longitudinal_dispersion_length'], children={})
+            elif args['comp_type'] == 'flow_and_temperature_control':
+                bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
+                bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})    
+            elif args['comp_type'] == 'grout':
+                bhe_component['children']['density'] = self.populate_tree('density', text = args['density'], children={})
+                bhe_component['children']['porosity'] = self.populate_tree('porosity', text = args['porosity'], children={})
+                bhe_component['children']['specific_heat_capacity'] = self.populate_tree('specific_heat_capacity', text = args['specific_heat_capacity'], children={})
+                bhe_component['children']['thermal_conductivity'] = self.populate_tree('thermal_conductivity', text = args['thermal_conductivity'], children={})
+            elif args['comp_type'] == 'refrigerant':
+                bhe_component['children']['density'] = self.populate_tree('density', text = args['density'], children={})
+                bhe_component['children']['viscosity'] = self.populate_tree('viscosity', text = args['viscosity'], children={})
+                bhe_component['children']['specific_heat_capacity'] = self.populate_tree('specific_heat_capacity', text = args['specific_heat_capacity'], children={})
+                bhe_component['children']['thermal_conductivity'] = self.populate_tree('thermal_conductivity', text = args['thermal_conductivity'], children={})
+                bhe_component['children']['reference_temperature'] = self.populate_tree('reference_temperature', text = args['reference_temperature'], children={})
     def add_surfaceflux(self,**args):
         """
         Add SurfaceFlux
