@@ -201,18 +201,33 @@ class Processes(build_tree.BuildTree):
                 bhe_component['children']['length'] = self.populate_tree('length', text = args['length'], children={})
                 bhe_component['children']['diameter'] = self.populate_tree('diameter', text = args['diameter'], children={})
             elif args['comp_type'] == 'pipes':
-                self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
-                    'tag': 'inlet',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-                self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
-                    'tag': 'outlet',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }                
+                if self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "1U" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "2U":
+                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
+                        'tag': 'inlet',
+                        'text': '',
+                        'attr': {},
+                        'children': {}
+                    }
+                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
+                        'tag': 'outlet',
+                        'text': '',
+                        'attr': {},
+                        'children': {}
+                    }                
+                    bhe_component['children']['distance_between_pipes'] = self.populate_tree('distance_between_pipes', text = args['distance_between_pipes'], children={})
+                elif self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXC" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXA":
+                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
+                        'tag': 'inner',
+                        'text': '',
+                        'attr': {},
+                        'children': {}
+                    }
+                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
+                        'tag': 'outer',
+                        'text': '',
+                        'attr': {},
+                        'children': {}
+                    }                
                 inlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet']
                 outlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet']
                 inlet['children']['diameter'] = self.populate_tree('diameter', text = args['inlet_diameter'], children={})
@@ -221,12 +236,32 @@ class Processes(build_tree.BuildTree):
                 outlet['children']['diameter'] = self.populate_tree('diameter', text = args['outlet_diameter'], children={})
                 outlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['outlet_wall_thickness'], children={})
                 outlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['outlet_wall_thermal_conductivity'], children={})
-                bhe_component['children']['distance_between_pipes'] = self.populate_tree('distance_between_pipes', text = args['distance_between_pipes'], children={})
                 bhe_component['children']['longitudinal_dispersion_length'] = self.populate_tree('longitudinal_dispersion_length', text = args['longitudinal_dispersion_length'], children={})
             elif args['comp_type'] == 'flow_and_temperature_control':
-                bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
-                bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})    
+                if args['type'] == "FixedPowerConstantFlow":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['power'] = self.populate_tree('power', text = args['power'], children={})
+                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})
+                elif args['type'] == "FixedPowerFlowCurve":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['power'] = self.populate_tree('power', text = args['power'], children={})
+                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})
+                elif args['type'] == "PowerCurveConstantFlow":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
+                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={}) 
+                elif args['type'] == "TemperatureCurveConstantFlow":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})
+                    bhe_component['children']['temperature_curve'] = self.populate_tree('temperature_curve', text = args['temperature_curve'], children={})
+                elif args['type'] == "TemperatureCurveFlowCurve":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})
+                    bhe_component['children']['temperature_curve'] = self.populate_tree('temperature_curve', text = args['temperature_curve'], children={})
+                elif args['type'] == "PowerCurveFlowCurve":
+                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
+                    bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
+                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})          
             elif args['comp_type'] == 'grout':
                 bhe_component['children']['density'] = self.populate_tree('density', text = args['density'], children={})
                 bhe_component['children']['porosity'] = self.populate_tree('porosity', text = args['porosity'], children={})
