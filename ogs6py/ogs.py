@@ -22,7 +22,7 @@ from ogs6py.classes import (display, geo, mesh, python_script, processes, media,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
-from bheEASyMesh.bhemeshing import BHEMesh 
+
 class OGS:
     """Class for an OGS6 model.
 
@@ -87,17 +87,6 @@ class OGS:
         if "XMLSTRING" in args:
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
-
-    def build_bhe_mesh (self, prefix, meshInput, temperature_IC):                          
-        print("Start meshing ...")
-        self.bhemesh = BHEMesh(prefix, meshInput, mode ="simple")
-        if temperature_IC['use_IC'] == True: 
-            self.bhemesh.write_soil_temperature_IC(temperature_IC)
-        self.bhemesh.write_mesh_to_VTK()
-        meshgeodir = "./" + prefix.replace("\\", "/") + ".vtu"
-        sfmeshgeodir = self.bhemesh.extract_surfaces(sf_types = ['Top', 'Bottom', 'Back_inflow'], IC = ['Back_inflow'])
-        print("Finish meshing")
-        return meshgeodir, sfmeshgeodir
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
