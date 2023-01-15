@@ -471,7 +471,8 @@ class OGS:
                 "eigen_error_tolerance": "./linear_solvers/linear_solver/eigen/error_tolerance",
                 "eigen_scaling": "./linear_solvers/linear_solver/eigen/scaling",
                 "petsc_prefix": "./linear_solvers/linear_solver/petsc/prefix",
-                "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters"
+                "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters",
+                "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum"
                 }
         for arg in args:
             self.replace_text(args[arg], xpath=property_db[arg])
@@ -535,7 +536,7 @@ class OGS:
                                textlist=[zero[cpnts]])
             else:
                 self.replace_parameter(name=ic_names[i].text, parametertype="MeshNode", taglist=["mesh","field_name"],
-                               textlist=[lastfile.replace(".vtu",""), process_var.text])
+                               textlist=[lastfile.split("/")[-1].replace(".vtu",""), process_var.text])
         self.remove_element("./processes/process/initial_stress")
 
 
