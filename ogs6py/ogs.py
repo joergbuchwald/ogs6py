@@ -472,7 +472,8 @@ class OGS:
                 "eigen_scaling": "./linear_solvers/linear_solver/eigen/scaling",
                 "petsc_prefix": "./linear_solvers/linear_solver/petsc/prefix",
                 "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters",
-                "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum"
+                "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum",
+                "compensate_all": "./process_variables/process_variable/compensate_non_equilibrium_initial_residuum"
                 }
         for arg in args:
             self.replace_text(args[arg], xpath=property_db[arg])
