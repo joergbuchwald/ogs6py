@@ -18,6 +18,7 @@ import time
 import shutil
 import pandas as pd
 from lxml import etree as ET
+from fastcore.utils import *
 from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
@@ -26,22 +27,22 @@ import ogs6py.log_parser.common_ogs_analyses as parse_fcts
 class OGS:
     """Class for an OGS6 model.
 
-    In this class everything for an OGS5 model can be specified.
+    In this class everything for an OGS6 model can be specified.
 
     Parameters
     ----------
-    PROJECT_FILE : `str`, optional
+    project_file : `str`, optional
         Filename of the output project file
         Default: default.prj
-    INPUT_FILE : `str`, optional
+    input_file : `str`, optional
         Filename of the input project file
-    XMLSTRING : `str`,optional
-    OMP_NUM_THREADS : `int`, optional
+    xmlstring : `str`,optional
+    omp_num_threads : `int`, optional
         Sets the environmentvariable before OGS execution to restrict number of OMP Threads
-    VERBOSE : `bool`, optional
+    verbose : `bool`, optional
         Default: False
     """
-    def __init__(self, **args):
+    def __init__(self, input_file=None, project_file="default.prj", xmlstring=None, verbose=False, omp_num_threads=None, **args):
         self.geo = geo.Geo()
         self.mesh = mesh.Mesh()
         self.pyscript = python_script.PythonScript()
@@ -49,7 +50,7 @@ class OGS:
         self.media = media.Media()
         self.timeloop = timeloop.TimeLoop()
         self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem()
-        self.parameters = parameters.Parameters()
+        #self.parameters = parameters.Parameters()
         self.curves = curves.Curves()
         self.processvars = processvars.ProcessVars()
         self.linsolvers = linsolvers.LinSolvers()
@@ -61,32 +62,38 @@ class OGS:
         self.include_elements = []
         self.include_files = []
         self.add_includes = []
+        store_attr()
+        # **args only fror backwards compatibility
         if "VERBOSE" in args:
             self.verbose = args["VERBOSE"]
         else:
             self.verbose = False
         if "OMP_NUM_THREADS" in args:
-            self.threads = args["OMP_NUM_THREADS"]
+            self.omp_num_threads = args["OMP_NUM_THREADS"]
         else:
-            self.threads = None
+            self.omp_num_threads = None
         if "PROJECT_FILE" in args:
-            self.prjfile = args['PROJECT_FILE']
+            self.project_file = args['PROJECT_FILE']
         else:
             print("PROJECT_FILE for output not given. Calling it default.prj.")
-            self.prjfile = "default.prj"
+            self.project_file = "default.prj"
         if "INPUT_FILE" in args:
-            if os.path.isfile(args['INPUT_FILE']) is True:
-                self.inputfile = args['INPUT_FILE']
+            self.input_file = args['INPUT_FILE']
+        if self.input_file is not None:
+            if os.path.isfile(self.input_file) is True:
                 _ = self._get_root()
                 if self.verbose is True:
                     display.Display(self.tree)
             else:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
-        else:
-            self.inputfile = None
-        if "XMLSTRING" in args:
+        if "XMLSTRING" in args or (self.xmlstring is not None):
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
+        try:
+            paramobj = self.tree.find("./parameters")
+        except AttributeError:
+            paramobj = None
+        self.parameters = parameters.Parameters(xmlobject=paramobj)
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
@@ -115,8 +122,8 @@ class OGS:
 
     def _get_root(self):
         if self.tree is None:
-            if self.inputfile is not None:
-                self.tree = ET.parse(self.inputfile)
+            if self.input_file is not None:
+                self.tree = ET.parse(self.input_file)
             else:
                 self.build_tree()
         root = self.tree.getroot()
@@ -566,10 +573,10 @@ class OGS:
         """
 
         ogs_path = ""
-        if self.threads is None:
+        if self.omp_num_threads is None:
             env_export = ""
         else:
-            env_export = f"export OMP_NUM_THREADS={self.threads} && "
+            env_export = f"export OMP_NUM_THREADS={self.omp_num_threads} && "
         if not container_path is None:
             container_path = os.path.expanduser(container_path)
             if os.path.isfile(container_path) is False:
@@ -610,9 +617,9 @@ class OGS:
         if not args is None:
             cmd += f"{args} "
         if write_logs is True:
-            cmd += f"{self.prjfile} > {self.logfile}"
+            cmd += f"{self.project_file} > {self.logfile}"
         else:
-            cmd += f"{self.prjfile}"
+            cmd += f"{self.project_file}"
         startt = time.time()
         if sys.platform == "win32":
             returncode = subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -621,7 +628,7 @@ class OGS:
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
-            print(f"OGS finished with project file {self.prjfile}.")
+            print(f"OGS finished with project file {self.project_file}.")
             print(f"Execution took {self.exec_time} s")
         else:
             print(f"Error code: {returncode.returncode}")
@@ -679,7 +686,7 @@ class OGS:
             ET.indent(self.tree, space="    ")
             if self.verbose is True:
                 display.Display(self.tree)
-            self.tree.write(self.prjfile,
+            self.tree.write(self.project_file,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
                             pretty_print=True)
@@ -688,7 +695,7 @@ class OGS:
         ET.indent(self.tree, space="    ")
         if self.verbose is True:
             display.Display(self.tree)
-        self.tree.write(self.prjfile,
+        self.tree.write(self.project_file,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
                          pretty_print=True)

@@ -8,12 +8,13 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 """
 # pylint: disable=C0103, R0902, R0914, R0913
 from ogs6py.classes import build_tree
+from ogs6py.classes import parameter_type
 
 class Parameters(build_tree.BuildTree):
     """
     Class for managing the parameters section of the project file.
     """
-    def __init__(self):
+    def __init__(self, xmlobject=None):
         self.tree = {
             'parameters': {
                 'tag': 'parameters',
@@ -22,6 +23,106 @@ class Parameters(build_tree.BuildTree):
                 'children': {}
             }
         }
+        self.parameter = {}
+        self.xmlobject = xmlobject
+        #self.__dict__ = {}
+        if not (xmlobject is None):
+            for prmt in xmlobject:
+                for parameter_property in prmt:
+                    if parameter_property.tag == "type":
+                        param_type = parameter_property.text
+                    elif parameter_property.tag == "name":
+                        param_name = parameter_property.text
+                if param_type == "Constant":
+                    self.__dict__[param_name] = parameter_type.Constant(prmt)
+                elif param_type == "Function":
+                    self.__dict__[param_name] = parameter_type.Function(prmt)
+                elif param_type == "MeshNode":
+                    self.__dict__[param_name] = parameter_type.MeshNode(prmt)
+                elif param_type == "MeshElement":
+                    self.__dict__[param_name] = parameter_type.MeshElement(prmt)
+                elif param_type == "CurveScaled":
+                    self.__dict__[param_name] = parameter_type.CurveScaled(prmt)
+                elif param_type == "TimeDependentHeterogeneousParameter":
+                    self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
+                elif param_type == "RandomFieldMeshElementParameter":
+                    self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt)
+                elif param_type == "Group":
+                    self.__dict__[param_name] = parameter_type.Group(prmt)
+
+    def __getitem__(self, key):
+        if not (key in ["tree","parameter", "xmlobject"]):
+            return self.__dict__[key]
+
+    def __repr__(self):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return repr(newdict)
+
+    def __len__(self):
+        return len(self.__dict__)
+
+    def __delitem__(self, key):
+        pass
+        #del self.__dict__[key]
+
+    def clear(self):
+        return self.__dict__.clear()
+
+    def copy(self):
+        return self.__dict__.copy()
+
+    def has_key(self, k):
+        if not (k in ["tree","parameter", "xmlobject"]):
+            return k in self.__dict__
+
+    def update(self, *args, **kwargs):
+        pass
+        # return self.__dict__.update(*args, **kwargs)
+
+    def keys(self):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return newdict.keys()
+
+    def values(self):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return newdict.values()
+
+    def items(self):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return newdict.items()
+
+    def pop(self, *args):
+        pass
+        #return self.__dict__.pop(*args)
+
+    def __cmp__(self, dict_):
+        return self.__cmp__(self.__dict__, dict_)
+
+    def __contains__(self, item):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return item in newdict
+
+    def __iter__(self):
+        newdict = {}
+        for k, v in self.__dict__.items():
+            if not (k in ["tree","parameter", "xmlobject"]):
+                newdict[k] = v
+        return iter(newdict)
 
     def add_parameter(self, **args):
         """
