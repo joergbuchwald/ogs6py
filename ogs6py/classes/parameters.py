@@ -7,6 +7,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 
 """
 # pylint: disable=C0103, R0902, R0914, R0913
+from lxml import etree as ET
 from ogs6py.classes import build_tree
 from ogs6py.classes import parameter_type
 
@@ -25,7 +26,6 @@ class Parameters(build_tree.BuildTree):
         }
         self.parameter = {}
         self.xmlobject = xmlobject
-        #self.__dict__ = {}
         if not (xmlobject is None):
             for prmt in xmlobject:
                 for parameter_property in prmt:
@@ -43,12 +43,78 @@ class Parameters(build_tree.BuildTree):
                     self.__dict__[param_name] = parameter_type.MeshElement(prmt)
                 elif param_type == "CurveScaled":
                     self.__dict__[param_name] = parameter_type.CurveScaled(prmt)
-                elif param_type == "TimeDependentHeterogeneousParameter":
-                    self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
+#                elif param_type == "TimeDependentHeterogeneousParameter":
+#                    self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
                 elif param_type == "RandomFieldMeshElementParameter":
                     self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt)
-                elif param_type == "Group":
-                    self.__dict__[param_name] = parameter_type.Group(prmt)
+#                elif param_type == "Group":
+#                    self.__dict__[param_name] = parameter_type.Group(prmt)
+
+    def __checkparameter(self, dictionary):
+        required = {"Constant": ["name", "type"],
+               "Function": ["name", "type", "expression"],
+               "MeshNode": ["name", "type", "field_name"],
+               "MeshElement": ["name", "type", "field_name"],
+               "CurvedScaled": ["name", "type", "curve", "parameter"],
+               "TimeDependentHeterogeneousParameter": ["name", "type", "time_series"],
+               "RandomFieldMeshElementParameter": ["name", "type","field_name", "range", "seed"],
+               "Group": ["name", "type", "group_id_property"]}
+        optional =  {"Constant": ["value", "values"],
+               "Function": ["mesh"],
+               "MeshNode": ["mesh"],
+               "MeshElement": ["mesh"],
+               "CurvedScaled": ["mesh"],
+               "TimeDependentHeterogeneousParameter": ["mesh"],
+               "RandomFieldMeshElementParameter": ["mesh"],
+               "Group": ["mesh"]}
+        for k, v in dictionary.items():
+            if not k in (required[dictionary["type"]]+optional[dictionary["type"]]):
+                raise RuntimeError(f"{k} is not a valid property field for the specified type.")
+        for entry in required[dictionary["type"]]:
+            if not entry in dictionary:
+                raise RuntimeError(f"{entry} is required for the specified type.")
+        if dictionary["type"] == "Constant":
+            if not (("value" in dictionary) or ("values" in dictionary)):
+                raise RuntimeError("The Constant parameter requires value or values to be specified.")
+
+
+    def __setitem__(self, key, item):
+        if not isinstance(item, dict):
+            raise RuntimeError("Item must be a dictionary")
+        if len(item) == 0:
+            self.__delitem__(key)
+            return
+        self.__checkparameter(item)
+        if key in self.__dict__:
+            self.__delitem__(key)
+        prmt_obj = ET.SubElement(self.xmlobject, "parameter")
+        for k, v  in item.items():
+            if k == "expression":
+                q = []
+                for subentry in v:
+                    q.append(ET.SubElement(prmt_obj, "expression"))
+                    q[-1].text = subentry
+            else:
+                q = ET.SubElement(prmt_obj, k)
+                q.text = v
+        if item["type"] == "Constant":
+            self.__dict__[key] = parameter_type.Constant(prmt_obj)
+        elif item["type"] == "Function":
+            self.__dict__[key] = parameter_type.Function(prmt_obj)
+        elif item["type"] == "MeshNode":
+            self.__dict__[key] = parameter_type.MeshNode(prmt_obj)
+        elif item["type"] == "MeshElement":
+            self.__dict__[key] = parameter_type.MeshElement(prmt_obj)
+        elif item["type"] == "CurveScaled":
+            self.__dict__[key] = parameter_type.CurveScaled(prmt_obj)
+#       elif item["type"] == "TimeDependentHeterogeneousParameter":
+#           self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
+        elif item["type"] == "RandomFieldMeshElementParameter":
+            self.__dict__[key] = parameter_type.RandomFieldMeshElementParameter(prmt_obj)
+#       elif item["type"] == "Group":
+#           self.__dict__[param_name] = parameter_type.Group(prmt)
+        return prmt_obj
+
 
     def __getitem__(self, key):
         if not (key in ["tree","parameter", "xmlobject"]):
@@ -57,7 +123,7 @@ class Parameters(build_tree.BuildTree):
     def __repr__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree","parameter", "xmlobject"]):
+            if not (k in ["tree","parameter", "name", "xmlobject"]):
                 newdict[k] = v
         return repr(newdict)
 
@@ -65,8 +131,9 @@ class Parameters(build_tree.BuildTree):
         return len(self.__dict__)
 
     def __delitem__(self, key):
-        pass
-        #del self.__dict__[key]
+        obj = self.__dict__[key].xmlobject
+        obj.getparent().remove(obj)
+        del self.__dict__[key]
 
     def clear(self):
         return self.__dict__.clear()

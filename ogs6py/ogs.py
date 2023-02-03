@@ -50,8 +50,8 @@ class OGS:
         self.media = media.Media()
         self.timeloop = timeloop.TimeLoop()
         self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem()
-        #self.parameters = parameters.Parameters()
-        self.curves = curves.Curves()
+        self.__parameters = None
+        self.__curves = None
         self.processvars = processvars.ProcessVars()
         self.linsolvers = linsolvers.LinSolvers()
         self.nonlinsolvers = nonlinsolvers.NonLinSolvers()
@@ -74,7 +74,7 @@ class OGS:
             self.omp_num_threads = None
         if "PROJECT_FILE" in args:
             self.project_file = args['PROJECT_FILE']
-        else:
+        if self.project_file is None:
             print("PROJECT_FILE for output not given. Calling it default.prj.")
             self.project_file = "default.prj"
         if "INPUT_FILE" in args:
@@ -86,14 +86,8 @@ class OGS:
                     display.Display(self.tree)
             else:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
-        if "XMLSTRING" in args or (self.xmlstring is not None):
-            root = ET.fromstring(args['XMLSTRING'])
-            self.tree = ET.ElementTree(root)
-        try:
-            paramobj = self.tree.find("./parameters")
-        except AttributeError:
-            paramobj = None
-        self.parameters = parameters.Parameters(xmlobject=paramobj)
+        if "XMLSTRING" in args:
+            self.xmlstring = args["XMLSTRING"]
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
@@ -124,6 +118,9 @@ class OGS:
         if self.tree is None:
             if self.input_file is not None:
                 self.tree = ET.parse(self.input_file)
+            elif self.xmlstring is not None:
+                root = ET.fromstring(self.xmlstring)
+                self.tree = ET.ElementTree(root)
             else:
                 self.build_tree()
         root = self.tree.getroot()
@@ -142,6 +139,26 @@ class OGS:
                 if child not in children_before:
                     self.include_elements.append(child)
         return root
+
+    @property
+    def parameters(self):
+        try:
+            paramobj = self.tree.find("./parameters")
+        except AttributeError:
+            paramobj = None
+        if not (paramobj == self.__parameters):
+            self.__parameters = parameters.Parameters(xmlobject=paramobj)
+        return self.__parameters
+
+    @property
+    def curves(self):
+        try:
+            curveobj = self.tree.find("./curves")
+        except AttributeError:
+            curveobj = None
+        if not (curveobj == self.__curves):
+            self.__curves = curves.Curves(xmlobject=curveobj)
+        return self.__curves
 
     @classmethod
     def _get_parameter_pointer(cls, root, name, xpath):

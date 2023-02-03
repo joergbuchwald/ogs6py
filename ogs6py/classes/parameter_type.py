@@ -7,8 +7,18 @@ Copyright (c) 2012-2023, OpenGeoSys Community (http://www.opengeosys.org)
 
 """
 from fastcore.utils import *
+import numpy as np
 from lxml import etree as ET
-
+try:
+    import vtuIO
+    has_vtuinterface = True
+except ImportError:
+    has_vtuinterface = False
+try:
+    import cexprtk
+    has_cexprtk = True
+except ImportError:
+    has_cexprtk = False
 
 # pylint: disable=C0103, R0902, R0914, R0913
 
@@ -38,7 +48,7 @@ class Parameter_type:
                     expression_counter += 1
                     parameter_property.text = str(item[expression_counter])
                 else:
-                    parameter_property.text = (item)
+                    parameter_property.text = str(item)
 
     def __getitem__(self, key):
         if not (key == "xmlobject"):
@@ -115,24 +125,91 @@ class Parameter_type:
         return iter(newdict)
 
 class Constant(Parameter_type):
-    pass
+    def evaluate_values(self):
+        if "values" in self.__dict__:
+            return self.__dict__["values"]
+        else:
+            return self.__dict__["value"]
 
 class Function(Parameter_type):
-    pass
+    def evaluate_values(self):
+        if has_vtuinterface is False:
+            raise RuntimeError("VTUinterface is not installed")
+        if has_cexprtk is False:
+            raise RuntimeError("cexprtk is not installed")
+        try:
+            mesh = self.__dict__["mesh"]
+            meshfiles = self.xmlobject.getparent().getparent().findall("./mesh")
+            for file in meshfiles:
+                if mesh in file.text:
+                    meshfile = file.text
+        except KeyError:
+            meshfile = self.xmlobject.getparent().getparent().find("./mesh")
+        m = vtuIO.VTUIO(meshfile)
+        st = cexprtk.Symbol_Table({'x': 0.0, 'y': 0.0, 'z': 0.0}, add_constants=True)
+        dim1 = len(m.points)
+        dim2 = len(self.__dict__["expression"])
+        if dim2 == 1:
+            array = np.zeros(dim1)
+            evaluate = cexprtk.Expression(self.__dict__["expression"][0], st)
+            for  i in range(dim1):
+                st.variables["x"] = m.points[i][0]
+                st.variables["y"] = m.points[i][1]
+                st.variables["z"] = m.points[i][2]
+                array[i] = evaluate()
+        else:
+            array = np.zeros((dim1, dim2))
+            evaluate = []
+            for i in range(dim2):
+                evaluate.append(cexprtk.Expression(self.__dict__["expression"][i], st))
+            for i in range(dim1):
+                for j in range(dim2):
+                    st.variables["x"] = m.points[i][0]
+                    st.variables["y"] = m.points[i][1]
+                    st.variables["z"] = m.points[i][2]
+                    array[i,j]=evaluate[j]()
+        return m.points, array, m
+
 
 class MeshNode(Parameter_type):
-    pass
+    def evaluate_values(self):
+        if has_vtuinterface is False:
+            raise RuntimeError("vtuIO is not installed")
+        try:
+            mesh = self.__dict__["mesh"]
+            meshfiles = self.xmlobject.getparent().getparent().findall("./mesh")
+            for file in meshfiles:
+                if mesh in file.text:
+                    meshfile = file.text
+        except KeyError:
+            meshfile = self.xmlobject.getparent().getparent().find("./mesh")
+        m = vtuIO.VTUIO(meshfile)
+        array = m.get_point_field(self.__dict__["field_name"])
+        return m.points, array, m
 
 class MeshElement(Parameter_type):
-    pass
+    def evaluate_values(self):
+        if has_vtuinterface is False:
+            raise RuntimeError("vtuIO is not installed")
+        try:
+            mesh = self.__dict__["mesh"]
+            meshfiles = self.xmlobject.getparent().getparent().findall("./mesh")
+            for file in meshfiles:
+                if mesh in file.text:
+                    meshfile = file.text
+        except KeyError:
+            meshfile = self.xmlobject.getparent().getparent().find("./mesh")
+        m = vtuIO.VTUIO(meshfile)
+        array = m.get_cell_field(self.__dict__["field_name"])
+        return m.cell_center_points, array, m
 
 class CurveScaled(Parameter_type):
     pass
 
-class TimeDependentHeterogeneousParameter(Parameter_type):
-    pass
+#class TimeDependentHeterogeneousParameter(Parameter_type):
+#    pass
 
 class RandomFieldMeshElementParameter(Parameter_type):
     pass
-class Group(Parameter_type):
-    pass
+#class Group(Parameter_type):
+#    pass
