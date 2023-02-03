@@ -80,6 +80,9 @@ class Parameters(build_tree.BuildTree):
                 for i, entry in enumerate(args['expression']):
                     parameter['children'][f'expression{i}'] = self.populate_tree(
                         'expression', text=entry, children={})
+            elif 'mesh' in args:                        
+                        parameter['children']['mesh'] = self.populateTree(
+                        'mesh', text=args['mesh'], children={})
         elif args["type"] == "CurveScaled":
             if "curve" in args:
                 parameter['children']['curve'] = self.populate_tree(

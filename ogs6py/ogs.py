@@ -18,7 +18,7 @@ import time
 import shutil
 import pandas as pd
 from lxml import etree as ET
-from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop,
+from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop, 
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
@@ -26,7 +26,7 @@ import ogs6py.log_parser.common_ogs_analyses as parse_fcts
 class OGS:
     """Class for an OGS6 model.
 
-    In this class everything for an OGS5 model can be specified.
+    In this class everything for an OGS6 model can be specified.
 
     Parameters
     ----------
