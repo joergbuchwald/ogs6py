@@ -144,20 +144,24 @@ class OGS:
     def parameters(self):
         try:
             paramobj = self.tree.find("./parameters")
+            if not (paramobj == self.__parameters):
+                self.__parameters = parameters.Parameters(xmlobject=paramobj)
         except AttributeError:
             paramobj = None
-        if not (paramobj == self.__parameters):
-            self.__parameters = parameters.Parameters(xmlobject=paramobj)
+            if self.__parameters is None:
+                self.__parameters = parameters.Parameters(xmlobject=paramobj)
         return self.__parameters
 
     @property
     def curves(self):
         try:
             curveobj = self.tree.find("./curves")
+            if not (curveobj == self.__curves):
+                self.__curves = curves.Curves(xmlobject=curveobj)
         except AttributeError:
             curveobj = None
-        if not (curveobj == self.__curves):
-            self.__curves = curves.Curves(xmlobject=curveobj)
+            if self.__curves is None:
+                self.__curves = curves.Curves(xmlobject=curveobj)
         return self.__curves
 
     @classmethod
