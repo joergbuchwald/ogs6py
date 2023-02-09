@@ -15,8 +15,7 @@ class Parameters(build_tree.BuildTree):
     """
     Class for managing the parameters section of the project file.
     """
-    def __init__(self, xmlobject=None):
-        #print("init")
+    def __init__(self, xmlobject=None, curvesobj=None):
         self.tree = {
             'parameters': {
                 'tag': 'parameters',
@@ -27,6 +26,7 @@ class Parameters(build_tree.BuildTree):
         }
         self.parameter = {}
         self.xmlobject = xmlobject
+        self.curvesobj = curvesobj
         if not (xmlobject is None):
             for prmt in xmlobject:
                 for parameter_property in prmt:
@@ -35,24 +35,23 @@ class Parameters(build_tree.BuildTree):
                     elif parameter_property.tag == "name":
                         param_name = parameter_property.text
                 if param_type == "Constant":
-                    self.__dict__[param_name] = parameter_type.Constant(prmt)
+                    self.__dict__[param_name] = parameter_type.Constant(prmt, curvesobj)
                 elif param_type == "Function":
-                    self.__dict__[param_name] = parameter_type.Function(prmt)
+                    self.__dict__[param_name] = parameter_type.Function(prmt, curvesobj)
                 elif param_type == "MeshNode":
-                    self.__dict__[param_name] = parameter_type.MeshNode(prmt)
+                    self.__dict__[param_name] = parameter_type.MeshNode(prmt, curvesobj)
                 elif param_type == "MeshElement":
-                    self.__dict__[param_name] = parameter_type.MeshElement(prmt)
+                    self.__dict__[param_name] = parameter_type.MeshElement(prmt, curvesobj)
                 elif param_type == "CurveScaled":
-                    self.__dict__[param_name] = parameter_type.CurveScaled(prmt)
+                    self.__dict__[param_name] = parameter_type.CurveScaled(prmt, curvesobj)
 #                elif param_type == "TimeDependentHeterogeneousParameter":
 #                    self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
                 elif param_type == "RandomFieldMeshElementParameter":
-                    self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt)
+                    self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt, curvesobj)
 #                elif param_type == "Group":
 #                    self.__dict__[param_name] = parameter_type.Group(prmt)
 
     def __checkparameter(self, dictionary):
-        #print("checkparameter")
         required = {"Constant": ["name", "type"],
                "Function": ["name", "type", "expression"],
                "MeshNode": ["name", "type", "field_name"],
@@ -81,7 +80,6 @@ class Parameters(build_tree.BuildTree):
 
 
     def __setitem__(self, key, item):
-        #print("setitem")
         if not isinstance(item, dict):
             raise RuntimeError("Item must be a dictionary")
         if len(item) == 0:
@@ -101,111 +99,96 @@ class Parameters(build_tree.BuildTree):
                 q = ET.SubElement(prmt_obj, k)
                 q.text = v
         if item["type"] == "Constant":
-            self.__dict__[key] = parameter_type.Constant(prmt_obj)
+            self.__dict__[key] = parameter_type.Constant(prmt_obj, self.curvesobj)
         elif item["type"] == "Function":
-            self.__dict__[key] = parameter_type.Function(prmt_obj)
+            self.__dict__[key] = parameter_type.Function(prmt_obj, self.curvesobj)
         elif item["type"] == "MeshNode":
-            self.__dict__[key] = parameter_type.MeshNode(prmt_obj)
+            self.__dict__[key] = parameter_type.MeshNode(prmt_obj, self.curvesobj)
         elif item["type"] == "MeshElement":
-            self.__dict__[key] = parameter_type.MeshElement(prmt_obj)
+            self.__dict__[key] = parameter_type.MeshElement(prmt_obj, self.curvesobj)
         elif item["type"] == "CurveScaled":
-            self.__dict__[key] = parameter_type.CurveScaled(prmt_obj)
+            self.__dict__[key] = parameter_type.CurveScaled(prmt_obj, self.curvesobj)
 #       elif item["type"] == "TimeDependentHeterogeneousParameter":
 #           self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
         elif item["type"] == "RandomFieldMeshElementParameter":
-            self.__dict__[key] = parameter_type.RandomFieldMeshElementParameter(prmt_obj)
+            self.__dict__[key] = parameter_type.RandomFieldMeshElementParameter(prmt_obj, self.curvesobj)
 #       elif item["type"] == "Group":
 #           self.__dict__[param_name] = parameter_type.Group(prmt)
         return prmt_obj
 
 
     def __getitem__(self, key):
-        #print("getitem")
-        if not (key in ["tree", "parameter", "xmlobject"]):
+        if not (key in ["tree", "parameter", "xmlobject", "curvesobj"]):
             return self.__dict__[key]
 
     def __repr__(self):
-        #print("repr")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "name", "xmlobject"]):
+            if not (k in ["tree", "parameter", "name", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return repr(newdict)
 
     def __len__(self):
-        #print("len")
         return len(self.__dict__)
 
     def __delitem__(self, key):
-        #print("delitem")
         obj = self.__dict__[key].xmlobject
         obj.getparent().remove(obj)
         del self.__dict__[key]
 
     def clear(self):
-        #print("clear")
         return self.__dict__.clear()
 
     def copy(self):
-        #print("copy")
         return self.__dict__.copy()
 
     def has_key(self, k):
-        #print("has key")
-        if not (k in ["tree", "parameter", "xmlobject"]):
+        if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
             return k in self.__dict__
 
     def update(self, *args, **kwargs):
-        #print("update")
         pass
         # return self.__dict__.update(*args, **kwargs)
 
     def keys(self):
-        #print("keys")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.keys()
 
     def values(self):
-        #print("values")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.values()
 
     def items(self):
-        #print("items")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.items()
 
     def pop(self, *args):
-        #print("pop")
         pass
         #return self.__dict__.pop(*args)
 
     def __cmp__(self, dict_):
-        #print("cmp")
         return self.__cmp__(self.__dict__, dict_)
 
     def __contains__(self, item):
-        #print("contains")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return item in newdict
 
     def __iter__(self):
-        #print("iter")
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
                 newdict[k] = v
         return iter(newdict)
 
@@ -228,7 +211,6 @@ class Parameters(build_tree.BuildTree):
         parameter_name : `list`
         use_local_coordinate_system : `bool` or `str`
         """
-        #print("add parameter")
         self._convertargs(args)
         if "name" not in args:
             raise KeyError("No parameter name given.")

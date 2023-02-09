@@ -145,11 +145,11 @@ class OGS:
         try:
             paramobj = self.tree.find("./parameters")
             if not (paramobj == self.__parameters):
-                self.__parameters = parameters.Parameters(xmlobject=paramobj)
+                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves)
         except AttributeError:
             paramobj = None
             if self.__parameters is None:
-                self.__parameters = parameters.Parameters(xmlobject=paramobj)
+                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves)
         return self.__parameters
 
     @property

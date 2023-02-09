@@ -23,9 +23,10 @@ except ImportError:
 # pylint: disable=C0103, R0902, R0914, R0913
 
 class Parameter_type:
-    def __init__(self, xmlobject:object=None) -> None:
+    def __init__(self, xmlobject:object=None, curvesobj=None) -> None:
         self.__dict__ = {}
         self.xmlobject = xmlobject
+        self.curvesobj = curvesobj
         if not self.xmlobject is None:
             for parameter_property in self.xmlobject:
                 if parameter_property.tag == "expression":
@@ -51,13 +52,13 @@ class Parameter_type:
                     parameter_property.text = str(item)
 
     def __getitem__(self, key):
-        if not (key == "xmlobject"):
+        if not (key in ["xmlobject", "curvesobj"]):
             return self.__dict__[key]
 
     def __repr__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return repr(newdict)
 
@@ -75,7 +76,7 @@ class Parameter_type:
         return self.__dict__.copy()
 
     def has_key(self, k):
-        if not (k == "xmlobject"):
+        if not (k in ["xmlobject", "curvesobj"]):
             return k in self.__dict__
 
     def update(self, *args, **kwargs):
@@ -85,21 +86,21 @@ class Parameter_type:
     def keys(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.keys()
 
     def values(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.values()
 
     def items(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return newdict.items()
 
@@ -113,14 +114,14 @@ class Parameter_type:
     def __contains__(self, item):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return item in newdict
 
     def __iter__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k == "xmlobject"):
+            if not (k in ["xmlobject", "curvesobj"]):
                 newdict[k] = v
         return iter(newdict)
 
@@ -132,7 +133,7 @@ class Constant(Parameter_type):
             return self.__dict__["value"]
 
 class Function(Parameter_type):
-    def evaluate_values(self):
+    def evaluate_values(self, t=0):
         if has_vtuinterface is False:
             raise RuntimeError("VTUinterface is not installed")
         if has_cexprtk is False:
@@ -144,9 +145,14 @@ class Function(Parameter_type):
                 if mesh in file.text:
                     meshfile = file.text
         except KeyError:
-            meshfile = self.xmlobject.getparent().getparent().find("./mesh")
+            meshfile = self.xmlobject.getparent().getparent().find("./mesh").text
         m = vtuIO.VTUIO(meshfile)
-        st = cexprtk.Symbol_Table({'x': 0.0, 'y': 0.0, 'z': 0.0}, add_constants=True)
+        st = cexprtk.Symbol_Table({'x': 0.0, 'y': 0.0, 'z': 0.0, 't': t}, add_constants=True)
+        try:
+            for curve in self.curvesobj.keys():
+                st.functions[curve] = self.curvesobj[curve].evaluate_values
+        except:
+            pass
         dim1 = len(m.points)
         dim2 = len(self.__dict__["expression"])
         if dim2 == 1:
@@ -204,7 +210,12 @@ class MeshElement(Parameter_type):
         return m.cell_center_points, array, m
 
 class CurveScaled(Parameter_type):
-    pass
+    def evaluate_values(self, curve_coords=None):
+        if curve_coords is None:
+            t_start = self.xmlobject.getparent().getparent().find("./time_loop/processes/process/time_stepping/t_initial")
+            t_end = self.xmlobject.getparent().getparent().find("./time_loop/processes/process/time_stepping/t_end")
+            curve_coords = np.linspace(t_start, t_end, 1000, endpoint=True)
+        return
 
 #class TimeDependentHeterogeneousParameter(Parameter_type):
 #    pass
