@@ -35,6 +35,11 @@ class Parameter_type:
                     except:
                         self.__dict__["expression"] = []
                         self.__dict__["expression"].append(parameter_property.text)
+                elif parameter_property.tag == "value":
+                    self.__dict__[parameter_property.tag] = float(parameter_property.text)
+                elif parameter_property.tag == "values":
+                    # convert to tensor + include local coordinate system
+                    self.__dict__[parameter_property.tag] = np.fromstring(parameter_property.text, sep=' ')
                 else:
                     self.__dict__[parameter_property.tag] = parameter_property.text
     def __setitem__(self, key, item):
@@ -215,7 +220,17 @@ class CurveScaled(Parameter_type):
             t_start = self.xmlobject.getparent().getparent().find("./time_loop/processes/process/time_stepping/t_initial")
             t_end = self.xmlobject.getparent().getparent().find("./time_loop/processes/process/time_stepping/t_end")
             curve_coords = np.linspace(t_start, t_end, 1000, endpoint=True)
-        return
+        parameter_name = self.__dict__["parameter"]
+        curve_name = self.__dict__["curve"]
+        parameter_type = self.xmlobject.getparent().find(f"./parameter[name='{parameter_name}'/type").text
+        try:
+            parameter_value = float(self.xmlobject.getparent().find(f"./parameter[name='{parameter_name}'/value").text)
+        except:
+            raise RuntimeError("This function is implemented only for constant single parameter values")
+        if parameter_type == "Constant":
+            return  parameter_value*self.curvesobj[curve_name].evaluate_values(curve_coords)
+        else:
+            raise RuntimeError("This function is implemented constant parameter types only")
 
 #class TimeDependentHeterogeneousParameter(Parameter_type):
 #    pass
