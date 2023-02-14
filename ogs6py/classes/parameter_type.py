@@ -8,6 +8,7 @@ Copyright (c) 2012-2023, OpenGeoSys Community (http://www.opengeosys.org)
 """
 from fastcore.utils import *
 import numpy as np
+import ctypes
 from lxml import etree as ET
 try:
     import vtuIO
@@ -23,10 +24,12 @@ except ImportError:
 # pylint: disable=C0103, R0902, R0914, R0913
 
 class Parameter_type:
-    def __init__(self, xmlobject:object=None, curvesobj=None) -> None:
+    def __init__(self, xmlobject:object=None, paramobject=None, curvesobj=None, trafo_matrix=None) -> None:
         self.__dict__ = {}
         self.xmlobject = xmlobject
+        self.paramobject = id(paramobject)
         self.curvesobj = curvesobj
+        self.trafo_matrix = trafo_matrix
         if not self.xmlobject is None:
             for parameter_property in self.xmlobject:
                 if parameter_property.tag == "expression":
@@ -57,13 +60,13 @@ class Parameter_type:
                     parameter_property.text = str(item)
 
     def __getitem__(self, key):
-        if not (key in ["xmlobject", "curvesobj"]):
+        if not (key in ["xmlobject", "curvesobj", "trafo_matrix"]):
             return self.__dict__[key]
 
     def __repr__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return repr(newdict)
 
@@ -81,7 +84,7 @@ class Parameter_type:
         return self.__dict__.copy()
 
     def has_key(self, k):
-        if not (k in ["xmlobject", "curvesobj"]):
+        if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
             return k in self.__dict__
 
     def update(self, *args, **kwargs):
@@ -91,21 +94,21 @@ class Parameter_type:
     def keys(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
                 newdict[k] = v
         return newdict.keys()
 
     def values(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
                 newdict[k] = v
         return newdict.values()
 
     def items(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
                 newdict[k] = v
         return newdict.items()
 
@@ -119,21 +122,42 @@ class Parameter_type:
     def __contains__(self, item):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
                 newdict[k] = v
         return item in newdict
 
     def __iter__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["xmlobject", "curvesobj"]):
+            if not (k in ["xmlobject", "curvesobj", "trafo_matrix", "paramobject"]):
                 newdict[k] = v
         return iter(newdict)
 
 class Constant(Parameter_type):
     def evaluate_values(self):
         if "values" in self.__dict__:
-            return self.__dict__["values"]
+            values_size = len(self.__dict__["values"])
+            if values_size == 1:
+                return self.__dict__["values"]
+            elif "local_coordinate_system" in self.__dict__:
+                if self.__dict__["local_coordinate_system"] == "true":
+                    dim_trafo = self.trafo_matrix.shape[0]
+                    if values_size == dim_trafo:
+                        return np.matmul(self.trafo_matrix, self.__dict__["values"])
+                    elif values_size == dim_trafo**2:
+                        values_matrix = np.zeros((dim_trafo,dim_trafo))
+                        mapping = {}
+                        mapping[2] = {0: (0,0), 1: (0,1), 2: (1,0), 3: (1,1)}
+                        mapping[3] = {0: (0,0), 1: (0,1), 2: (0,2),
+                                      3: (1,0), 4: (1,1), 5: (1,2),
+                                      6: (2,0), 7: (2,1), 8: (2,2)}
+                        for i, val in enumerate(self.__dict__["values"]):
+                            values_matrix[mapping[dim_trafo][i][0],mapping[dim_trafo][i][1]] = val
+                        return np.matmul(self.trafo_matrix,np.matmul(values_matrix,self.trafo_matrix.transpose()))
+                    else:
+                        raise RuntimeError("Parameter size in combination with local coordinate system is not supported yet.")
+            else:
+                return self.__dict__["values"]
         else:
             return self.__dict__["value"]
 
@@ -224,11 +248,15 @@ class CurveScaled(Parameter_type):
         curve_name = self.__dict__["curve"]
         parameter_type = self.xmlobject.getparent().find(f"./parameter[name='{parameter_name}'/type").text
         try:
-            parameter_value = float(self.xmlobject.getparent().find(f"./parameter[name='{parameter_name}'/value").text)
+            paramobject = ctypes.cast(self.paramobject, ctypes.py_object).value
+            parameter_value = paramobject[parameter_name].evaluate_values()
         except:
-            raise RuntimeError("This function is implemented only for constant single parameter values")
+            raise RuntimeError("Can't find parameter.")
         if parameter_type == "Constant":
-            return  parameter_value*self.curvesobj[curve_name].evaluate_values(curve_coords)
+            if len(parameter_value) == 1:
+                return  parameter_value*self.curvesobj[curve_name].evaluate_values(curve_coords)
+            else:
+                return [val*self.curvesobj[curve_name].evaluate_values(curve_coords) for val in parameter_value]
         else:
             raise RuntimeError("This function is implemented constant parameter types only")
 

@@ -7,6 +7,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 
 """
 # pylint: disable=C0103, R0902, R0914, R0913
+import numpy as np
 from lxml import etree as ET
 from ogs6py.classes import build_tree
 from ogs6py.classes import parameter_type
@@ -15,7 +16,7 @@ class Parameters(build_tree.BuildTree):
     """
     Class for managing the parameters section of the project file.
     """
-    def __init__(self, xmlobject=None, curvesobj=None):
+    def __init__(self, xmlobject=None, curvesobj=None, trafo_matrix=None):
         self.tree = {
             'parameters': {
                 'tag': 'parameters',
@@ -27,6 +28,7 @@ class Parameters(build_tree.BuildTree):
         self.parameter = {}
         self.xmlobject = xmlobject
         self.curvesobj = curvesobj
+        self.trafo_matrix = trafo_matrix
         if not (xmlobject is None):
             for prmt in xmlobject:
                 for parameter_property in prmt:
@@ -35,19 +37,19 @@ class Parameters(build_tree.BuildTree):
                     elif parameter_property.tag == "name":
                         param_name = parameter_property.text
                 if param_type == "Constant":
-                    self.__dict__[param_name] = parameter_type.Constant(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.Constant(prmt, self, curvesobj, trafo_matrix)
                 elif param_type == "Function":
-                    self.__dict__[param_name] = parameter_type.Function(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.Function(prmt, self, curvesobj, trafo_matrix)
                 elif param_type == "MeshNode":
-                    self.__dict__[param_name] = parameter_type.MeshNode(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.MeshNode(prmt, self, curvesobj,  trafo_matrix)
                 elif param_type == "MeshElement":
-                    self.__dict__[param_name] = parameter_type.MeshElement(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.MeshElement(prmt, self, curvesobj,  trafo_matrix)
                 elif param_type == "CurveScaled":
-                    self.__dict__[param_name] = parameter_type.CurveScaled(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.CurveScaled(prmt, self, curvesobj, trafo_matrix)
 #                elif param_type == "TimeDependentHeterogeneousParameter":
 #                    self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
                 elif param_type == "RandomFieldMeshElementParameter":
-                    self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt, curvesobj)
+                    self.__dict__[param_name] = parameter_type.RandomFieldMeshElementParameter(prmt, self, curvesobj, trafo_matrix)
 #                elif param_type == "Group":
 #                    self.__dict__[param_name] = parameter_type.Group(prmt)
 
@@ -99,32 +101,32 @@ class Parameters(build_tree.BuildTree):
                 q = ET.SubElement(prmt_obj, k)
                 q.text = v
         if item["type"] == "Constant":
-            self.__dict__[key] = parameter_type.Constant(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.Constant(prmt_obj, self, self.curvesobj, self.trafo_matrix)
         elif item["type"] == "Function":
-            self.__dict__[key] = parameter_type.Function(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.Function(prmt_obj, self, self.curvesobj, self.trafo_matrix)
         elif item["type"] == "MeshNode":
-            self.__dict__[key] = parameter_type.MeshNode(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.MeshNode(prmt_obj, self, self.curvesobj, self.trafo_matrix)
         elif item["type"] == "MeshElement":
-            self.__dict__[key] = parameter_type.MeshElement(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.MeshElement(prmt_obj,self, self.curvesobj, self.trafo_matrix)
         elif item["type"] == "CurveScaled":
-            self.__dict__[key] = parameter_type.CurveScaled(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.CurveScaled(prmt_obj, self, self.curvesobj, self.trafo_matrix)
 #       elif item["type"] == "TimeDependentHeterogeneousParameter":
 #           self.__dict__[param_name] = parameter_type.TimeDependentHeterogeneousParameter(prmt)
         elif item["type"] == "RandomFieldMeshElementParameter":
-            self.__dict__[key] = parameter_type.RandomFieldMeshElementParameter(prmt_obj, self.curvesobj)
+            self.__dict__[key] = parameter_type.RandomFieldMeshElementParameter(prmt_obj, self, self.curvesobj, self.trafo_matrix)
 #       elif item["type"] == "Group":
 #           self.__dict__[param_name] = parameter_type.Group(prmt)
         return prmt_obj
 
 
     def __getitem__(self, key):
-        if not (key in ["tree", "parameter", "xmlobject", "curvesobj"]):
+        if not (key in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
             return self.__dict__[key]
 
     def __repr__(self):
-        newdict = {}
+        newdict = dict()
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "name", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "name", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return repr(newdict)
 
@@ -143,7 +145,7 @@ class Parameters(build_tree.BuildTree):
         return self.__dict__.copy()
 
     def has_key(self, k):
-        if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+        if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
             return k in self.__dict__
 
     def update(self, *args, **kwargs):
@@ -153,21 +155,21 @@ class Parameters(build_tree.BuildTree):
     def keys(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return newdict.keys()
 
     def values(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return newdict.values()
 
     def items(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return newdict.items()
 
@@ -181,14 +183,14 @@ class Parameters(build_tree.BuildTree):
     def __contains__(self, item):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return item in newdict
 
     def __iter__(self):
         newdict = {}
         for k, v in self.__dict__.items():
-            if not (k in ["tree", "parameter", "xmlobject", "curvesobj"]):
+            if not (k in ["tree", "parameter", "xmlobject", "curvesobj", "trafo_matrix"]):
                 newdict[k] = v
         return iter(newdict)
 

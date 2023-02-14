@@ -31,7 +31,7 @@ class OGS:
 
     Parameters
     ----------
-    project_file : `str`, optional
+    prjfile : `str`, optional
         Filename of the output project file
         Default: default.prj
     input_file : `str`, optional
@@ -42,16 +42,19 @@ class OGS:
     verbose : `bool`, optional
         Default: False
     """
-    def __init__(self, input_file=None, project_file="default.prj", xmlstring=None, verbose=False, omp_num_threads=None, **args):
+    def __init__(self, input_file=None, prjfile="default.prj", xmlstring=None, verbose=False, omp_num_threads=None, **args):
         self.geo = geo.Geo()
         self.mesh = mesh.Mesh()
         self.pyscript = python_script.PythonScript()
         self.processes = processes.Processes()
         self.media = media.Media()
         self.timeloop = timeloop.TimeLoop()
-        self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem()
+        self.__local_coordinate_system = None
         self.__parameters = None
         self.__curves = None
+        self.__local_coordinate_system_obj = None
+        self.__parameters_obj = None
+        self.__curves_obj = None
         self.processvars = processvars.ProcessVars()
         self.linsolvers = linsolvers.LinSolvers()
         self.nonlinsolvers = nonlinsolvers.NonLinSolvers()
@@ -73,10 +76,10 @@ class OGS:
         else:
             self.omp_num_threads = None
         if "PROJECT_FILE" in args:
-            self.project_file = args['PROJECT_FILE']
-        if self.project_file is None:
+            self.prjfile = args['PROJECT_FILE']
+        if self.prjfile is None:
             print("PROJECT_FILE for output not given. Calling it default.prj.")
-            self.project_file = "default.prj"
+            self.prjfile = "default.prj"
         if "INPUT_FILE" in args:
             self.input_file = args['INPUT_FILE']
         if self.input_file is not None:
@@ -144,25 +147,40 @@ class OGS:
     def parameters(self):
         try:
             paramobj = self.tree.find("./parameters")
-            if not (paramobj == self.__parameters):
-                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves)
+            if not (paramobj == self.__parameters_obj):
+                self.__parameters_obj = paramobj
+                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves, trafo_matrix=self.local_coordinate_system.R)
         except AttributeError:
             paramobj = None
             if self.__parameters is None:
-                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves)
+                self.__parameters = parameters.Parameters(xmlobject=paramobj, curvesobj=self.curves, trafo_matrix=self.local_coordinate_system.R)
         return self.__parameters
 
     @property
     def curves(self):
         try:
             curveobj = self.tree.find("./curves")
-            if not (curveobj == self.__curves):
+            if not (curveobj == self.__curves_obj):
+                self.__curves_obj = curveobj
                 self.__curves = curves.Curves(xmlobject=curveobj)
         except AttributeError:
             curveobj = None
             if self.__curves is None:
                 self.__curves = curves.Curves(xmlobject=curveobj)
         return self.__curves
+
+    @property
+    def local_coordinate_system(self):
+        try:
+            lcsobj = self.tree.find("./local_coordinate_system")
+            if not (lcsobj == self.__local_coordinate_system_obj):
+                self.__local_coordinate_system_obj = lcsobj
+                self.__local_coordinate_system = local_coordinate_system.LocalCoordinateSystem(xmlobject=lcsobj)
+        except AttributeError:
+            lcsobj = None
+            if self.__local_coordinate_system is None:
+                self.__local_coordinate_system = local_coordinate_system.LocalCoordinateSystem(xmlobject=lcsobj)
+        return self.__local_coordinate_system
 
     @classmethod
     def _get_parameter_pointer(cls, root, name, xpath):
@@ -638,9 +656,9 @@ class OGS:
         if not args is None:
             cmd += f"{args} "
         if write_logs is True:
-            cmd += f"{self.project_file} > {self.logfile}"
+            cmd += f"{self.prjfile} > {self.logfile}"
         else:
-            cmd += f"{self.project_file}"
+            cmd += f"{self.prjfile}"
         startt = time.time()
         if sys.platform == "win32":
             returncode = subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
@@ -649,7 +667,7 @@ class OGS:
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
-            print(f"OGS finished with project file {self.project_file}.")
+            print(f"OGS finished with project file {self.prjfile}.")
             print(f"Execution took {self.exec_time} s")
         else:
             print(f"Error code: {returncode.returncode}")
@@ -707,7 +725,7 @@ class OGS:
             ET.indent(self.tree, space="    ")
             if self.verbose is True:
                 display.Display(self.tree)
-            self.tree.write(self.project_file,
+            self.tree.write(self.prjfile,
                             encoding="ISO-8859-1",
                             xml_declaration=True,
                             pretty_print=True)
@@ -716,7 +734,7 @@ class OGS:
         ET.indent(self.tree, space="    ")
         if self.verbose is True:
             display.Display(self.tree)
-        self.tree.write(self.project_file,
+        self.tree.write(self.prjfile,
                          encoding="ISO-8859-1",
                          xml_declaration=True,
                          pretty_print=True)
