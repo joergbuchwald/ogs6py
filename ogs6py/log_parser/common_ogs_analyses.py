@@ -92,7 +92,9 @@ def analysis_convergence_newton_iteration(df):
         pt = dfe_newton_iteration.pivot_table(interest, context)
 
     else:
-        context = ['time_step', 'process', 'iteration_number', 'component']
+        context = ['time_step', 'process', 'iteration_number']
+        if 'component' in df.columns:
+            context.append('component')
         check_input(df, interest, context)
         pt = dfe_newton_iteration.pivot_table(interest, context)
 
