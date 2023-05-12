@@ -22,6 +22,7 @@ from ogs6py.classes import (display, geo, mesh, python_script, processes, media,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
+from ogs6py.classes.properties import * 
 
 class OGS:
     """Class for an OGS6 model.
@@ -730,3 +731,37 @@ class OGS:
         if reset_index is True:
             return df.reset_index()
         return df
+
+    def property_dataframe(self, mediamapping=None):
+        root = self._get_root()
+        property_list = []
+        numofmedia = len(self.tree.findall("./media/medium"))
+        if mediamapping is None:
+            mediamapping = {}
+            for i in range(numofmedia):
+                mediamapping[i] = f"medium {i}"
+    
+        for location in location_pointer:
+            if location == "ConstituitiveRelation":
+                pass
+            else:
+                property_names = [name.text for name in self.tree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
+                property_names = list(dict.fromkeys(property_names))
+                values = {}
+                for name in property_names:
+                    if name in property_dict[location]:
+                        values[name] = []
+                        for medium_id in range(numofmedia):
+                            medium = self._get_medium_pointer(root, medium_id)
+                            if  "Constant" == medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type").text:
+                                values[name].append(Value(mediamapping[medium_id],float(medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text)))
+                            else:
+                                values[name].append(Value(mediamapping[medium_id],None))
+                        property_list.append(Property(property_dict[location][name]["title"], property_dict[location][name]["symbol"], property_dict[location][name]["unit"], values[name]))
+        properties = PropertySet(property=property_list)
+        return pd.DataFrame(properties)
+
+    def property_latextable(self, mediamapping=None):
+        df = self.property_dataframe(mediamapping).style.format(decimal='.', thousands=',', precision=2)
+        return df.to_latex()    
+
