@@ -15,6 +15,7 @@ import sys
 import os
 import subprocess
 import time
+import copy
 import shutil
 import pandas as pd
 from lxml import etree as ET
@@ -733,31 +734,73 @@ class OGS:
         return df
 
     def property_dataframe(self, mediamapping=None):
-        root = self._get_root()
+        newtree = copy.deepcopy(self.tree)
+        root = newtree.getroot()
         property_list = []
         numofmedia = len(self.tree.findall("./media/medium"))
         if mediamapping is None:
             mediamapping = {}
             for i in range(numofmedia):
                 mediamapping[i] = f"medium {i}"
+        ## preprocessing
+        # write elastic properties to MPL       
+        for entry in newtree.findall("./processes/process/constitutive_relation"):
+            medium = self._get_medium_pointer(root, entry.attrib["id"])
+            parent = medium.find("./phases/phase[type='Solid']/properties")
+            taglist = ["name", "type", "parameter_name"]
+            for subentry in entry:
+                if subentry.tag in ["youngs_modulus", "poissons_ratio","youngs_moduli", "poissons_ratios", "shear_moduli"]:
+                    textlist = [subentry.tag, "Parameter", subentry.text]
+                    q = ET.SubElement(parent, "property")
+                    for i, tag in enumerate(taglist):
+                        r = ET.SubElement(q, tag)
+                        if not textlist[i] is None:
+                            r.text = str(textlist[i])
     
         for location in location_pointer:
-            if location == "ConstituitiveRelation":
-                pass
-            else:
-                property_names = [name.text for name in self.tree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
-                property_names = list(dict.fromkeys(property_names))
-                values = {}
-                for name in property_names:
-                    if name in property_dict[location]:
-                        values[name] = []
-                        for medium_id in range(numofmedia):
-                            medium = self._get_medium_pointer(root, medium_id)
-                            if  "Constant" == medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type").text:
-                                values[name].append(Value(mediamapping[medium_id],float(medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text)))
-                            else:
-                                values[name].append(Value(mediamapping[medium_id],None))
-                        property_list.append(Property(property_dict[location][name]["title"], property_dict[location][name]["symbol"], property_dict[location][name]["unit"], values[name]))
+            # resolve parameters
+            parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
+            parameter_names = [name.text for name in parameter_names_add]
+            for parameter_name in parameter_names:
+                print(parameter_name)
+                param_type = newtree.find(f"./parameters/parameter[name='{parameter_name}']/type").text
+                if param_type == "Constant":
+                    param_value = newtree.findall(f"./parameters/parameter[name='{parameter_name}']/value")
+                    param_value.append(newtree.find(f"./parameters/parameter[name='{parameter_name}']/values"))
+                    property_type = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/type")
+                    for entry in property_type:
+                        entry.text = "Constant"
+                    property_value = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name")
+                    for entry in property_value:
+                        entry.tag = "value"
+                        entry.text = param_value[0].text            
+            # expand tensors
+            property_names = [name.text for name in newtree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
+            property_names = list(dict.fromkeys(property_names))
+            values = {}
+            for name in property_names:
+                if name in property_dict[location]:
+                    values[name] = []
+                    for medium_id in range(numofmedia):
+                        medium = self._get_medium_pointer(root, medium_id)
+                        if  "Constant" == medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type").text:
+                            value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
+                            value_entry_list = value_entry.split(" ")
+                            if len(value_entry_list) == 1:
+                                values[name].append(Value(mediamapping[medium_id],float(value_entry)))
+                            elif len(value_entry_list) == 2:
+                                pass
+                            elif len(value_entry_list) == 3:
+                                pass
+                            elif len(value_entry_list) == 4:
+                                pass
+                            elif len(value_entry_list) == 5:
+                                pass
+                            elif len(value_entry_list) == 6:
+                                pass
+                        else:
+                            values[name].append(Value(mediamapping[medium_id],None))
+                    property_list.append(Property(property_dict[location][name]["title"], property_dict[location][name]["symbol"], property_dict[location][name]["unit"], values[name]))
         properties = PropertySet(property=property_list)
         return pd.DataFrame(properties)
 
