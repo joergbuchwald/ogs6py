@@ -11,3 +11,4 @@ from . import curves
 from . import processvars
 from . import linsolvers
 from . import nonlinsolvers
+from . import properties

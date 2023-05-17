@@ -15,6 +15,7 @@ import sys
 import os
 import subprocess
 import time
+import copy
 import shutil
 import pandas as pd
 from lxml import etree as ET
@@ -22,6 +23,7 @@ from ogs6py.classes import (display, geo, mesh, python_script, processes, media,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
+from ogs6py.classes.properties import * 
 
 class OGS:
     """Class for an OGS6 model.
@@ -730,3 +732,106 @@ class OGS:
         if reset_index is True:
             return df.reset_index()
         return df
+
+    def property_dataframe(self, mediamapping=None):
+        newtree = copy.deepcopy(self.tree)
+        root = newtree.getroot()
+        property_list = []
+        multidim_prop = {}
+        numofmedia = len(self.tree.findall("./media/medium"))
+        if mediamapping is None:
+            mediamapping = {}
+            for i in range(numofmedia):
+                mediamapping[i] = f"medium {i}"
+                multidim_prop[i] = {}
+        ## preprocessing
+        # write elastic properties to MPL       
+        for entry in newtree.findall("./processes/process/constitutive_relation"):
+            medium = self._get_medium_pointer(root, entry.attrib["id"])
+            parent = medium.find("./phases/phase[type='Solid']/properties")
+            taglist = ["name", "type", "parameter_name"]
+            for subentry in entry:
+                if subentry.tag in ["youngs_modulus", "poissons_ratio","youngs_moduli", "poissons_ratios", "shear_moduli"]:
+                    textlist = [subentry.tag, "Parameter", subentry.text]
+                    q = ET.SubElement(parent, "property")
+                    for i, tag in enumerate(taglist):
+                        r = ET.SubElement(q, tag)
+                        if not textlist[i] is None:
+                            r.text = str(textlist[i])
+        
+        for location in location_pointer:
+            # resolve parameters
+            parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
+            parameter_names = [name.text for name in parameter_names_add]
+            for parameter_name in parameter_names:
+                param_type = newtree.find(f"./parameters/parameter[name='{parameter_name}']/type").text
+                if param_type == "Constant":
+                    param_value = newtree.findall(f"./parameters/parameter[name='{parameter_name}']/value")
+                    param_value.append(newtree.find(f"./parameters/parameter[name='{parameter_name}']/values"))
+                    property_type = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/type")
+                    for entry in property_type:
+                        entry.text = "Constant"
+                    property_value = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name")
+                    for entry in property_value:
+                        entry.tag = "value"
+                        entry.text = param_value[0].text            
+            # expand tensors
+            for medium_id in range(numofmedia):
+                medium = self._get_medium_pointer(root, medium_id)
+                const_props = medium.findall(f"./{location_pointer[location]}properties/property[type='Constant']/value")
+                tobedeleted = []
+                for prop in const_props:
+                    proplist = prop.text.split(" ")
+                    tags = prop.getparent().getchildren()
+                    for tag in tags:
+                        if tag.tag == "name":
+                            name = tag.text
+                            multidim_prop[medium_id][name] = len(proplist)
+                    if multidim_prop[medium_id][name] > 1:
+                        properties_level = prop.getparent().getparent()
+                        tobedeleted.append(prop.getparent())
+                        taglist = ["name", "type", "value"]
+                        for i in range(multidim_prop[medium_id][name]):
+                            textlist = [f"{name}{i}", "Constant", f"{proplist[i]}"]
+                            q = ET.SubElement(properties_level, "property")
+                            for i, tag in enumerate(taglist):
+                                r = ET.SubElement(q, tag)
+                                if not textlist[i] is None:
+                                    r.text = str(textlist[i])
+            for element in tobedeleted:
+                element.getparent().remove(element)
+            property_names = [name.text for name in newtree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
+            property_names = list(dict.fromkeys(property_names))
+            values = {}
+            for name in property_names:
+                values[name] = []
+                orig_name = ''.join(c for c in name if not c.isnumeric())
+                number_suffix = ''.join(c for c in name if c.isnumeric())
+                if orig_name in property_dict[location]:
+                    for medium_id in range(numofmedia):
+                        medium = self._get_medium_pointer(root, medium_id)
+                        proptytype = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type")
+                        if proptytype is None:
+                            values[name].append(Value(mediamapping[medium_id],None))
+                        else:
+                            if  "Constant" == proptytype.text:
+                                value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
+                                value_entry_list = value_entry.split(" ")
+                                if len(value_entry_list) == 1:
+                                    values[name].append(Value(mediamapping[medium_id],float(value_entry)))
+                            else:
+                                values[name].append(Value(mediamapping[medium_id],None))
+                    if not number_suffix == "":
+                        new_symbol = property_dict[location][orig_name]["symbol"][:-1]+"_"+number_suffix +"$"
+                    else:
+                        new_symbol = property_dict[location][orig_name]["symbol"]
+                    property_list.append(Property(property_dict[location][orig_name]["title"], new_symbol, property_dict[location][orig_name]["unit"], values[name]))
+        properties = PropertySet(property=property_list)
+        return pd.DataFrame(properties)
+
+    def write_property_latextable(self, latexfile="property_dataframe.tex", mediamapping=None, float_format="{:.2e}"):
+        with open(latexfile, "w") as tf:
+            tf.write(self.property_dataframe(mediamapping).to_latex(index=False,
+                  float_format=float_format.format))
+               
+
