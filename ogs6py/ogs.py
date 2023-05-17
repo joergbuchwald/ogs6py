@@ -743,7 +743,8 @@ class OGS:
             mediamapping = {}
             for i in range(numofmedia):
                 mediamapping[i] = f"medium {i}"
-                multidim_prop[i] = {}
+        for i in range(numofmedia):
+            multidim_prop[i] = {}
         ## preprocessing
         # write elastic properties to MPL       
         for entry in newtree.findall("./processes/process/constitutive_relation"):
@@ -809,18 +810,19 @@ class OGS:
                 number_suffix = ''.join(c for c in name if c.isnumeric())
                 if orig_name in property_dict[location]:
                     for medium_id in range(numofmedia):
-                        medium = self._get_medium_pointer(root, medium_id)
-                        proptytype = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type")
-                        if proptytype is None:
-                            values[name].append(Value(mediamapping[medium_id],None))
-                        else:
-                            if  "Constant" == proptytype.text:
-                                value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
-                                value_entry_list = value_entry.split(" ")
-                                if len(value_entry_list) == 1:
-                                    values[name].append(Value(mediamapping[medium_id],float(value_entry)))
-                            else:
+                        if medium_id in mediamapping:
+                            medium = self._get_medium_pointer(root, medium_id)
+                            proptytype = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type")
+                            if proptytype is None:
                                 values[name].append(Value(mediamapping[medium_id],None))
+                            else:
+                                if  "Constant" == proptytype.text:
+                                    value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
+                                    value_entry_list = value_entry.split(" ")
+                                    if len(value_entry_list) == 1:
+                                        values[name].append(Value(mediamapping[medium_id],float(value_entry)))
+                                else:
+                                    values[name].append(Value(mediamapping[medium_id],None))
                     if not number_suffix == "":
                         new_symbol = property_dict[location][orig_name]["symbol"][:-1]+"_"+number_suffix +"$"
                     else:
