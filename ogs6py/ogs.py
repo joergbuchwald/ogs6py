@@ -764,7 +764,6 @@ class OGS:
             parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
             parameter_names = [name.text for name in parameter_names_add]
             for parameter_name in parameter_names:
-                print(parameter_name)
                 param_type = newtree.find(f"./parameters/parameter[name='{parameter_name}']/type").text
                 if param_type == "Constant":
                     param_value = newtree.findall(f"./parameters/parameter[name='{parameter_name}']/value")
@@ -803,7 +802,6 @@ class OGS:
                 element.getparent().remove(element)
             property_names = [name.text for name in newtree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
             property_names = list(dict.fromkeys(property_names))
-            print(property_names)
             values = {}
             for name in property_names:
                 values[name] = []
@@ -831,7 +829,9 @@ class OGS:
         properties = PropertySet(property=property_list)
         return pd.DataFrame(properties)
 
-    def property_latextable(self, mediamapping=None):
-        df = self.property_dataframe(mediamapping).style.format(decimal='.', thousands=',', precision=2)
-        return df.to_latex()    
+    def write_property_latextable(self, latexfile="property_dataframe.tex", mediamapping=None, float_format="{:.2e}"):
+        with open(latexfile, "w") as tf:
+            tf.write(self.property_dataframe(mediamapping).to_latex(index=False,
+                  float_format=float_format.format))
+               
 

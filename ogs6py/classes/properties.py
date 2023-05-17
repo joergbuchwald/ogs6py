@@ -48,20 +48,20 @@ class PropertySet:
         for v in self.property:
             yield v._dict()
 
-property_dict = {"Solid": {"density": {"title": "Solid density", "symbol": "$\rho_\text{s}$", "unit": "kg m$^{-3}$"},
-                           "specific_heat_capacity": {"title": "Specific heat capacity", "symbol": "$c_\text{s}$", "unit": "J kg$^{-1}$ K$^{-1}$"},
+property_dict = {"Solid": {"density": {"title": "Solid density", "symbol": "$\\rho_\\text{s}$", "unit": "kg m$^{-3}$"},
+                           "specific_heat_capacity": {"title": "Specific heat capacity", "symbol": "$c_\\text{s}$", "unit": "J kg$^{-1}$ K$^{-1}$"},
                            "thermal_expansivity": {"title": "Thermal expansivity", "symbol": "$a_s$", "unit": "K$^{-1}$"},
                            "youngs_modulus": {"title": "Young's modulus", "symbol": "$E$", "unit": "Pa"},
-                           "poissons_ratio": {"title": "Poisson's ratio", "symbol": "$\nu$", "unit": "1"},
+                           "poissons_ratio": {"title": "Poisson's ratio", "symbol": "$\\nu$", "unit": "1"},
                            },
                  "Medium": {"porosity": {"title": "Porosity", "symbol": "$\phi$", "unit": "1"},
-                            "biot_coefficient": {"title": "Biot-Willis coefficient", "symbol": "$α_\mathrm{B}$", "unit": "1"},
+                            "biot_coefficient": {"title": "Biot-Willis coefficient", "symbol": "$\\alpha_\mathrm{B}$", "unit": "1"},
                             "permeability": {"title": "Intrinsic permeability", "symbol": "$k$", "unit": "m$^2$"},
                             "thermal_conductivity": {"title": "Thermal conductivity", "symbol": "$\lambda$", "unit": "W m$^{-1}$ K$^{-1}$"}
                             },
                  "AqueousLiquid": {"viscosity": {"title": "Liquid phase viscosity", "symbol": "$\mu_\mathrm{LR}$", "unit": "Pa s"},
-                                   "density": {"title": "Liquid phase density", "symbol": "$\rho_\mathrm{LR}$", "unit": "kg m$^{-3}$"},
-                                   "specific_heat_capacity": {"title": "Liquid specific heat capacity", "symbol": "$c_\text{LR}$", "unit": "J kg$^{-1}$ K$^{-1}$"},}}
+                                   "density": {"title": "Liquid phase density", "symbol": "$\\rho_\mathrm{LR}$", "unit": "kg m$^{-3}$"},
+                                   "specific_heat_capacity": {"title": "Liquid specific heat capacity", "symbol": "$c_\\text{LR}$", "unit": "J kg$^{-1}$ K$^{-1}$"},}}
 location_pointer = {"Solid": "phases/phase[type='Solid']/",
                     "Medium": "",
                     "AqueousLiquid": "phases/phase[type='AqueousLiquid']/"}
