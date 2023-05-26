@@ -777,30 +777,8 @@ class OGS:
                         entry.tag = "value"
                         entry.text = param_value[0].text            
             # expand tensors
-            for medium_id in range(numofmedia):
-                medium = self._get_medium_pointer(root, medium_id)
-                const_props = medium.findall(f"./{location_pointer[location]}properties/property[type='Constant']/value")
-                tobedeleted = []
-                for prop in const_props:
-                    proplist = prop.text.split(" ")
-                    tags = prop.getparent().getchildren()
-                    for tag in tags:
-                        if tag.tag == "name":
-                            name = tag.text
-                            multidim_prop[medium_id][name] = len(proplist)
-                    if multidim_prop[medium_id][name] > 1:
-                        properties_level = prop.getparent().getparent()
-                        tobedeleted.append(prop.getparent())
-                        taglist = ["name", "type", "value"]
-                        for i in range(multidim_prop[medium_id][name]):
-                            textlist = [f"{name}{i}", "Constant", f"{proplist[i]}"]
-                            q = ET.SubElement(properties_level, "property")
-                            for i, tag in enumerate(taglist):
-                                r = ET.SubElement(q, tag)
-                                if not textlist[i] is None:
-                                    r.text = str(textlist[i])
-            for element in tobedeleted:
-                element.getparent().remove(element)
+            expand_tensors(self, numofmedia, multidim_prop, root, location)
+            expand_van_genuchten(self, numofmedia, root, location)
             property_names = [name.text for name in newtree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
             property_names = list(dict.fromkeys(property_names))
             values = {}
