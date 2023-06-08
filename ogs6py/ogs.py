@@ -759,7 +759,7 @@ class OGS:
                         r = ET.SubElement(q, tag)
                         if not textlist[i] is None:
                             r.text = str(textlist[i])
-        
+
         for location in location_pointer:
             # resolve parameters
             parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
@@ -775,7 +775,7 @@ class OGS:
                     property_value = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name")
                     for entry in property_value:
                         entry.tag = "value"
-                        entry.text = param_value[0].text            
+                        entry.text = param_value[0].text
             # expand tensors
             expand_tensors(self, numofmedia, multidim_prop, root, location)
             expand_van_genuchten(self, numofmedia, root, location)
@@ -794,11 +794,43 @@ class OGS:
                             if proptytype is None:
                                 values[name].append(Value(mediamapping[medium_id],None))
                             else:
-                                if  "Constant" == proptytype.text:
+                                if "Constant" == proptytype.text:
                                     value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
                                     value_entry_list = value_entry.split(" ")
                                     if len(value_entry_list) == 1:
-                                        values[name].append(Value(mediamapping[medium_id],float(value_entry)))
+                                        values[name].append(Value(mediamapping[medium_id], value_entry))
+                                elif "Function" == proptytype.text:
+                                    expressions = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").getchildren()
+                                    if len(expressions) == 1:
+                                        value_entry = expressions[0].text
+                                        value_entry = value_entry.replace("exp", "\exp")
+                                        value_entry = value_entry.replace("sin", "\sin")
+                                        value_entry = value_entry.replace("cos", "\cos")
+                                        value_entry = value_entry.replace("capillary_pressure", "p_c")
+                                        value_entry = value_entry.replace("concentration", "c")
+                                        value_entry = value_entry.replace("density", "\\rho")
+                                        value_entry = value_entry.replace("liquid_phase_pressure", "{p_\\text{L}}")
+                                        value_entry = value_entry.replace("liquid_saturation", "{S_\\text{L}}")
+                                        value_entry = value_entry.replace("displacement", "u")
+                                        value_entry = value_entry.replace("phase_pressure", "p")
+                                        value_entry = value_entry.replace("stress", "\sigma")
+                                        value_entry = value_entry.replace("temperature", "T")
+                                        value_entry = value_entry.replace("porosity", "\phi")
+                                        value_entry = value_entry.replace("sqrt(", "\sqrt{")
+                                        if "\sqrt{" in value_entry:
+                                            value_entry_splitted = value_entry.split("\sqrt{")
+                                            value_entry_splitted_cp = copy.deepcopy(value_entry_splitted[1:])
+                                            for i, sqrt_string in enumerate(value_entry_splitted_cp):
+                                                value_entry_splitted[i+1] = sqrt_string.replace(")","}",1)
+                                            value_entry = '\sqrt{'.join(value_entry_splitted)
+                                        value_entry = value_entry.replace("^(", "^{")
+                                        if "^{" in value_entry:
+                                            value_entry_splitted = value_entry.split("^{")
+                                            value_entry_splitted_cp = copy.deepcopy(value_entry_splitted[1:])
+                                            for i, sqrt_string in enumerate(value_entry_splitted_cp):
+                                                value_entry_splitted[i+1] = sqrt_string.replace(")","}",1)
+                                            value_entry = '^{'.join(value_entry_splitted)
+                                        values[name].append(Value(mediamapping[medium_id], f"${value_entry}$"))
                                 else:
                                     values[name].append(Value(mediamapping[medium_id],None))
                     if not number_suffix == "":
@@ -813,5 +845,4 @@ class OGS:
         with open(latexfile, "w") as tf:
             tf.write(self.property_dataframe(mediamapping).to_latex(index=False,
                   float_format=float_format.format))
-               
 

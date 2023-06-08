@@ -9,13 +9,13 @@ Copyright (c) 2012-2023, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Any
 from lxml import etree as ET
 
 @dataclass
 class Value:
     medium : str
-    value : float
+    value : Any
 
 
 @dataclass
@@ -54,7 +54,7 @@ property_dict = {"Solid": {"density": {"title": "Solid density", "symbol": "$\\r
                            "thermal_expansivity": {"title": "Thermal expansivity", "symbol": "$a_s$", "unit": "K$^{-1}$"},
                            "youngs_modulus": {"title": "Young's modulus", "symbol": "$E$", "unit": "Pa"},
                            "poissons_ratio": {"title": "Poisson's ratio", "symbol": "$\\nu$", "unit": "1"},
-                           
+
                            },
                  "Medium": {"porosity": {"title": "Porosity", "symbol": "$\phi$", "unit": "1"},
                             "biot_coefficient": {"title": "Biot-Willis coefficient", "symbol": "$\\alpha_\mathrm{B}$", "unit": "1"},
@@ -77,6 +77,7 @@ location_pointer = {"Solid": "phases/phase[type='Solid']/",
                     "AqueousLiquid": "phases/phase[type='AqueousLiquid']/"}
 
 def expand_tensors(obj, numofmedia, multidim_prop, root, location):
+    #constant
     for medium_id in range(numofmedia):
         medium = obj._get_medium_pointer(root, medium_id)
         const_props = medium.findall(f"./{location_pointer[location]}properties/property[type='Constant']/value")
@@ -99,6 +100,34 @@ def expand_tensors(obj, numofmedia, multidim_prop, root, location):
                         r = ET.SubElement(q, tag)
                         if not textlist[i] is None:
                             r.text = str(textlist[i])
+    for element in tobedeleted:
+        element.getparent().remove(element)
+    #function
+    for medium_id in range(numofmedia):
+        medium = obj._get_medium_pointer(root, medium_id)
+        function_props = medium.findall(f"./{location_pointer[location]}properties/property[type='Function']/value")
+        tobedeleted = []
+        for prop in function_props:
+            proplist = [i.text for i in prop.findall("./expression")]
+            tags = prop.getparent().getchildren()
+            for tag in tags:
+                if tag.tag == "name":
+                    name = tag.text
+                    multidim_prop[medium_id][name] = len(proplist)
+            if multidim_prop[medium_id][name] > 1:
+                properties_level = prop.getparent().getparent()
+                tobedeleted.append(prop.getparent())
+                taglist = ["name", "type", "value"]
+                for i in range(multidim_prop[medium_id][name]):
+                    textlist = [f"{name}{i}", "Function", None]
+                    q = ET.SubElement(properties_level, "property")
+                    for i, tag in enumerate(taglist):
+                        r = ET.SubElement(q, tag)
+                        if not textlist[i] is None:
+                            r.text = str(textlist[i])
+                        if tag == "value":
+                            s = ET.SubElement(r, "expression")
+                            s.text =  f"{proplist[i]}"
     for element in tobedeleted:
         element.getparent().remove(element)
 
