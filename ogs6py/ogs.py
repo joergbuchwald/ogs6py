@@ -115,10 +115,11 @@ class OGS:
                             pretty_print=True)
             parent_element.remove(self.include_elements[i])
 
-    def _get_root(self):
+    def _get_root(self, remove_blank_text=False, remove_comments=False):
+        parser = ET.XMLParser(remove_blank_text=remove_blank_text, remove_comments=remove_comments)
         if self.tree is None:
             if self.inputfile is not None:
-                self.tree = ET.parse(self.inputfile)
+                self.tree = ET.parse(self.inputfile, parser)
             else:
                 self.build_tree()
         root = self.tree.getroot()
@@ -126,7 +127,7 @@ class OGS:
         for occurrence in all_occurrences:
             self.include_files.append(occurrence.attrib["file"])
         for i, occurrence in enumerate(all_occurrences):
-            _tree = ET.parse(self.include_files[i])
+            _tree = ET.parse(self.include_files[i], parser)
             _root = _tree.getroot()
             parentelement = all_occurrences[i].getparent()
             children_before = parentelement.getchildren()
@@ -543,7 +544,7 @@ class OGS:
         self.remove_element("./processes/process/initial_stress")
 
 
-    def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True):
+    def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True, write_prj_to_pvd=True):
         """Command to run OGS.
 
         Runs OGS with the project file specified as PROJECT_FILE
@@ -625,6 +626,27 @@ class OGS:
         if returncode.returncode == 0:
             print(f"OGS finished with project file {self.prjfile}.")
             print(f"Execution took {self.exec_time} s")
+            if write_prj_to_pvd is True:
+                self.tree = None
+                root = self._get_root(remove_blank_text=True, remove_comments=True)
+                prjstring = ET.tostring(root, pretty_print = True)
+                prjstring = str(prjstring).replace('\r', ' ').replace('\n', ' ').replace('--','')
+                fn_type = self.tree.find("./time_loop/output/type").text
+                fn = None
+                if fn_type == "VTK":
+                    fn = self.tree.find("./time_loop/output/prefix").text + ".pvd"
+                elif fn_type == "XDMF":
+                    prefix = self.tree.find("./time_loop/output/prefix").text
+                    mesh = self.tree.find("./mesh")
+                    if mesh is None:
+                        mesh = self.tree.find("./meshes/mesh")
+                    fn = prefix + "_" + mesh.text.split(".vtu")[0] + ".xdmf"
+                if not fn is None:
+                    tree_pvd = ET.parse(fn)
+                    root_pvd = tree_pvd.getroot()
+                    root_pvd.append(ET.Comment(prjstring))
+                    tree_pvd.write(fn, encoding="ISO-8859-1", xml_declaration=True, pretty_print=True)
+                    print("Project file written to output.")
         else:
             print(f"Error code: {returncode.returncode}")
             if write_logs is False:
@@ -759,7 +781,7 @@ class OGS:
                         r = ET.SubElement(q, tag)
                         if not textlist[i] is None:
                             r.text = str(textlist[i])
-        
+
         for location in location_pointer:
             # resolve parameters
             parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
@@ -813,5 +835,5 @@ class OGS:
         with open(latexfile, "w") as tf:
             tf.write(self.property_dataframe(mediamapping).to_latex(index=False,
                   float_format=float_format.format))
-               
+
 
