@@ -63,6 +63,7 @@ class OGS:
         self.include_elements = []
         self.include_files = []
         self.add_includes = []
+        self.output_dir = ""
         if "VERBOSE" in args:
             self.verbose = args["VERBOSE"]
         else:
@@ -503,6 +504,7 @@ class OGS:
         root_prj = self._get_root()
         filetype = root_prj.find("./time_loop/output/type").text
         pvdfile = root_prj.find("./time_loop/output/prefix").text+".pvd"
+        pvdfile = os.path.join(self.output_dir, pvdfile)
         if not filetype == "VTK":
             raise RuntimeError("Output fil (*args: object) Please use VTK")
         tree =  ET.parse(pvdfile)
@@ -611,6 +613,14 @@ class OGS:
             else:
                 cmd = env_export + "singularity exec " + f"{container_path} " + "ogs "
         if not args is None:
+            argslist = args.split(" ")
+            output_dir_flag = False
+            for entry in argslist:
+                if output_dir_flag is True:
+                    self.output_dir = entry
+                    output_dir_flag = False
+                if "-o" in entry:
+                    output_dir_flag = True
             cmd += f"{args} "
         if write_logs is True:
             cmd += f"{self.prjfile} > {self.logfile}"
@@ -627,6 +637,7 @@ class OGS:
             print(f"OGS finished with project file {self.prjfile}.")
             print(f"Execution took {self.exec_time} s")
             if write_prj_to_pvd is True:
+                self.inputfile = self.prjfile
                 self.tree = None
                 root = self._get_root(remove_blank_text=True, remove_comments=True)
                 prjstring = ET.tostring(root, pretty_print = True)
@@ -635,11 +646,13 @@ class OGS:
                 fn = None
                 if fn_type == "VTK":
                     fn = self.tree.find("./time_loop/output/prefix").text + ".pvd"
+                    fn = os.path.join(self.output_dir, fn)
                 elif fn_type == "XDMF":
                     prefix = self.tree.find("./time_loop/output/prefix").text
                     mesh = self.tree.find("./mesh")
                     if mesh is None:
                         mesh = self.tree.find("./meshes/mesh")
+                    prefix = os.path.join(self.output_dir, prefix)
                     fn = prefix + "_" + mesh.text.split(".vtu")[0] + ".xdmf"
                 if not fn is None:
                     tree_pvd = ET.parse(fn)
