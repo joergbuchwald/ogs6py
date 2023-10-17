@@ -80,6 +80,7 @@ class OGS:
         if "INPUT_FILE" in args:
             if os.path.isfile(args['INPUT_FILE']) is True:
                 self.inputfile = args['INPUT_FILE']
+                self.folder, _ = os.path.split(self.inputfile)
                 _ = self._get_root()
                 if self.verbose is True:
                     display.Display(self.tree)
@@ -104,7 +105,11 @@ class OGS:
         for i, file in enumerate(self.include_files):
             parent_element = self.include_elements[i].getparent()
             include_element = ET.SubElement(parent_element, "include")
-            include_element.set("file", file)
+            if self.folder == "":
+                file_ = file
+            else:
+                file_ = file.replace(f"{self.folder}/","")
+            include_element.set("file", file_)
             parse = ET.XMLParser(remove_blank_text=True)
             include_string = ET.tostring(self.include_elements[i], pretty_print=True)
             include_parse = ET.fromstring(include_string, parser=parse)
@@ -126,7 +131,7 @@ class OGS:
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
-            self.include_files.append(occurrence.attrib["file"])
+            self.include_files.append(os.path.join(self.folder, occurrence.attrib["file"]))
         for i, occurrence in enumerate(all_occurrences):
             _tree = ET.parse(self.include_files[i], parser)
             _root = _tree.getroot()
@@ -363,7 +368,7 @@ class OGS:
         for i, entry in enumerate(find_xpath):
             if i == occurrence:
                 self.include_elements.append(entry)
-                self.include_files.append(filename)
+                self.include_files.append(os.path.join(self.folder, filename))
 
     def replace_mesh(self, oldmesh, newmesh):
         """ Method to replace meshes
