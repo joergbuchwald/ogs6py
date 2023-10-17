@@ -275,6 +275,40 @@ class OGS:
                 if not textlist[i] is None:
                     r.text = str(textlist[i])
 
+    def deactivate_property(self, name, mediumid=None, phase=None):
+        """Replaces MPL properties by a comment
+
+        Parameters
+        ----------
+        mediumid : `int`
+            id of the medium
+        phase : `str`
+        name : `str`
+            property name
+        """
+        root = self._get_root()
+        mediumpointer = self._get_medium_pointer(root, mediumid)
+        phasepointer = self._get_phase_pointer(mediumpointer, phase)
+        xpathparameter = "./properties/property"
+        if phase is None:
+            parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
+        else:
+            parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
+        parameterpointer.getparent().replace(parameterpointer, ET.Comment(ET.tostring(parameterpointer)))
+
+    def deactivate_parameter(self, name):
+        """Replaces parameters by a comment
+
+        Parameters
+        ----------
+        name : `str`
+            property name
+        """
+        root = self._get_root()
+        parameterpath = "./parameters/parameter"
+        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
+        parameterpointer.getparent().replace(parameterpointer, ET.Comment(ET.tostring(parameterpointer)))
+
     def remove_element(self, xpath):
         """Removes an element
 
