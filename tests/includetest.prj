@@ -71,7 +71,7 @@
                         </property>
                     </properties>
                 </phase>
-                <include file="tests/solid_inc.xml"/>
+                <include file="solid_inc.xml"/>
             </phases>
             <properties>
                 <property>

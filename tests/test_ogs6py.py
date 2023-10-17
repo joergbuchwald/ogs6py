@@ -609,7 +609,7 @@ class TestiOGS(unittest.TestCase):
             while chunk := f.read(8192):
                 file_hash.update(chunk)
         self.assertEqual(file_hash.hexdigest(), 'ab3a785a29f2347d31769057348dc81a')
-        with open("solid.xml", "rb") as f:
+        with open("tests/solid.xml", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
@@ -623,7 +623,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '4196c13e54dad2026e4f8283d7faf141')
+        self.assertEqual(file_hash.hexdigest(), 'a5ca3722007055f9c1672d1ffc8994f8')
         with open("tests/solid_inc.xml", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
