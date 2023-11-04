@@ -192,6 +192,20 @@ class OGS:
         return phasepointer
 
     @classmethod
+    def _get_component_pointer(cls, root, component):
+        components = root.findall("./components/component")
+        componentnames = root.findall("./components/component/name")
+        componentcounter = None
+        for i, componentname in enumerate(componentnames):
+            if componentname.text == component:
+                componentcounter = i
+        componentpointer = components[componentcounter]
+        if componentpointer is None:
+            print("Component not found")
+            raise RuntimeError
+        return componentpointer
+
+    @classmethod
     def _set_type_value(cls, parameterpointer, value, parametertype, valuetag=None):
         for paramproperty in parameterpointer:
             if paramproperty.tag == valuetag:
@@ -445,7 +459,7 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
         self._set_type_value(parameterpointer, value, None, valuetag=valuetag)
 
-    def replace_phase_property_value(self, mediumid=None, phase="AqueousLiquid", name=None, value=None,
+    def replace_phase_property_value(self, mediumid=None, phase="AqueousLiquid", component=None, name=None, value=None,
             propertytype=None, valuetag="value"):
         """Replaces properties in medium phases
 
@@ -455,6 +469,7 @@ class OGS:
             id of the medium
         phase : `str`
             name of the phase
+        component : `str`
         name : `str`
             property name
         value : `str`/any
@@ -468,6 +483,8 @@ class OGS:
         root = self._get_root()
         mediumpointer = self._get_medium_pointer(root, mediumid)
         phasepointer = self._get_phase_pointer(mediumpointer, phase)
+        if component is not None:
+            phasepointer = self._get_component_pointer(phasepointer, component)
         xpathparameter = "./properties/property"
         parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
         self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
