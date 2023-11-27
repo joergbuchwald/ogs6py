@@ -13,15 +13,11 @@ class Media(build_tree.BuildTree):
     """
     Class for defining a media material properties."
     """
-    def __init__(self):
-        self.tree = {
-            'media': {
-                'tag': 'media',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.media = self.populate_tree(self.root, "media", overwrite=True)
+
         self.properties = {"AverageMolarMass": [],
             "BishopsSaturationCutoff": ["cutoff_value"],
             "BishopsPowerLaw": ["exponent"],
@@ -149,114 +145,37 @@ class Media(build_tree.BuildTree):
             "WaterVapourLatentHeatWithCriticalTemperature": []
             }
 
-    def _generate_generic_property(self, args):
-        property_parameters = {}
+    def _generate_generic_property(self, property_, args):
         for parameter in self.properties[args["type"]]:
-            property_parameters[parameter] = {
-                    'tag': parameter,
-                    'text': args[parameter],
-                    'attr': {},
-                    'children': {}
-                }
-        return property_parameters
-    def _generate_linear_property(self, args):
-        property_parameters = {}
+            self.populate_tree(property_, parameter, text=args[parameter])
+
+    def _generate_linear_property(self, property_, args):
         for parameter in self.properties[args["type"]]:
-            property_parameters[parameter] = {
-                    'tag': parameter,
-                    'text': args[parameter],
-                    'attr': {},
-                    'children': {}
-                }
+            self.populate_tree(property_, parameter, text=args[parameter])
         for var, param in args["independent_variables"].items():
-            property_parameters[f"independent_variable{var}"] = {
-                    'tag': 'independent_variable',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-            indep_var = property_parameters[f"independent_variable{var}"]['children']
-            indep_var['variable_name'] = {
-                    'tag': 'variable_name',
-                    'text': var,
-                    'attr': {},
-                    'children': {}
-                }
+            ind_var = self.populate_tree(property_, 'independent_variable')
+            self.populate_tree(ind_var, "variable_name", text=var)
             attributes = ['reference_condition','slope']
             for attrib in attributes:
-                indep_var[attrib] = {
-                    'tag': attrib,
-                    'text': str(param[attrib]),
-                    'attr': {},
-                    'children': {}
-                }
-        return property_parameters
-    def _generate_function_property(self, args):
-        property_parameters = {}
+                self.populate_tree(ind_var, attrib, text=str(param[attrib]))
+
+    def _generate_function_property(self, property_, args):
         for parameter in self.properties[args["type"]]:
-            property_parameters[parameter] = {
-                    'tag': parameter,
-                    'text': "",
-                    'attr': {},
-                    'children': {}
-                }
-        property_parameters["value"]["children"]["expression"] = {
-                    'tag': "expression",
-                    'text': args["expression"],
-                    'attr': {},
-                    'children': {}
-                }
+            value = self.populate_tree(property_, parameter, text=args[parameter])
+        self.populate_tree(value, "expression", text=args["expression"])
         for dvar in args["dvalues"]:
-            property_parameters[f"dvalue{dvar}"] = {
-                    'tag': "dvalue",
-                    'text': "",
-                    'attr': {},
-                    'children': {}
-                }
-            property_parameters[f"dvalue{dvar}"]["children"]["variable_name"] = {
-                    'tag': "variable_name",
-                    'text': dvar,
-                    'attr': {},
-                    'children': {}
-                }
-            property_parameters[f"dvalue{dvar}"]["children"]["expression"] = {
-                    'tag': "expression",
-                    'text': args["dvalues"][dvar]["expression"],
-                    'attr': {},
-                    'children': {}
-                }
-        return property_parameters
-    def _generate_exponential_property(self, args):
-        property_parameters = {}
+            dvalue = self.populate_tree(property_, "dvalue")
+            self.populate_tree(dvalue, "variable_name", text=dvar)
+            self.populate_tree(dvalue, "expression", text=args["dvalues"][dvar]["expression"])
+
+    def _generate_exponential_property(self, property_, args):
         for parameter in self.properties[args["type"]]:
-            property_parameters[parameter] = {
-                    'tag': parameter,
-                    'text': args[parameter],
-                    'attr': {},
-                    'children': {}
-                }
-        property_parameters["exponent"] = {
-                    'tag': 'exponent',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-        indep_var = property_parameters["exponent"]['children']
-        indep_var['variable_name'] = {
-                    'tag': 'variable_name',
-                    'text': args["exponent"]["variable_name"],
-                    'attr': {},
-                    'children': {}
-                }
+            self.populate_tree(property_, parameter, text=args[parameter])
+        exponent = self.populate_tree(property_, 'exponent')
+        self.populate_tree(exponent, "variable_name", text=args["exponent"]["variable_name"])
         attributes = ['reference_condition','factor']
         for attrib in attributes:
-            indep_var[attrib] = {
-                    'tag': attrib,
-                    'text': str(args["exponent"][attrib]),
-                    'attr': {},
-                    'children': {}
-                }
-        return property_parameters
+            self.populate_tree(exponent, attrib, text=str(args["exponent"][attrib]))
 
     def add_property(self, **args):
         """
@@ -279,85 +198,41 @@ class Media(build_tree.BuildTree):
         """
         self._convertargs(args)
         if "medium_id" in args:
-            try:
-                medium = self.tree['media']['children'][args['medium_id']]
-            except KeyError:
-                self.tree['media']['children'][args['medium_id']] = {
-                        'tag': 'medium',
-                        'text': '',
-                        'attr': {
-                        'id': args['medium_id']},
-                        'children': {}
-                }
-                medium = self.tree['media']['children'][args['medium_id']]
+            medium = None
+            for entry in self.media.findall("./medium"):
+                if entry.get("id") == args["medium_id"]:
+                    medium = entry
+            if medium is None:
+                medium = self.populate_tree(self.media, "medium", attr={"id": args["medium_id"]})
             if "phase_type" in args:
-                if not 'phases' in medium['children']:
-                    medium['children']['phases'] = {
-                        'tag': 'phases',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }
-                try:
-                    phase_ = medium['children']['phases']['children'][
-                        args['phase_type']]
-                except KeyError:
-                    medium['children']['phases']['children'][
-                        args['phase_type']] = {
-                            'tag': 'phase',
-                            'text': '',
-                            'attr': {},
-                            'children': {}
-                        }
-                    phase_ = medium['children']['phases']['children'][
-                        args['phase_type']]
-                    phase_['children'][args['phase_type']] = {
-                        'tag': 'type',
-                        'text': args['phase_type'],
-                        'attr': {},
-                        'children': {}
-                    }
-                    phase_['children']['properties'] = {
-                        'tag': 'properties',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }
+                phases = self.get_child_tag(medium, "phases")
+                if phases is None:
+                    phases = self.populate_tree(medium, "phases")
+                phase = self.get_child_tag_for_type(phases, "phase", args['phase_type'])
+                if phase is None:
+                    phase = self.populate_tree(phases, "phase")
+                    self.populate_tree(phase, "type", text=args['phase_type'])
+                    properties = self.populate_tree(phase, "properties")
+                else:
+                    properties = self.get_child_tag(phase, "properties")
             else:
-                try:
-                    _ = medium['children']['properties']
-                except KeyError:
-                    medium['children']['properties'] = {
-                        'tag': 'properties',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }
-                phase_ = medium
-            phase = phase_['children']['properties']['children']
-            phase[args['name']] = {
-                'tag': 'property',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
+                properties = self.get_child_tag(medium, "properties")
+                if properties is None:
+                    properties = self.populate_tree(medium, "properties")
+                phase = medium
+            property_ = self.populate_tree(properties, "property")
             base_property_param = ["name", "type"]
             for param in base_property_param:
-                phase[args['name']]['children'][param] = {
-                    'tag': param,
-                    'text': args[param],
-                    'attr': {},
-                    'children': {}
-            }
+                self.populate_tree(property_, param, text=args[param])
             try:
                 if args['type'] == "Linear":
-                    phase[args['name']]['children'].update(self._generate_linear_property(args))
+                    self._generate_linear_property(property_, args)
                 elif args['type'] == "Exponential":
-                    phase[args['name']]['children'].update(self._generate_exponential_property(args))
+                    self._generate_exponential_property(property_, args)
                 elif args['type'] == "Function":
-                    phase[args['name']]['children'].update(self._generate_function_property(args))
+                    self._generate_function_property(property_, args)
                 else:
-                    phase[args['name']]['children'].update(self._generate_generic_property(args))
+                    self._generate_generic_property(property_, args)
             except KeyError:
                 print("Material property parameters incomplete for")
                 if "phase_type" in args:

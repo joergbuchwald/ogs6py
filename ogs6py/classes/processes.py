@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
+Copyright (c) 2012-2024, OpenGeoSys Community (http://www.opengeosys.org)
             Distributed under a Modified BSD License.
               See accompanying file LICENSE or
               http://www.opengeosys.org/project/license
@@ -13,55 +13,21 @@ class Processes(build_tree.BuildTree):
     """
     Class for managing the processes section in the project file.
     """
-    def __init__(self):
-        self.tree = {
-            'processes': {
-                'tag': 'processes',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
-        self.tree['processes']['children'] = {
-            'process': {
-                'tag': 'process',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
-        self.constreltree = {
-            'tag': 'constitutive_relation',
-            'text': '',
-            'attr': {},
-            'children': {}
-        }
-        self.proc_vartree = {
-            'tag': 'process_variables',
-            'text': '',
-            'attr': {},
-            'children': {}
-        }
-        self.sec_vartree = {
-            'tag': 'secondary_variables',
-            'text': '',
-            'attr': {},
-            'children': {}
-        }
-        self.bhe_tree = {                           
-            'tag': 'borehole_heat_exchangers',
-            'text': '',
-            'attr': {},
-            'children': {}
-        } 
-        self.sflux_vartree = {
-            'tag': 'calculatesurfaceflux',
-            'text': '',
-            'attr': {},
-            'children': {}
-            }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.processes = self.populate_tree(self.root, "processes", overwrite=True)
+        self.process = self.populate_tree(self.processes, "process", overwrite=True)
+        self.procvars = None
+        self.procvar = {}
+        self.secondvars = None
+        self.secondvar = {}
+        self.process_baseentries = {}
+        self.constitutive_relation = {}
+        self.borehole_heat_exchangers = None
+        self.borehole_heat_exchanger = []
 
-    def add_process_variable(self, **args):
+    def add_process_variable(self, process_variable="", process_variable_name=""):
         """
         Adds a process variable.
 
@@ -69,37 +35,26 @@ class Processes(build_tree.BuildTree):
         ----------
         process_variable : `str`
         process_variable_name : `str`
-        secondary_variable : `str`
+        """
+        self.procvars = self.populate_tree(self.process, "process_variables", overwrite=True)
+        if not process_variable == "":
+            if process_variable_name == "":
+                raise KeyError("process_variable_name missing.")
+            self.procvar[process_variable] = self.populate_tree(self.procvars,
+                                            process_variable, text=process_variable_name)
+
+    def add_secondary_variable(self, internal_name, output_name):
+        """
+        Adds a secondary variable.
+
+        Parameters
+        ----------
+        internal_variable : `str`
         output_name : `str`
         """
-        self._convertargs(args)
-        if "process_variable" in args:
-            if "process_variable_name" not in args:
-                raise KeyError("process_variable_name missing.")
-            self.tree['processes']['children']['process']['children'][
-                    'process_variables'] = self.proc_vartree
-            self.proc_vartree['children'][args['process_variable_name']] = {
-                    'tag': args['process_variable'],
-                    'text': args['process_variable_name'],
-                    'attr': {},
-                    'children': {}
-                    }
-        elif "secondary_variable" in args:
-            if "output_name" not in args:
-                raise KeyError("No output_name given.")
-            self.tree['processes']['children']['process']['children'][
-                    'secondary_variables'] = self.sec_vartree
-            self.sec_vartree['children'][args['output_name']] = {
-                    'tag': 'secondary_variable',
-                    'text': '',
-                    'attr': {
-                        'internal_name': args['secondary_variable'],
-                        'output_name': args['output_name']
-                        },
-                    'children': {}
-                    }
-        else:
-            raise KeyError("No process_variable/secondary_variable given.")
+        self.secondvars = self.populate_tree(self.process, "secondary_variables", overwrite=True)
+        attrs = {"internal_name": internal_name, "output_name": output_name}
+        self.populate_tree(self.secondvars, "secondary_variable", attr=attrs)
 
     def set_process(self, **args):
         """
@@ -125,17 +80,15 @@ class Processes(build_tree.BuildTree):
         if "darcy_gravity" in args:
             for i, entry in enumerate(args["darcy_gravity"]):
                 if entry != 0.0:
-                    self.tree['processes']['children']['process'][
-                        'children']['darcy_gravity'] = self.populate_tree('darcy_gravity')
-                    darcy_vel = self.tree['processes']['children']['process'][
-                                    'children']['darcy_gravity']
-                    darcy_vel['children']['axis'] = self.populate_tree('axis_id', text=str(i))
-                    darcy_vel['children']['g'] = self.populate_tree('g', text=str(entry))
-
+                    self.process_baseentries["darcy_gravity"] = self.populate_tree(
+                            self.process, "darcy_gravity")
+                    self.populate_tree(self.process_baseentries["darcy_gravity"],
+                            "axis_id",text =str(i))
+                    self.populate_tree(self.process_baseentries["darcy_gravity"],
+                            "g",text = str(entry))
         for key, value in args.items():
             if isinstance(value, str):
-                self.tree['processes']['children']['process'][
-                    'children'][key] = self.populate_tree(key, text=args[key])
+                self.populate_tree(self.process, key, text=args[key])
 
 
     def set_constitutive_relation(self, **args):
@@ -145,135 +98,91 @@ class Processes(build_tree.BuildTree):
         Parameters
         ----------
 
-        any pair tag="value" translates to
-        <tag>value</tag> in process section
+        any pair property="parameter_name" translates to
+        <property>parameter_name</property> in constitutive_relation section
+        if more constitutuitive relations are given use id key word
         """
         self._convertargs(args)
-        self.tree['processes']['children']['process']['children'][
-            'constitutive_relation'] = self.constreltree
-        for key in args:
-            self.constreltree['children'][key] = {
-                'tag': key,
-                'text': args[key],
-                'attr': {},
-                'children': {}
-            }
-
-
-    def add_bhe_type(self, **args):      
-        self.tree['processes']['children']['process']['children']['borehole_heat_exchangers'] = {
-            'borehole_heat_exchangers': {
-                'tag': 'borehole_heat_exchangers',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
-        if 'bhe_type' in args:
-            if not 'bhe_type' in args:
-                raise KeyError('BHE type missing.')
-            else:
-                self.tree['processes']['children']['process']['children']['borehole_heat_exchangers'] = self.bhe_tree
-                self.bhe_tree['children']['borehole_heat_exchanger'] = {
-                    'tag': 'borehole_heat_exchanger',
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-                self.bhe_tree['children']['borehole_heat_exchanger']['children']['type'] = {
-                    'tag': 'type',
-                    'text': args['bhe_type'],
-                    'attr': {},
-                    'children': {}
-                }
-    def add_bhe_component(self, **args):      
-        if not 'comp_type' in args:
-            raise KeyError("No bhe component name specified.")
+        if "id" in args:
+            const_rel = self.populate_tree(self.process, "constitutive_relation", attr={"id": args["id"]})
         else:
-            self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']] = {
-                    'tag': args['comp_type'],
-                    'text': '',
-                    'attr': {},
-                    'children': {}
-                }
-            bhe_component = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]
-            if args['comp_type'] == 'borehole':
-                bhe_component['children']['length'] = self.populate_tree('length', text = args['length'], children={})
-                bhe_component['children']['diameter'] = self.populate_tree('diameter', text = args['diameter'], children={})
-            elif args['comp_type'] == 'pipes':
-                if self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "1U" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "2U":
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
-                        'tag': 'inlet',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
-                        'tag': 'outlet',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }                
-                    bhe_component['children']['distance_between_pipes'] = self.populate_tree('distance_between_pipes', text = args['distance_between_pipes'], children={})
-                elif self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXC" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXA":
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
-                        'tag': 'inner',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
-                        'tag': 'outer',
-                        'text': '',
-                        'attr': {},
-                        'children': {}
-                    }                
-                inlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet']
-                outlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet']
-                inlet['children']['diameter'] = self.populate_tree('diameter', text = args['inlet_diameter'], children={})
-                inlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['inlet_wall_thickness'], children={})
-                inlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['inlet_wall_thermal_conductivity'], children={})
-                outlet['children']['diameter'] = self.populate_tree('diameter', text = args['outlet_diameter'], children={})
-                outlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['outlet_wall_thickness'], children={})
-                outlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['outlet_wall_thermal_conductivity'], children={})
-                bhe_component['children']['longitudinal_dispersion_length'] = self.populate_tree('longitudinal_dispersion_length', text = args['longitudinal_dispersion_length'], children={})
-            elif args['comp_type'] == 'flow_and_temperature_control':
-                if args['type'] == "FixedPowerConstantFlow":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['power'] = self.populate_tree('power', text = args['power'], children={})
-                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})
-                elif args['type'] == "FixedPowerFlowCurve":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['power'] = self.populate_tree('power', text = args['power'], children={})
-                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})
-                elif args['type'] == "PowerCurveConstantFlow":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
-                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={}) 
-                elif args['type'] == "TemperatureCurveConstantFlow":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['flow_rate'] = self.populate_tree('flow_rate', text = args['flow_rate'], children={})
-                    bhe_component['children']['temperature_curve'] = self.populate_tree('temperature_curve', text = args['temperature_curve'], children={})
-                elif args['type'] == "TemperatureCurveFlowCurve":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})
-                    bhe_component['children']['temperature_curve'] = self.populate_tree('temperature_curve', text = args['temperature_curve'], children={})
-                elif args['type'] == "PowerCurveFlowCurve":
-                    bhe_component['children']['type'] = self.populate_tree('type', text = args['type'], children={})
-                    bhe_component['children']['power_curve'] = self.populate_tree('power_curve', text = args['power_curve'], children={})
-                    bhe_component['children']['flow_rate_curve'] = self.populate_tree('flow_rate_curve', text = args['flow_rate_curve'], children={})          
-            elif args['comp_type'] == 'grout':
-                bhe_component['children']['density'] = self.populate_tree('density', text = args['density'], children={})
-                bhe_component['children']['porosity'] = self.populate_tree('porosity', text = args['porosity'], children={})
-                bhe_component['children']['specific_heat_capacity'] = self.populate_tree('specific_heat_capacity', text = args['specific_heat_capacity'], children={})
-                bhe_component['children']['thermal_conductivity'] = self.populate_tree('thermal_conductivity', text = args['thermal_conductivity'], children={})
-            elif args['comp_type'] == 'refrigerant':
-                bhe_component['children']['density'] = self.populate_tree('density', text = args['density'], children={})
-                bhe_component['children']['viscosity'] = self.populate_tree('viscosity', text = args['viscosity'], children={})
-                bhe_component['children']['specific_heat_capacity'] = self.populate_tree('specific_heat_capacity', text = args['specific_heat_capacity'], children={})
-                bhe_component['children']['thermal_conductivity'] = self.populate_tree('thermal_conductivity', text = args['thermal_conductivity'], children={})
-                bhe_component['children']['reference_temperature'] = self.populate_tree('reference_temperature', text = args['reference_temperature'], children={})
-    def add_surfaceflux(self,**args):
+            const_rel = self.populate_tree(self.process, "constitutive_relation", overwrite=True)
+        for key, value in args.items():
+            if key not in ["id"]:
+                self.populate_tree(const_rel, key, text=value, overwrite=True)
+
+
+    def add_bhe_type(self, bhe_type):
+        self.borehole_heat_exchangers = self.populate_tree(
+                self.process, "borehole_heat_exchangers", overwrite=True)
+        self.borehole_heat_exchanger.append(self.populate_tree(
+                        self.borehole_heat_exchangers, "borehole_heat_exchanger"))
+        self.populate_tree(self.borehole_heat_exchanger[-1], "type", text = bhe_type)
+
+    def add_bhe_component(self, index=0, **args):
+        self._convertargs(args)
+        if not 'comp_type' in args:
+            raise KeyError("No BHE component name specified.")
+        bhecomponent = self.populate_tree(self.borehole_heat_exchanger[index], args['comp_type'])
+        if bhecomponent.tag == "borehole":
+            self.populate_tree(bhecomponent, 'length', text = args['length'])
+            self.populate_tree(bhecomponent, 'diameter', text = args['diameter'])
+        elif bhecomponent.tag == "pipes":
+            for element in self.borehole_heat_exchanger[index]:
+                if element.tag == "type":
+                    bhe_type = element.text
+            if bhe_type == "1U" or bhe_type == "2U":
+                inlet_text = "inlet"
+                outlet_text = "outlet"
+            elif bhe_type == "CXA" or bhe_type == "CXC":
+                inlet_text = "inner"
+                outlet_text = "outer"
+            inlet = self.populate_tree(bhecomponent, inlet_text)
+            outlet = self.populate_tree(bhecomponent, outlet_text)
+            self.populate_tree(inlet, "diameter", text=args['inlet_diameter'])
+            self.populate_tree(inlet, "wall_thickness", text=args['inlet_wall_thickness'])
+            self.populate_tree(inlet, "wall_thermal_conductivity", text=args['inlet_wall_thermal_conductivity'])
+            self.populate_tree(outlet, "diameter", text=args['outlet_diameter'])
+            self.populate_tree(outlet, "wall_thickness", text=args['outlet_wall_thickness'])
+            self.populate_tree(outlet, "wall_thermal_conductivity", text=args['outlet_wall_thermal_conductivity'])
+            self.populate_tree(bhecomponent, "distance_between_pipes", text=args['distance_between_pipes'])
+            self.populate_tree(bhecomponent, "longitudinal_dispersion_length", text=args['longitudinal_dispersion_length'])
+
+        elif bhecomponent.tag == "flow_and_temperature_control":
+            self.populate_tree(bhecomponent, "type", text=args['type'])
+            if args['type']  == "FixedPowerConstantFlow":
+                self.populate_tree(bhecomponent, "power", text=args['power'])
+                self.populate_tree(bhecomponent, "flow_rate", text=args['flow_rate'])
+            elif args['type'] == "FixedPowerFlowCurve":
+                self.populate_tree(bhecomponent, "power", text=args['power'])
+                self.populate_tree(bhecomponent, "flow_rate_curve", text=args['flow_rate_curve'])
+            elif args['type'] == "PowerCurveConstantFlow":
+                self.populate_tree(bhecomponent, "power_curve", text=args['power_curve'])
+                self.populate_tree(bhecomponent, "flow_rate", text=args['flow_rate'])
+            elif args['type'] == "TemperatureCurveConstantFlow":
+                self.populate_tree(bhecomponent, "flow_rate", text=args['flow_rate'])
+                self.populate_tree(bhecomponent, "temperature_curve", text=args['temperature_curve'])
+            elif args['type'] == "TemperatureCurveFlowCurve":
+                self.populate_tree(bhecomponent, "flow_rate_curve", text=args['flow_rate_curve'])
+                self.populate_tree(bhecomponent, "temperature_curve", text=args['temperature_curve'])
+            elif args['type'] == "PowerCurveFlowCurve":
+                self.populate_tree(bhecomponent, "power_curve", text=args['power_curve'])
+                self.populate_tree(bhecomponent, "flow_rate_curve", text=args['flow_rate_curve'])
+
+        elif bhecomponent.tag == "grout":
+            self.populate_tree(bhecomponent, "density", text=args['density'])
+            self.populate_tree(bhecomponent, "porosity", text=args['porosity'])
+            self.populate_tree(bhecomponent, "specific_heat_capacity", text=args['specific_heat_capacity'])
+            self.populate_tree(bhecomponent, "thermal_conductivity", text=args['thermal_conductivity'])
+
+        elif bhecomponent.tag == "refrigerant":
+            self.populate_tree(bhecomponent, "density", text=args['density'])
+            self.populate_tree(bhecomponent, "viscosity", text=args['viscosity'])
+            self.populate_tree(bhecomponent, "specific_heat_capacity", text=args['specific_heat_capacity'])
+            self.populate_tree(bhecomponent, "thermal_conductivity", text=args['thermal_conductivity'])
+            self.populate_tree(bhecomponent, "reference_temperature", text=args['reference_temperature'])
+
+    def add_surfaceflux(self, **args):
         """
         Add SurfaceFlux
 
@@ -298,17 +207,6 @@ class Processes(build_tree.BuildTree):
             raise KeyError("No surface mesh for flux analysis assigned")
         if "property_name" not in args:
             raise KeyError("No property name, e.g specific_flux, assigned")
-        self.tree['processes']['children']['process']['children'][
-                'calculatesurfaceflux'] = self.sflux_vartree
-        self.sflux_vartree['children']['mesh'] = {
-                'tag': 'mesh',
-                'text': args['mesh'],
-                'attr': {},
-                'children': {}
-                }
-        self.sflux_vartree['children']['property_name'] = {
-                'tag': 'property_name',
-                'text': args['property_name'],
-                'attr': {},
-                'children': {}
-                }
+        surfaceflux = self.populate_tree(self.process, "calculatesurfaceflux", overwrite=True)
+        self.populate_tree(surfaceflux, "mesh", args["mesh"])
+        self.populate_tree(surfaceflux, "property_name", args["property_name"])

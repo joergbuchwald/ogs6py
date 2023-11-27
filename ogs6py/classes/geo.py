@@ -13,17 +13,12 @@ class Geo(build_tree.BuildTree):
     """
     Class containing the geometry file.
     """
-    def __init__(self):
-        self.tree = {
-            'geometry': {
-                'tag': 'geometry',
-                'text': "",
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
 
-    def add_geom(self, filename):
+
+    def add_geometry(self, filename):
         """
         Adds a geometry file.
 
@@ -31,4 +26,4 @@ class Geo(build_tree.BuildTree):
         ----------
         filename : `str`
         """
-        self.tree['geometry']['text'] = filename
+        geom = self.populate_tree(self.root, "geometry", text=filename, overwrite=True)

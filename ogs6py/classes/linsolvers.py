@@ -13,15 +13,10 @@ class LinSolvers(build_tree.BuildTree):
     """
     Class for defining a linear solvers in the project file"
     """
-    def __init__(self):
-        self.tree = {
-            'linear_solvers': {
-                'tag': 'linear_solvers',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.lss = self.populate_tree(self.root, 'linear_solvers', overwrite=True)
 
     def add_lin_solver(self, **args):
         """
@@ -37,54 +32,49 @@ class LinSolvers(build_tree.BuildTree):
         max_iteration_step : `int`, optional
         scaling : `str`, optional
                   1 or 0
+        error_tolerance : `float`
         prefix : `str`, optional
                  required for petsc solver
+        parameters : `str` for petsc only
+        lis : `str` for lis only
         """
         self._convertargs(args)
         if not "name" in args:
             raise KeyError("You need to provide a name for the linear solver.")
-        if not args['name'] in self.tree['linear_solvers']['children']:
-            self.tree['linear_solvers']['children'][
-                args['name']] = self.populate_tree('linear_solver', children={})
-        linear_solver = self.tree['linear_solvers']['children'][
-            args['name']]['children']
-        if not 'name' in linear_solver:
-            linear_solver['name'] = self.populate_tree('name', text=args['name'],children={})
+        ls = self.populate_tree(self.lss, 'linear_solver', overwrite=True)
+        self.populate_tree(ls, 'name', text=args['name'], overwrite=True)
         if not "kind" in args:
             raise KeyError("No kind given. Please specify the linear \
                         solver library (e.g.: eigen, petsc, lis).")
-        if not "solver_type" in args:
-            raise KeyError("No solver_type given.")
         if args['kind'] == "eigen":
-            linear_solver['eigen'] = self.populate_tree('eigen', children={})
-            linear_solver['eigen']['children']['solver_type'] = self.populate_tree(
-                    'solver_type', text=args['solver_type'], children={})
+            eigen = self.populate_tree(ls, 'eigen', overwrite=True)
+            self.populate_tree(eigen, 'solver_type', text=args['solver_type'], overwrite=True)
             if "precon_type" in args:
-                linear_solver['eigen']['children']['precon_type'] = self.populate_tree(
-                    'precon_type', text=args['precon_type'], children={})
+                self.populate_tree(eigen, 'precon_type', text=args['precon_type'], overwrite=True)
             if "max_iteration_step" in args:
-                linear_solver['eigen']['children']['max_iteration_step'] = self.populate_tree(
-                    'max_iteration_step', text=args['max_iteration_step'], children={})
+                self.populate_tree(eigen, 'max_iteration_step', text=args['max_iteration_step'], overwrite=True)
             if "error_tolerance" in args:
-                linear_solver['eigen']['children']['error_tolerance'] = self.populate_tree(
-                    'error_tolerance', text=args['error_tolerance'], children={})
+                self.populate_tree(eigen, 'error_tolerance', text=args['error_tolerance'], overwrite=True)
             if "scaling" in args:
-                linear_solver['eigen']['children']['scaling'] = self.populate_tree(
-                        'scaling', text=args['scaling'], children={})
+                self.populate_tree(eigen, 'scaling', text=args['scaling'], overwrite=True)
         elif args['kind'] == "lis":
-            string = (f"-i {args['solver_type']} -p {args['precon_type']}"
+            if "lis" in args:
+                lis_string = args["lis"]
+            else:
+                lis_string = (f"-i {args['solver_type']} -p {args['precon_type']}"
                     f" -tol {args['error_tolerance']}"
                     f" -maxiter {args['max_iteration_step']}")
-            linear_solver['lis'] = self.populate_tree('lis', text=string, children={})
+            self.populate_tree(ls, 'lis', text=lis_string, overwrite=True)
         elif args['kind'] == "petsc":
-            if 'prefix' not in args:
-                KeyError("No prefix given.")
-            prefix = args['prefix']
-            linear_solver['petsc'] = self.populate_tree('petsc', children={})
-            linear_solver['petsc']['children'][
-                'prefix'] = self.populate_tree('prefix', text=prefix, children={})
-            string = (f"-{prefix}_ksp_type {args['solver_type']}  -{prefix}_pc_type"
+            petsc = self.populate_tree(ls, 'petsc', overwrite=True)
+            prefix = ""
+            if "prefix" in args:
+                self.populate_tree(petsc, 'prefix', args['prefix'], overwrite=True)
+                prefix = args['prefix']
+            if "parameters" in args:
+                self.populate_tree(petsc, 'parameters', args['parameters'], overwrite=True)
+            else:
+                petsc_string = (f"-{prefix}_ksp_type {args['solver_type']}  -{prefix}_pc_type"
                     f" {args['precon_type']} -{prefix}_ksp_rtol {args['error_tolerance']}"
                     f" -{prefix}_ksp_max_it {args['max_iteration_step']}")
-            linear_solver['petsc']['children'][
-            'parameters'] = self.populate_tree('parameters', text=string, children={})
+                self.populate_tree(petsc, 'parameters', petsc_string, overwrite=True)

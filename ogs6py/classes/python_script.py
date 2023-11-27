@@ -13,17 +13,12 @@ class PythonScript(build_tree.BuildTree):
     """
     Class managing python script in the project file
     """
-    def __init__(self):
-        self.tree = {
-            'pythonscript': {
-                'tag': 'python_script',
-                'text': "",
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
 
-    def set_pyscript(self, **args):
+
+    def set_pyscript(self, filename):
         """
         Set a filename for a python script.
 
@@ -31,7 +26,4 @@ class PythonScript(build_tree.BuildTree):
         ----------
         filename : `str`
         """
-        self._convertargs(args)
-        if "filename" not in args:
-            raise KeyError("No filename given")
-        self.tree['pythonscript']['text'] = args['filename']
+        self.populate_tree(self.root, "python_script", text=args['filename'], overwrite=True)

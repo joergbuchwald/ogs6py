@@ -13,15 +13,10 @@ class NonLinSolvers(build_tree.BuildTree):
     """
     Adds a non-linearsolver section in the project file.
     """
-    def __init__(self):
-        self.tree = {
-            'nonlinear_solvers': {
-                'tag': 'nonlinear_solvers',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.nlss = self.populate_tree(self.root, 'nonlinear_solvers', overwrite=True)
 
     def add_non_lin_solver(self, **args):
         """
@@ -45,15 +40,10 @@ class NonLinSolvers(build_tree.BuildTree):
             raise KeyError("Please provide the maximum number of iterations (max_iter).")
         if "linear_solver" not in args:
             raise KeyError("No linear_solver specified.")
-        self.tree['nonlinear_solvers']['children'][
-                args['name']] = self.populate_tree('nonlinear_solver', children={})
-        nonlin_solver = self.tree['nonlinear_solvers']['children'][args['name']]['children']
-        nonlin_solver['name'] = self.populate_tree('name', text=args['name'], children={})
-        nonlin_solver['type'] = self.populate_tree('type', text=args['type'], children={})
-        nonlin_solver['max_iter'] = self.populate_tree('max_iter', text=args['max_iter'],
-                children={})
-        nonlin_solver['linear_solver'] = self.populate_tree('linear_solver',
-                text=args['linear_solver'], children={})
+        nls = self.populate_tree(self.nlss, "nonlinear_solver")
+        self.populate_tree(nls, "name", text=args['name'])
+        self.populate_tree(nls, "type", text=args['type'])
+        self.populate_tree(nls, "max_iter", text=args['max_iter'])
+        self.populate_tree(nls, "linear_solver", text=args['linear_solver'])
         if "damping" in args:
-            nonlin_solver['damping'] = self.populate_tree('damping', text=args['damping'],
-                    children={})
+            self.populate_tree(nls, "damping", text=args['damping'])
