@@ -215,7 +215,7 @@ class OGS:
                 if not parametertype is None:
                     paramproperty.text = str(parametertype)
 
-    def add_element(self, parent_xpath="./", tag=None, text=None, attrib=None, attrib_value=None):
+    def add_element(self, parent_xpath="./", tag=None, text=None, attrib_list=None, attrib_value_list=None):
         """General method to add an Entry
 
         An element is a single tag containing 'text',
@@ -241,8 +241,16 @@ class OGS:
                 q = ET.SubElement(parent, tag)
                 if not text is None:
                     q.text = str(text)
-                if not attrib is None:
-                    q.set(attrib, str(attrib_value))
+                if not attrib_list is None:
+                    if attrib_value_list is None:
+                        print("attrib_value_list is not given for add_element")
+                        raise RuntimeError
+                    if len(attrib_list) != len(attrib_value_list):
+                        print("The size of attrib_list is not the same as that of attrib_value_list")
+                        raise RuntimeError
+
+                    for attrib, attrib_value in zip (attrib_list, attrib_value_list):
+                        q.set(attrib, attrib_value)
 
     def add_include(self, parent_xpath="./", file=""):
         """add include element
@@ -328,7 +336,7 @@ class OGS:
         parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
         parameterpointer.getparent().replace(parameterpointer, ET.Comment(ET.tostring(parameterpointer)))
 
-    def remove_element(self, xpath):
+    def remove_element(self, xpath, tag = None, text = None):
         """Removes an element
 
         Parameters
@@ -337,8 +345,15 @@ class OGS:
         """
         root = self._get_root()
         elements = root.findall(xpath)
-        for element in elements:
-            element.getparent().remove(element)
+        if tag == None:
+            for element in elements:
+                element.getparent().remove(element)
+        else:
+            for element in elements:
+                sub_elements = element.getchildren()
+                for sub_element in sub_elements:
+                    if sub_element.tag == tag and sub_element.text == text:
+                        sub_element.getparent().remove(sub_element)
 
     def replace_text(self, value, xpath=".", occurrence=-1):
         """General method for replacing text between opening and closing tags
