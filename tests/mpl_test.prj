@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<OpenGeoSysProject>
+    <geometry>square_1x1_thm.gml</geometry>
+    <mesh axially_symmetric="true">quarter_002_2nd.vtu</mesh>
+    <processes>
+        <process>
+            <name>THERMO_HYDRO_MECHANICS</name>
+            <type>THERMO_HYDRO_MECHANICS</type>
+            <integration_order>4</integration_order>
+        </process>
+    </processes>
+    <media>
+        <medium id="0">
+            <properties>
+                <property>
+                    <name>thermal_conductivity</name>
+                    <type>SaturationWeightedThermalConductivity</type>
+                    <mean_type>geometric</mean_type>
+                    <dry_thermal_conductivity>0.2</dry_thermal_conductivity>
+                    <wet_thermal_conductivity>1.2</wet_thermal_conductivity>
+                </property>
+                <property>
+                    <name>density</name>
+                    <type>WaterDensityIAPWSIF97Region1</type>
+                </property>
+            </properties>
+        </medium>
+    </media>
+    <time_loop>
+        <processes/>
+        <output/>
+    </time_loop>
+    <parameters/>
+    <process_variables/>
+    <nonlinear_solvers/>
+    <linear_solvers/>
+</OpenGeoSysProject>
