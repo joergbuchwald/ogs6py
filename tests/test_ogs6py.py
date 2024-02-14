@@ -133,6 +133,14 @@ class TestiOGS(unittest.TestCase):
                                 name="bishops_effective_stress",
                                 type="BishopsPowerLaw",
                                 exponent="1")
+        model.media.add_property(medium_id="0",
+                                name="thermal_conductivity",
+                                type="SaturationWeightedThermalConductivity",
+                                mean_type="geometric",
+                                dry_thermal_conductivity="0.2",
+                                wet_thermal_conductivity="1.2",)
+        model.media.add_property(medium_id="0",
+                                name="density", type="WaterDensityIAPWSIF97Region1")
         model.timeloop.add_process(process="THERMO_RICHARDS_MECHANICS",
                                 nonlinear_solver_name="nonlinear_solver",
                                 convergence_type="PerComponentDeltaX",
