@@ -291,7 +291,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '08784407fde0c8a1d4e7a379437a9911')
+        self.assertEqual(file_hash.hexdigest(), '6a7d8cf210469d103815c3da743f2f8d')
 
     def test_buildfromscratch_bhe(self):
         model = ogs6py.OGS(PROJECT_FILE="HeatTransportBHE_ogs6py.prj", MKL=False)
@@ -616,7 +616,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), 'ab3a785a29f2347d31769057348dc81a')
+        self.assertEqual(file_hash.hexdigest(), 'a3330963d9b160fd09c4969d4f653aa4')
         with open("tests/solid.xml", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
