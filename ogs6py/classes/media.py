@@ -121,6 +121,7 @@ class Media(build_tree.BuildTree):
                     "residual_gas_saturation",
                     "residual_liquid_saturation"],
             "SaturationLiakopoulos": [],
+            "SaturationWeightedThermalConductivity": ["mean_type", "dry_thermal_conductivity","wet_thermal_conductivity"],
             "SaturationVanGenuchten": ["exponent",
                     "p_b",
                     "residual_gas_saturation",
@@ -144,6 +145,7 @@ class Media(build_tree.BuildTree):
                     "initial_permeability",
                     "initial_porosity"],
             "WaterVapourDensity": [],
+            "WaterDensityIAPWSIF97Region1": [],
             "WaterVapourLatentHeatWithCriticalTemperature": []
             }
 

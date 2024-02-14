@@ -115,7 +115,10 @@
                 </property>
                 <property>
                     <name>thermal_conductivity</name>
-                    <type>EffectiveThermalConductivityPorosityMixing</type>
+                    <type>SaturationWeightedThermalConductivity</type>
+                    <mean_type>geometric</mean_type>
+                    <dry_thermal_conductivity>0.2</dry_thermal_conductivity>
+                    <wet_thermal_conductivity>1.2</wet_thermal_conductivity>
                 </property>
                 <property>
                     <name>saturation</name>
@@ -131,6 +134,10 @@
                     <name>bishops_effective_stress</name>
                     <type>BishopsPowerLaw</type>
                     <exponent>1</exponent>
+                </property>
+                <property>
+                    <name>density</name>
+                    <type>WaterDensityIAPWSIF97Region1</type>
                 </property>
             </properties>
         </medium>
