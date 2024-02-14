@@ -133,13 +133,13 @@ class TestiOGS(unittest.TestCase):
                                 name="bishops_effective_stress",
                                 type="BishopsPowerLaw",
                                 exponent="1")
-        model.media.add_property(medium_id="0",
+        model.media.add_property(medium_id="1",
                                 name="thermal_conductivity",
                                 type="SaturationWeightedThermalConductivity",
                                 mean_type="geometric",
                                 dry_thermal_conductivity="0.2",
                                 wet_thermal_conductivity="1.2",)
-        model.media.add_property(medium_id="0",
+        model.media.add_property(medium_id="1",
                                 name="density", type="WaterDensityIAPWSIF97Region1")
         model.timeloop.add_process(process="THERMO_RICHARDS_MECHANICS",
                                 nonlinear_solver_name="nonlinear_solver",
@@ -291,7 +291,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), '6a7d8cf210469d103815c3da743f2f8d')
+        self.assertEqual(file_hash.hexdigest(), 'd863d5842910030357e1f68586c5c48d')
 
     def test_buildfromscratch_bhe(self):
         model = ogs6py.OGS(PROJECT_FILE="HeatTransportBHE_ogs6py.prj", MKL=False)
@@ -616,7 +616,7 @@ class TestiOGS(unittest.TestCase):
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
-        self.assertEqual(file_hash.hexdigest(), 'a3330963d9b160fd09c4969d4f653aa4')
+        self.assertEqual(file_hash.hexdigest(), 'cb08710c20a9ff178f4899cc80ef4ef5')
         with open("tests/solid.xml", "rb") as f:
             file_hash = hashlib.md5()
             while chunk := f.read(8192):
