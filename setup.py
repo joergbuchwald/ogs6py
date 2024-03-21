@@ -55,5 +55,5 @@ setup(name="ogs6py",
       include_package_data=True,
       python_requires='>=3.8',
       install_requires=["lxml","pandas"],
-      py_modules=["ogs6py/ogs","ogs6py/log_parser/log_parser", "ogs6py/log_parser/common_ogs_analyses", "ogs6py/ogs_regexes/ogs_regexes"],
+      py_modules=["ogs6py/ogs","ogs6py/log_parser/log_parser", "ogs6py/log_parser/common_ogs_analyses", "ogs6py/ogs_regexes/ogs_regexes", "ogs-monitor"],
       packages=["ogs6py/classes","ogs6py/log_parser","ogs6py/ogs_regexes"])
