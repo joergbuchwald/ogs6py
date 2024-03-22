@@ -1,7 +1,14 @@
+import os
 import sys
 import warnings
 
 import time
+try:
+    from PIL import Image
+    imagemodule = True
+except ModuleNotFoundError:
+    print("module Image not installed")
+    imagemodule = False
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
@@ -45,14 +52,31 @@ class OGSMONITOR(object):
         else:
             for j, filt in enumerate(self.filters):
                 self.logfile_ref_df[j] = None
+                self.q0_xb = None
+        self.q0_yb = None
+        self.q1_xb = None
+        self.q1_yb = None
+        self.q2_xb = None
+        self.q2_yb = None
+        self.q3_xb = None
+        self.q3_yb = None
         self.plot_init()
         self.plot()
+
     def plot_init(self):
         style.use('fast')
         if self.show_quadrant == -1:
             self.fig, self.axs = plt.subplots(2,2)
         else:
             self.fig, self.axs = plt.subplots(1,1)
+        if imagemodule is True:
+            dirname = os.path.dirname(__file__)
+            im = Image.open(os.path.join(dirname, "ogs.png"))
+            height = im.size[1]
+            width = im.size[0]
+            newsize = (int(width/2), int(height/2))
+            im = im.resize(newsize)
+            self.fig.figimage(im, 0, 0, alpha=0.5)
     def map_quadrant_rqfilter(self, j):
         if j == 3:
             return True
@@ -69,7 +93,8 @@ class OGSMONITOR(object):
         else:
             return False
     def plot(self):
-        def animate(_):
+        def animate(m):
+            print(m)
             logfile_df = {}
             start = time.time()
             records = parser.parse_file(self.log_file, maximum_lines=self.maximum_lines, force_parallel=False)
@@ -112,12 +137,18 @@ class OGSMONITOR(object):
                 else:
                     ax = self.axs
                 ax.clear()
+                #ax.spines['top'].set_visible(False) not working
+                #ax.spines['right'].set_visible(False)
                 ax.plot(logfile_df[0]["time_step"], logfile_df[0]["iteration_number"], 'b', label="actual log")
-                axs12 = ax.twiny()
+                if self.q1_yb is None:
+                    self.q1_yb = ax.twiny()
+                    self.q1_yb.get_legend_handles_labels()
+                    #self.q1_yb.get_yaxis().set_visible(False)
                 if not self.logfile_ref_df[0] is None:
-                    axs12.plot(self.logfile_ref_df[0]["time_step"], self.logfile_ref_df[0]["iteration_number"], 'k', label="reference data")
+                    #self.q1_yb.get_yaxis().set_visible(False)
+                    self.q1_yb.plot(self.logfile_ref_df[0]["time_step"], self.logfile_ref_df[0]["iteration_number"], 'k', label="reference data")
                 ax.set(xlabel="time step", ylabel="iterations")
-                lines, labels = axs12.get_legend_handles_labels()
+                lines, labels = self.q1_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
                 ax.legend(lines + lines2, labels + labels2, loc=0)
                 ax.set_title("iterations per time step")
@@ -127,15 +158,27 @@ class OGSMONITOR(object):
                       ax = self.axs[0,1]
                 else:
                       ax = self.axs
-                ax.clear()
-                ax.plot(logfile_df[1]["time_step"], logfile_df[1]["step_size"], 'b', label="actual log")
-                axs22 = ax.twiny()
+                #ax.spines['top'].set_visible(False)
+                for entry in ax.get_shared_x_axes().get_siblings(ax):
+                    entry.clear()
+                ax.plot(logfile_df[1]["time_step"], logfile_df[1]["step_size"], 'b-', label="time step (actual)")
+                if self.q0_yb is None:
+                    self.q0_yb = ax.twiny()
+                    #self.q0_yb.get_yaxis().set_visible(False)
                 if not self.logfile_ref_df[1] is None:
-                    axs22.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["step_size"], 'k', label="reference data")
-                lines, labels = axs22.get_legend_handles_labels()
+                    #self.q0_yb.get_yaxis().set_visible(True)
+                    self.q0_yb.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["step_size"], 'k-', label="time step (reference)")
+                if self.q0_xb is None:
+                    self.q0_xb = ax.twinx()
+                self.q0_xb.plot(logfile_df[1]["time_step"], logfile_df[1]["step_start_time"], 'r-', label="start time (actual)")
+                self.q0_xb.set_ylabel("time / s", color="r")
+                self.q0_xb.yaxis.set_label_position("right")
+                lines, labels = self.q0_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
-                ax.legend(lines + lines2, labels + labels2, loc=0)
-                ax.set(xlabel="time step", ylabel="step size")
+                lines3, labels3 = self.q0_xb.get_legend_handles_labels()
+                ax.legend(lines + lines2 + lines3, labels + labels2 + labels3, loc=0)
+                ax.set_xlabel("time step")
+                ax.set_ylabel("step size", color='b')
                 ax.set_title("time step sizes")
 
             if ((self.show_quadrant == -1) or (self.show_quadrant == 2)):
@@ -146,11 +189,14 @@ class OGSMONITOR(object):
                 ax.clear()
                 ax.plot(logfile_df[1]["time_step"],logfile_df[1]["assembly_time"],"b-", label="assembly time (actual)")
                 ax.plot(logfile_df[1]["time_step"],logfile_df[1]["linear_solver_time"], "g-", label="linear solver time (actual)")
-                axs32 = ax.twiny()
+                if self.q2_yb is None:
+                    self.q2_yb = ax.twiny()
+                    #self.q2_yb.get_yaxis().set_visible(False)
                 if not self.logfile_ref_df[1] is None:
-                    axs32.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["assembly_time"], "b--", label="assembly time (ref)")
-                    axs32.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["linear_solver_time"], "g--", label="linear solver time (ref)")
-                lines, labels = axs32.get_legend_handles_labels()
+                    #self.q2_yb.get_yaxis().set_visible(True)
+                    self.q2_yb.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["assembly_time"], "b--", label="assembly time (ref)")
+                    self.q2_yb.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["linear_solver_time"], "g--", label="linear solver time (ref)")
+                lines, labels = self.q2_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
                 ax.legend(lines + lines2, labels + labels2, loc=0)
                 ax.set(xlabel="time step", ylabel="time / s")
@@ -207,14 +253,17 @@ class OGSMONITOR(object):
                     ax = self.axs
                 ax.clear()
                 ax.plot(newindex, logfile_df[2][logfile_df[2]["component"]==self.crit_comp][self.crit], 'b', label="actual")
-                axs42 = ax.twiny()
+                if self.q3_yb is None:
+                    self.q3_yb = ax.twiny()
+                    #self.q3_yb.get_yaxis().set_visible(False)
                 if not self.logfile_ref_df[2] is None:
-                    axs42.plot(newindex_ref, self.logfile_ref_df[2][self.logfile_ref_df[2]["component"]==self.crit_comp][self.crit], 'k', label="reference")
-                    axs42.xaxis.set_major_formatter(mticker.FuncFormatter(update_ticks_ref))
-                    sec_ref = axs42.secondary_xaxis(location=1)
+                    #self.q3_yb.get_yaxis().set_visible(True)
+                    self.q3_yb.plot(newindex_ref, self.logfile_ref_df[2][self.logfile_ref_df[2]["component"]==self.crit_comp][self.crit], 'k', label="reference")
+                    self.q3_yb.xaxis.set_major_formatter(mticker.FuncFormatter(update_ticks_ref))
+                    sec_ref = self.q3_yb.secondary_xaxis(location=1)
                     sec_ref.set_xticks(newindex2_ref, labels=time_data_ref)
                     sec_ref.tick_params('x', length=0)
-                lines, labels = axs42.get_legend_handles_labels()
+                lines, labels = self.q3_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
                 ax.legend(lines + lines2, labels + labels2, loc=0)
                 ax.set(xlabel="\n\ntime step", ylabel=self.crit)
@@ -225,13 +274,17 @@ class OGSMONITOR(object):
                 sec.set_xticks(newindex2, labels=time_data)
                 sec.tick_params('x', length=0)
             if self.running is True:
-                self.fig.suptitle("OGS Monitor\n(OGS running)")
+                try:
+                    self.fig.suptitle(f"OGS running\n({logfile_df[1]['time_step_solution_time'].sum()} s)")
+                except:
+                    self.fig.suptitle("OGS running")
             else:
-                self.fig.suptitle(f"OGS Monitor\n(OGS excec time: {logfile_df[3]['execution_time'].iloc[0]} s)")
+                self.fig.suptitle(f"OGS finished\n({logfile_df[3]['execution_time'].iloc[0]} s)")
             stop = time.time()
             print(f"plot {stop-start} s")
         ani = animation.FuncAnimation(self.fig, animate, interval=self.interval)
-        plt.tight_layout()
+        #äplt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+        plt.subplots_adjust(plt.subplots_adjust(top=0.9, bottom=0.1, left=0.1, right=0.9, hspace=0.3, wspace=0.2))
         plt.show()
 
 
