@@ -3,6 +3,7 @@ import sys
 import warnings
 
 import time
+import numpy as np
 try:
     from PIL import Image
     imagemodule = True
@@ -14,6 +15,7 @@ import matplotlib.animation as animation
 from matplotlib import style
 import matplotlib.ticker as mticker
 import pandas as pd
+import ogs6py
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
 
@@ -43,7 +45,7 @@ class OGSMONITOR(object):
                 }
         self.logfile_ref_df = {}
         if self.ref_file is not None:
-            records_ref = parser.parse_file(self.ref_file, maximum_lines=self.maximum_lines, force_parallel=False)
+            records_ref, _ = parser.parse_file(self.ref_file, maximum_lines=self.maximum_lines, force_parallel=False)
             df_ref = pd.DataFrame(records_ref)
             df_ref = parse_fcts.fill_ogs_context(df_ref)
             for j, filt in enumerate(self.filters):
@@ -60,8 +62,41 @@ class OGSMONITOR(object):
         self.q2_yb = None
         self.q3_xb = None
         self.q3_yb = None
+        self.last_record = 0
+        self.last_line = 0
+        #TimeStepStartTime record
+        self.timesteps = []
+        self.ts_simtime = []
+        self.iterations_per_ts = []
+        self.assembly_solver_time = []
+        self.criterion = []
         self.plot_init()
         self.plot()
+
+    def parse_records(self, records):
+        len_records = len(records)
+        for record in records[self.last_record:len_records]:
+            if isinstance(record, ogs6py.ogs_regexes.ogs_regexes.TimeStepStartTime):
+                self.timesteps.append(record.time_step)
+                self.ts_simtime.append((record.step_start_time, record.step_size))
+                self.iterations_per_ts.append(0)
+                self.assembly_solver_time.append([0, 0])
+
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.IterationTime):
+                self.iterations_per_ts[-1] = record.iteration_number
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.AssemblyTime):
+                self.assembly_solver_time[-1][0] = (self.assembly_solver_time[-1][0] +
+                                                    record.assembly_time) / (1. + self.iterations_per_ts[-1])
+                print(self.assembly_solver_time[-1][0])
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.LinearSolverTime):
+                self.assembly_solver_time[-1][1] = (self.assembly_solver_time[-1][1] +
+                                                   record.linear_solver_time) / (1. + self.iterations_per_ts[-1])
+                print(self.assembly_solver_time[-1][1])
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.ComponentConvergenceCriterion):
+                if record.component == int(self.crit_comp):
+                    self.criterion.append((self.timesteps[-1], self.iterations_per_ts, getattr(record, self.crit)))
+        self.last_record = len_records
+
 
     def plot_init(self):
         style.use('fast')
@@ -97,10 +132,12 @@ class OGSMONITOR(object):
             print(m)
             logfile_df = {}
             start = time.time()
-            records = parser.parse_file(self.log_file, maximum_lines=self.maximum_lines, force_parallel=False)
+            records, self.last_line = parser.parse_file(self.log_file, maximum_lines=self.maximum_lines, force_parallel=False, start_line=self.last_line)
             stop = time.time()
             print(f"parse {stop-start} s")
             start = time.time()
+            self.parse_records(records)
+            """
             df = pd.DataFrame(records)
             df = parse_fcts.fill_ogs_context(df)
             for j, filt in enumerate(self.filters):
@@ -128,6 +165,7 @@ class OGSMONITOR(object):
             if ((self.show_quadrant == 1) or (self.show_quadrant == -1)):
                 if logfile_df[0] is None:
                     return
+            """
             stop = time.time()
             print(f"transform/filter df {stop-start} s")
             start = time.time()
@@ -139,7 +177,10 @@ class OGSMONITOR(object):
                 ax.clear()
                 #ax.spines['top'].set_visible(False) not working
                 #ax.spines['right'].set_visible(False)
+                """
                 ax.plot(logfile_df[0]["time_step"], logfile_df[0]["iteration_number"], 'b', label="actual log")
+                """
+                ax.plot(np.array(self.timesteps), np.array(self.iterations_per_ts), 'b', label="actual log")
                 if self.q1_yb is None:
                     self.q1_yb = ax.twiny()
                     self.q1_yb.get_legend_handles_labels()
@@ -161,7 +202,10 @@ class OGSMONITOR(object):
                 #ax.spines['top'].set_visible(False)
                 for entry in ax.get_shared_x_axes().get_siblings(ax):
                     entry.clear()
+                """
                 ax.plot(logfile_df[1]["time_step"], logfile_df[1]["step_size"], 'b-', label="time step (actual)")
+                """
+                ax.plot(np.array(self.timesteps), np.array(self.ts_simtime)[:,1], 'b-', label="time step (actual)")
                 if self.q0_yb is None:
                     self.q0_yb = ax.twiny()
                     #self.q0_yb.get_yaxis().set_visible(False)
@@ -170,7 +214,10 @@ class OGSMONITOR(object):
                     self.q0_yb.plot(self.logfile_ref_df[1]["time_step"], self.logfile_ref_df[1]["step_size"], 'k-', label="time step (reference)")
                 if self.q0_xb is None:
                     self.q0_xb = ax.twinx()
+                """
                 self.q0_xb.plot(logfile_df[1]["time_step"], logfile_df[1]["step_start_time"], 'r-', label="start time (actual)")
+                """
+                self.q0_xb.plot(np.array(self.timesteps), np.array(self.ts_simtime)[:,0], 'r-', label="start time (actual)")
                 self.q0_xb.set_ylabel("time / s", color="r")
                 self.q0_xb.yaxis.set_label_position("right")
                 lines, labels = self.q0_yb.get_legend_handles_labels()
@@ -187,8 +234,12 @@ class OGSMONITOR(object):
                 else:
                     ax = self.axs
                 ax.clear()
+                """
                 ax.plot(logfile_df[1]["time_step"],logfile_df[1]["assembly_time"],"b-", label="assembly time (actual)")
                 ax.plot(logfile_df[1]["time_step"],logfile_df[1]["linear_solver_time"], "g-", label="linear solver time (actual)")
+                """
+                ax.plot(np.array(self.timesteps), np.array(self.assembly_solver_time)[:,0],"b-", label="assembly time (actual)")
+                ax.plot(np.array(self.timesteps), np.array(self.assembly_solver_time)[:,1], "g-", label="linear solver time (actual)")
                 if self.q2_yb is None:
                     self.q2_yb = ax.twiny()
                     #self.q2_yb.get_yaxis().set_visible(False)
