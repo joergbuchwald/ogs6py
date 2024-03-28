@@ -40,7 +40,7 @@ def mpi_processes(file_name):
         return processes
 
 
-def parse_file(file_name, maximum_lines=None, force_parallel=False):
+def parse_file(file_name, maximum_lines=None, force_parallel=False, start_line=0):
     ogs_res = ogs_regexes()
     parallel_log = force_parallel or mpi_processes(file_name) > 1
 
@@ -61,16 +61,19 @@ def parse_file(file_name, maximum_lines=None, force_parallel=False):
     with open(file_name) as file:
         lines = iter(file)
         records = list()
+        last_line = 0
         for line in lines:
-            number_of_lines_read += 1
+            last_line = last_line + 1
+            if last_line > start_line:
+                number_of_lines_read += 1
 
-            if (maximum_lines is not None) and (maximum_lines > number_of_lines_read):
-                break
-
-            for key, value in patterns:
-                if r := try_match(line, number_of_lines_read, key, value):
-                    records.append(value(*r))
+                if (maximum_lines is not None) and (maximum_lines > number_of_lines_read):
                     break
 
-    return records
+                for key, value in patterns:
+                    if r := try_match(line, number_of_lines_read, key, value):
+                        records.append(value(*r))
+                        break
+
+    return records, last_line
 
