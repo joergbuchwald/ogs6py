@@ -71,7 +71,7 @@ def parse_file(file_name, maximum_lines=None, force_parallel=False, start_line=0
                     break
 
                 for key, value in patterns:
-                    if r := try_match(line, number_of_lines_read, key, value):
+                    if r := try_match(line.replace("-nan","nan"), number_of_lines_read, key, value):
                         records.append(value(*r))
                         break
 
