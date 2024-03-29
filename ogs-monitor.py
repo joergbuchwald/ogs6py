@@ -22,7 +22,16 @@ import ogs6py.log_parser.common_ogs_analyses as parse_fcts
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class OGSMONITOR(object):
-    def __init__(self, logfile, reffile, update_interval, window_length, maximum_lines, convergence_metric, convergence_component, show_quadrant):
+    def __init__(self,
+                 logfile,
+                 reffile,
+                 update_interval,
+                 window_length,
+                 maximum_lines,
+                 convergence_metric,
+                 convergence_component,
+                 convergence_type,
+                 show_quadrant):
         self.log_file = logfile
         self.ref_file = reffile
         self.crit = convergence_metric
@@ -35,6 +44,12 @@ class OGSMONITOR(object):
             self.maximum_lines = int(maximum_lines)
         self.running = True
         self.show_quadrant = int(show_quadrant)
+        self.convergence_type = convergence_type
+        self.criteria_types = {"PerComponentDeltaX": ogs6py.ogs_regexes.ogs_regexes.ComponentConvergenceCriterion,
+                          "DeltaX": ogs6py.ogs_regexes.ogs_regexes.TimeStepConvergenceCriterion,
+                          "Residual": ogs6py.ogs_regexes.ogs_regexes.ConvergenceCriterionResidual,
+                          "Res": ogs6py.ogs_regexes.ogs_regexes.Residual,
+                          "PerComponentResidual": ogs6py.ogs_regexes.ogs_regexes.ComponentConvergenceCriterionResidual}
         self.filters = ["time_step_vs_iterations","by_time_step", "convergence_newton_iteration","analysis_simulation"]
         """
         self.filterdict = {"by_time_step":parse_fcts.analysis_time_step,
@@ -56,6 +71,8 @@ class OGSMONITOR(object):
         self.criterion_label = {"actual": [], "ref": []}
         self.criterion_y = {"actual": [], "ref": []}
         self.crit_timesteppointer = {"actual": [], "ref": []}
+        self.time_step_solution_time = {"actual": [], "ref": []}
+        self.walltime = {"actual": 0.0, "ref": 0.0}
 
         if self.ref_file is not None:
             records_ref, _ = parser.parse_file(self.ref_file, maximum_lines=self.maximum_lines, force_parallel=False)
@@ -96,8 +113,12 @@ class OGSMONITOR(object):
             elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.LinearSolverTime):
                 self.assembly_solver_time[dataset][-1][1] = (self.assembly_solver_time[dataset][-1][1] +
                                                    float(record.linear_solver_time)) / (self.iterations_per_ts[dataset][-1])
-            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.ComponentConvergenceCriterion):
-                if record.component == int(self.crit_comp):
+            elif isinstance(record, self.criteria_types[self.convergence_type]):
+                if self.convergence_type in ["PerComponentResidual", "PerComponentDeltaX"]:
+                    comp = record.component
+                else:
+                    comp = int(self.crit_comp)
+                if comp == int(self.crit_comp):
                     if int(self.iterations_per_ts[dataset][-1]) == 1:
                         self.criterion_x[dataset].append(len(self.criterion_x[dataset])+1)
                         self.criterion_label[dataset].append(f"{self.iterations_per_ts[dataset][-1]} \n{self.timesteps[dataset][-1]}")
@@ -107,8 +128,10 @@ class OGSMONITOR(object):
                         self.criterion_x[dataset].append(len(self.criterion_x[dataset])+1)
                         self.criterion_label[dataset].append(f"{self.iterations_per_ts[dataset][-1]} \n")
                         self.criterion_y[dataset].append(float(getattr(record, self.crit)))
-                    #self.criterion[dataset].append((self.timesteps[dataset][-1], self.iterations_per_ts[dataset], getattr(record, self.crit)))
-        #self.last_record[dataset] = len_records
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.TimeStepSolutionTime):
+                self.time_step_solution_time[dataset].append(float(record.time_step_solution_time))
+            elif isinstance(record, ogs6py.ogs_regexes.ogs_regexes.SimulationExecutionTime):
+                self.walltime[dataset] = float(record.execution_time)
 
 
     def plot_init(self):
@@ -142,7 +165,7 @@ class OGSMONITOR(object):
             return False
     def plot(self):
         def animate(m):
-            print(m)
+            print(f"reloads: {m}")
             logfile_df = {}
             start = time.time()
             records, self.last_line["actual"] = parser.parse_file(
@@ -151,7 +174,7 @@ class OGSMONITOR(object):
                     force_parallel=False,
                     start_line=self.last_line["actual"])
             stop = time.time()
-            print(f"parse {stop-start} s")
+            print(f"time to parse: {stop-start} s")
             start = time.time()
             self.parse_records(records)
             """
@@ -184,10 +207,10 @@ class OGSMONITOR(object):
                     return
             """
             stop = time.time()
-            print(f"transform/filter df {stop-start} s")
+            print(f"time to extract records: {stop-start} s")
             start = time.time()
             window_length = self.window_length
-            if len(self.timesteps["actual"]) < self.window_length:
+            if ((len(self.timesteps["actual"]) < self.window_length) or (self.window_length == -1)):
                 window_length = len(self.timesteps["actual"])
             ts0 = int(np.array(self.timesteps["actual"])[-window_length])-1
             ts1 = int(np.array(self.timesteps["actual"])[-1])
@@ -202,7 +225,7 @@ class OGSMONITOR(object):
                 """
                 ax.plot(logfile_df[0]["time_step"], logfile_df[0]["iteration_number"], 'b', label="actual log")
                 """
-                ax.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.iterations_per_ts["actual"])[-window_length:], 'b', label="actual log")
+                ax.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.iterations_per_ts["actual"])[-window_length:], 'b', label="actual")
                 if self.q1_yb is None:
                     self.q1_yb = ax.twiny()
                     self.q1_yb.get_legend_handles_labels()
@@ -210,7 +233,7 @@ class OGSMONITOR(object):
                 if not self.ref_file is None:
                     #self.q1_yb.get_yaxis().set_visible(False)
                     self.q1_yb.clear()
-                    self.q1_yb.plot(np.array(self.timesteps["ref"])[ts0:ts1], np.array(self.iterations_per_ts["ref"])[ts0:ts1], 'k', label="reference data")
+                    self.q1_yb.plot(np.array(self.timesteps["ref"])[ts0:ts1], np.array(self.iterations_per_ts["ref"])[ts0:ts1], 'k', label="reference")
                 ax.set(xlabel="time step", ylabel="iterations")
                 lines, labels = self.q1_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
@@ -226,7 +249,7 @@ class OGSMONITOR(object):
                 for entry in ax.get_shared_x_axes().get_siblings(ax):
                     entry.clear()
                 """
-                ax.plot(logfile_df[1]["time_step"], logfile_df[1]["step_size"], 'b-', label="time step (actual)")
+                ax.plot(logfile_df[1]["time_step"], logfile_df[1]["step_size"], 'b-', label="actual")
                 """
                 ax.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.ts_simtime["actual"])[:,1][-window_length:], 'b-', label="time step (actual)")
                 if self.q0_yb is None:
@@ -241,7 +264,7 @@ class OGSMONITOR(object):
                 """
                 self.q0_xb.plot(logfile_df[1]["time_step"], logfile_df[1]["step_start_time"], 'r-', label="start time (actual)")
                 """
-                self.q0_xb.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.ts_simtime["actual"])[:,0][-window_length:], 'r-', label="start time (actual)")
+                self.q0_xb.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.ts_simtime["actual"])[:,0][-window_length:], 'r-', label="ts start time (actual)")
                 self.q0_xb.set_ylabel("time / s", color="r")
                 self.q0_xb.yaxis.set_label_position("right")
                 lines, labels = self.q0_yb.get_legend_handles_labels()
@@ -270,13 +293,13 @@ class OGSMONITOR(object):
                 if not self.ref_file is None:
                     #self.q2_yb.get_yaxis().set_visible(True)
                     self.q2_yb.clear()
-                    self.q2_yb.plot(self.timesteps["ref"][ts0:ts1], np.array(self.assembly_solver_time["ref"])[:,0][ts0:ts1], "b--", label="assembly time (ref)")
-                    self.q2_yb.plot(self.timesteps["ref"][ts0:ts1], np.array(self.assembly_solver_time["ref"])[:,1][ts0:ts1], "g--", label="linear solver time (ref)")
+                    self.q2_yb.plot(self.timesteps["ref"][ts0:ts1], np.array(self.assembly_solver_time["ref"])[:,0][ts0:ts1], "b--", label="assembly time (reference)")
+                    self.q2_yb.plot(self.timesteps["ref"][ts0:ts1], np.array(self.assembly_solver_time["ref"])[:,1][ts0:ts1], "g--", label="linear solver time (reference)")
                 lines, labels = self.q2_yb.get_legend_handles_labels()
                 lines2, labels2 = ax.get_legend_handles_labels()
                 ax.legend(lines + lines2, labels + labels2, loc=0)
                 ax.set(xlabel="time step", ylabel="time / s")
-                ax.set_title("time step sizes")
+                ax.set_title("assembly and linear solver times")
 
             if ((self.show_quadrant == -1) or (self.show_quadrant == 3)):
                 """
@@ -326,8 +349,11 @@ class OGSMONITOR(object):
                 print(f"index trafo {stop2-start2} s")
                 """
                 line_begin = self.crit_timesteppointer['actual'][ts0]
-                line_begin_ref = self.crit_timesteppointer['ref'][ts0]
-                line_stop_ref = line_begin_ref
+                line_begin_ref = 0
+                line_stop_ref = 0
+                if not self.ref_file is None:
+                    line_begin_ref = self.crit_timesteppointer['ref'][ts0]
+                    line_stop_ref = line_begin_ref
                 if len(self.crit_timesteppointer['ref']) <= ts1:
                     ts1 = len(self.crit_timesteppointer['ref']) - 1
                     line_stop_ref = len(self.criterion_x['ref'])
@@ -351,7 +377,7 @@ class OGSMONITOR(object):
                     ax = self.axs
                 ax.clear()
                 #ax.plot(newindex, logfile_df[2][logfile_df[2]["component"]==self.crit_comp][self.crit], 'b', label="actual")
-                ax.plot(np.array(self.criterion_x["actual"])[line_begin:], np.array(self.criterion_y["actual"])[line_begin:],"b-", label="criterion (actual)")
+                ax.plot(np.array(self.criterion_x["actual"])[line_begin:], np.array(self.criterion_y["actual"])[line_begin:],"b-", label="actual")
                 if self.q3_yb is None:
                     self.q3_yb = ax.twiny()
                     #self.q3_yb.get_yaxis().set_visible(False)
@@ -359,7 +385,7 @@ class OGSMONITOR(object):
                     self.q3_yb.clear()
                     #self.q3_yb.get_yaxis().set_visible(True)
                     self.q3_yb.plot(np.array(self.criterion_x["ref"])[line_begin_ref:line_stop_ref], np.array(self.criterion_y["ref"])[line_begin_ref:line_stop_ref], 'k', label="reference")
-                    self.q3_yb.set_xticks(np.array(self.criterion_x["actual"][line_begin_ref:line_stop_ref]))
+                    self.q3_yb.set_xticks(np.array(self.criterion_x["ref"][line_begin_ref:line_stop_ref]))
                     self.q3_yb.xaxis.set_major_formatter(mticker.FuncFormatter(update_ticks_ref))
                     #sec_ref = self.q3_yb.secondary_xaxis(location=1)
                     #sec_ref.set_xticks(newindex2_ref, labels=time_data_ref)
@@ -378,15 +404,15 @@ class OGSMONITOR(object):
                 #sec.tick_params('x', length=0)
             if self.running is True:
                 try:
-                    self.fig.suptitle(f"OGS running\n({logfile_df[1]['time_step_solution_time'].sum()} s)")
+                    self.fig.suptitle(f"OGS running\n({np.sum(self.time_step_solution_time['actual'])} s)")
                 except:
                     self.fig.suptitle("OGS running")
             else:
-                self.fig.suptitle(f"OGS finished\n({logfile_df[3]['execution_time'].iloc[0]} s)")
+                self.fig.suptitle(f"OGS finished\n({self.walltime['actual']} s)")
             stop = time.time()
-            print(f"plot {stop-start} s")
+            print(f"plotting time: {stop-start} s")
         ani = animation.FuncAnimation(self.fig, animate, interval=self.interval)
-        #äplt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+        #plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
         plt.subplots_adjust(plt.subplots_adjust(top=0.9, bottom=0.1, left=0.1, right=0.9, hspace=0.3, wspace=0.2))
         plt.show()
 
@@ -399,6 +425,7 @@ if __name__ == '__main__':
     maximum_lines = None
     convergence_metric = "dx"
     convergence_component = 0
+    convergence_type = "PerComponentDeltaX"
     show_quadrant = -1
     norun = False
     for i, arg in enumerate(sys.argv):
@@ -412,6 +439,8 @@ if __name__ == '__main__':
             convergence_metric = sys.argv[i+1]
         elif arg == "-cc":
             convergence_component = sys.argv[i+1]
+        elif arg == "-ct":
+            convergence_type = sys.argv[i+1]
         elif arg == "-ui":
             update_interval = sys.argv[i+1]
         elif arg == "-q":
@@ -422,12 +451,13 @@ if __name__ == '__main__':
             print("default usage: ogs-monitor.py logfile.log")
             print("args:")
             print(" -r [file]  : provide reference data")
-            print(" -wl [window length]  : provide length of displayed data")
+            print(" -wl [window length]  : provide length of displayed data, default: 10 (time steps), -1: display all")
             print(" -ml [max lines]  : provide maximum lines to read in")
             print(" -cm [convergence metric]  : provide convergence metric, could be dx, r, dx/x")
             print(" -cc [convergence component]  : provide convergence component, default: 0")
+            print(" -ct [convergence type] : provide a type could be DeltaX, PerComponentDeltaX (default), PerComponentResidual, Residual")
             print(" -ui [update interval]  : provide an update interval in ms")
             print(" -q [X] : show only quadrant X, default: all four are shown")
             print(" -h : display this help")
     if norun is False:
-        ogs_monitor = OGSMONITOR(input_file, ref_file, update_interval, window_length, maximum_lines, convergence_metric, convergence_component, show_quadrant)
+        ogs_monitor = OGSMONITOR(input_file, ref_file, update_interval, window_length, maximum_lines, convergence_metric, convergence_component, convergence_type, show_quadrant)
