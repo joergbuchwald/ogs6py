@@ -169,67 +169,69 @@ class Processes(build_tree.BuildTree):
                 'children': {}
             }
         }
-        if 'bhe_type' in args:
-            if not 'bhe_type' in args:
-                raise KeyError('BHE type missing.')
-            else:
+        if 'bhe_id' in args:
+            if 'bhe_type' in args:
                 self.tree['processes']['children']['process']['children']['borehole_heat_exchangers'] = self.bhe_tree
-                self.bhe_tree['children']['borehole_heat_exchanger'] = {
+                self.bhe_tree['children'][args['bhe_id']] = {
                     'tag': 'borehole_heat_exchanger',
                     'text': '',
-                    'attr': {},
+                    'attr': {}, #'id':args['bhe_id']
                     'children': {}
                 }
-                self.bhe_tree['children']['borehole_heat_exchanger']['children']['type'] = {
+                self.bhe_tree['children'][args['bhe_id']]['children']['type'] = {
                     'tag': 'type',
                     'text': args['bhe_type'],
                     'attr': {},
                     'children': {}
                 }
+            else:
+                raise KeyError('BHE type missing.')
+        else: 
+            raise KeyError('BHE id missing.')
     def add_bhe_component(self, **args):      
         if not 'comp_type' in args:
             raise KeyError("No bhe component name specified.")
         else:
-            self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']] = {
+            self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']] = {
                     'tag': args['comp_type'],
                     'text': '',
                     'attr': {},
                     'children': {}
                 }
-            bhe_component = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]
+            bhe_component = self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]
             if args['comp_type'] == 'borehole':
                 bhe_component['children']['length'] = self.populate_tree('length', text = args['length'], children={})
                 bhe_component['children']['diameter'] = self.populate_tree('diameter', text = args['diameter'], children={})
             elif args['comp_type'] == 'pipes':
-                if self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "1U" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "2U":
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
+                if self.bhe_tree['children'][args['bhe_id']]['children']['type']['text'] == "1U" or self.bhe_tree['children'][args['bhe_id']]['children']['type']['text'] == "2U":
+                    self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['inlet'] = {
                         'tag': 'inlet',
                         'text': '',
                         'attr': {},
                         'children': {}
                     }
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
+                    self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['outlet'] = {
                         'tag': 'outlet',
                         'text': '',
                         'attr': {},
                         'children': {}
                     }                
                     bhe_component['children']['distance_between_pipes'] = self.populate_tree('distance_between_pipes', text = args['distance_between_pipes'], children={})
-                elif self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXC" or self.bhe_tree['children']['borehole_heat_exchanger']['children']['type']['text'] == "CXA":
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet'] = {
+                elif self.bhe_tree['children'][args['bhe_id']]['children']['type']['text'] == "CXC" or self.bhe_tree['children'][args['bhe_id']]['children']['type']['text'] == "CXA":
+                    self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['inlet'] = {
                         'tag': 'inner',
                         'text': '',
                         'attr': {},
                         'children': {}
                     }
-                    self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet'] = {
+                    self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['outlet'] = {
                         'tag': 'outer',
                         'text': '',
                         'attr': {},
                         'children': {}
                     }                
-                inlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['inlet']
-                outlet = self.bhe_tree['children']['borehole_heat_exchanger']['children'][args['comp_type']]['children']['outlet']
+                inlet = self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['inlet']
+                outlet = self.bhe_tree['children'][args['bhe_id']]['children'][args['comp_type']]['children']['outlet']
                 inlet['children']['diameter'] = self.populate_tree('diameter', text = args['inlet_diameter'], children={})
                 inlet['children']['wall_thickness'] = self.populate_tree('wall_thickness', text = args['inlet_wall_thickness'], children={})
                 inlet['children']['wall_thermal_conductivity'] = self.populate_tree('wall_thermal_conductivity', text = args['inlet_wall_thermal_conductivity'], children={})
