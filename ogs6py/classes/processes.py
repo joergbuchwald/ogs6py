@@ -77,20 +77,29 @@ class Processes(build_tree.BuildTree):
             raise KeyError("type missing.")
         if "integration_order" not in args:
             raise KeyError("integration_order missing.")
-        if "darcy_gravity" in args:
-            for i, entry in enumerate(args["darcy_gravity"]):
-                if entry != 0.0:
-                    self.process_baseentries["darcy_gravity"] = self.populate_tree(
-                            self.process, "darcy_gravity")
-                    self.populate_tree(self.process_baseentries["darcy_gravity"],
-                            "axis_id",text =str(i))
-                    self.populate_tree(self.process_baseentries["darcy_gravity"],
-                            "g",text = str(entry))
-        if "specific_body_force" in args:
-            self.populate_tree(self.process, "specific_body_force", text=" ".join(str(x) for x in args['specific_body_force']))
         for key, value in args.items():
-            if isinstance(value, str):
-                self.populate_tree(self.process, key, text=value)
+            if key == "darcy_gravity":
+                for i, entry in enumerate(args["darcy_gravity"]):
+                    if entry != 0.0:
+                        self.process_baseentries["darcy_gravity"] = self.populate_tree(
+                            self.process, "darcy_gravity")
+                        self.populate_tree(self.process_baseentries["darcy_gravity"],
+                            "axis_id",text =str(i))
+                        self.populate_tree(self.process_baseentries["darcy_gravity"],
+                            "g",text = str(entry))
+            elif key == "specific_body_force":
+                if isinstance(args["specific_body_force"], list):
+                    self.populate_tree(self.process, "specific_body_force",
+                                   text=" ".join(str(x) for x in args['specific_body_force']))
+                else:
+                    self.populate_tree(self.process, "specific_body_force",
+                                   text=args["specific_body_force"])
+            else:
+                if isinstance(value, str):
+                    self.populate_tree(self.process, key, text=value)
+                else:
+                    raise RuntimeError(f"{key} is not of type string")
+
 
 
     def set_constitutive_relation(self, **args):
