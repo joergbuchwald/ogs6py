@@ -96,7 +96,7 @@ class OGS:
             self.__dict2xml(self.root, self.linsolvers.tree))
             self._add_includes(self.root)"""
             # Reparsing for pretty_print to work properly
-            parse = ET.XMLParser(remove_blank_text=True)
+            parse = ET.XMLParser(remove_blank_text=True, huge_tree=True)
             tree_string = ET.tostring(self.root, pretty_print=True)
             tree_ = ET.fromstring(tree_string, parser=parse)
             self.tree = ET.ElementTree(tree_)
@@ -147,7 +147,7 @@ class OGS:
             parent_element.remove(self.include_elements[i])
 
     def _get_root(self, remove_blank_text=False, remove_comments=False):
-        parser = ET.XMLParser(remove_blank_text=remove_blank_text, remove_comments=remove_comments)
+        parser = ET.XMLParser(remove_blank_text=remove_blank_text, remove_comments=remove_comments, huge_tree=True)
         if self.tree is None:
             if self.inputfile is not None:
                 self.tree = ET.parse(self.inputfile, parser)
