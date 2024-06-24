@@ -26,4 +26,4 @@ class PythonScript(build_tree.BuildTree):
         ----------
         filename : `str`
         """
-        self.populate_tree(self.root, "python_script", text=args['filename'], overwrite=True)
+        self.populate_tree(self.root, "python_script", text=filename, overwrite=True)

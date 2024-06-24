@@ -39,11 +39,11 @@ class LinSolvers(build_tree.BuildTree):
         lis : `str` for lis only
         """
         self._convertargs(args)
-        if not "name" in args:
+        if "name" not in args:
             raise KeyError("You need to provide a name for the linear solver.")
         ls = self.populate_tree(self.lss, 'linear_solver', overwrite=True)
         self.populate_tree(ls, 'name', text=args['name'], overwrite=True)
-        if not "kind" in args:
+        if "kind" not in args:
             raise KeyError("No kind given. Please specify the linear \
                         solver library (e.g.: eigen, petsc, lis).")
         if args['kind'] == "eigen":

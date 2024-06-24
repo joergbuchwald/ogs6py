@@ -7,7 +7,6 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 
 """
 # pylint: disable=C0103, R0902, R0914, R0913
-from lxml import etree as ET
 from ogs6py.classes import build_tree
 
 class Mesh(build_tree.BuildTree):
@@ -41,7 +40,7 @@ class Mesh(build_tree.BuildTree):
         elif isinstance(axially_symmetric, str):
             attr_dict = {"axially_symmetric": axially_symmetric}
         if self.mesh is not None:
-            if self.mesh.text is "":
+            if self.mesh.text == "":
                 self.populate_tree(self.root, "mesh", text=filename, attr=attr_dict, overwrite=True)
             else:
                 entry = self.mesh.text
@@ -57,7 +56,7 @@ class Mesh(build_tree.BuildTree):
                     self.geometry = self.root.find("./geometry")
                 self.populate_tree(self.meshes, "mesh", text=entry, attr=mesh0attr_dict)
                 self.populate_tree(self.meshes, "mesh", text=filename, attr=attr_dict)
-        elif (self.meshes is not None):
+        elif self.meshes is not None:
             self.populate_tree(self.meshes, "mesh", text=filename, attr=attr_dict)
             self.geometry = self.root.find("./geometry")
             if self.geometry is not None:
@@ -65,4 +64,3 @@ class Mesh(build_tree.BuildTree):
                 self.geometry = self.root.find("./geometry")
         else:
             raise RuntimeError("This should not happpen")
-
