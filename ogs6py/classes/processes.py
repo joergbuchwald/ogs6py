@@ -65,7 +65,7 @@ class Processes(build_tree.BuildTree):
         name : `str`
         type : `str`
         integration_order : `str`
-        darcy_gravity : `list` or `tuple`
+        darcy_gravity/specific_body_force : `list` or `tuple`
                         holding darcy accelleration as vector
         any pair tag="value" translates to
         <tag>value</tag> in process section
@@ -86,6 +86,8 @@ class Processes(build_tree.BuildTree):
                             "axis_id",text =str(i))
                     self.populate_tree(self.process_baseentries["darcy_gravity"],
                             "g",text = str(entry))
+        if "specific_body_force" in args:
+            self.populate_tree(self.process, "specific_body_force", text=" ".join(str(x) for x in args['specific_body_force']))
         for key, value in args.items():
             if isinstance(value, str):
                 self.populate_tree(self.process, key, text=args[key])
