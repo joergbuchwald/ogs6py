@@ -7,57 +7,62 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 
 """
 # pylint: disable=C0103, R0902, R0914, R0913
+from lxml import etree as ET
 from ogs6py.classes import build_tree
 
 class Mesh(build_tree.BuildTree):
     """
     Class for defining meshes in the project file.
     """
-    def __init__(self):
-        self.meshfiles = []
-        self.axially_symmetric = []
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.geometry = self.root.find("./geometry")
+        self.meshes = self.root.find("./meshes")
+        self.mesh = None
+        if self.meshes is None:
+            self.mesh = self.populate_tree(self.root, "mesh", overwrite=True)
 
-    @classmethod
-    def _check_ax_sym(cls, args):
-        axsym = "false"
-        if "axially_symmetric" in args:
-            if isinstance(args["axially_symmetric"], bool):
-                if args["axially_symmetric"] is True:
-                    axsym = "true"
-            else:
-                axsym = args["axially_symmetric"]
-        return axsym
-
-    def add_mesh(self, **args):
+    def add_mesh(self, filename, axially_symmetric=None):
         """
         adds a mesh to the project file
 
         Parameters
         ----------
         filename : `str`
-        axially_syymetric : `bool` or `str`
+        axially_symmetric : `bool` or `str`
         """
-        if "filename" not in args:
-            raise KeyError("No filename given")
-        self.meshfiles.append((args["filename"], self._check_ax_sym(args)))
-
-
-    @property
-    def tree(self):
-        baum = {'meshes': {}}
-        if len(self.meshfiles) == 1:
-            if self.meshfiles[0][1] == "false":
-                baum['meshes'] = self.populate_tree('mesh', text=self.meshfiles[0][0])
+        attr_dict = {}
+        if isinstance(axially_symmetric, bool):
+            if axially_symmetric is True:
+                attr_dict = {"axially_symmetric": "true"}
             else:
-                baum['meshes'] = self.populate_tree('mesh', text=self.meshfiles[0][0],
-                        attr={'axially_symmetric': 'true'})
+                attr_dict = {"axially_symmetric": "false"}
+        elif isinstance(axially_symmetric, str):
+            attr_dict = {"axially_symmetric": axially_symmetric}
+        if self.mesh is not None:
+            if self.mesh.text is "":
+                self.populate_tree(self.root, "mesh", text=filename, attr=attr_dict, overwrite=True)
+            else:
+                entry = self.mesh.text
+                attrib = self.mesh.get("axially_symmetric")
+                mesh0attr_dict ={}
+                if isinstance(attrib, str):
+                    mesh0attr_dict = {"axially_symmetric": attrib}
+                self.mesh.tag = "meshes"
+                self.meshes = self.populate_tree(self.root, "meshes", text="", attr={}, overwrite=True)
+                self.mesh = None
+                if self.geometry is not None:
+                    self.geometry.getparent().remove(self.geometry)
+                    self.geometry = self.root.find("./geometry")
+                self.populate_tree(self.meshes, "mesh", text=entry, attr=mesh0attr_dict)
+                self.populate_tree(self.meshes, "mesh", text=filename, attr=attr_dict)
+        elif (self.meshes is not None):
+            self.populate_tree(self.meshes, "mesh", text=filename, attr=attr_dict)
+            self.geometry = self.root.find("./geometry")
+            if self.geometry is not None:
+                self.geometry.getparent().remove(self.geometry)
+                self.geometry = self.root.find("./geometry")
         else:
-            baum['meshes'] = self.populate_tree('meshes')
-            for i, meshfile in enumerate(self.meshfiles):
-                if meshfile[1] == "false":
-                    baum['meshes']['children'][i] = self.populate_tree('mesh', text=meshfile[0],
-                            children={})
-                else:
-                    baum['meshes']['children'][i] = self.populate_tree('mesh', text=meshfile[0],
-                            attr={'axially_symmetric': 'true'}, children={})
-        return baum
+            raise RuntimeError("This should not happpen")
+

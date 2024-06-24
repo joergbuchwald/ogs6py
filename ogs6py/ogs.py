@@ -44,18 +44,6 @@ class OGS:
         Default: False
     """
     def __init__(self, **args):
-        self.geo = geo.Geo()
-        self.mesh = mesh.Mesh()
-        self.pyscript = python_script.PythonScript()
-        self.processes = processes.Processes()
-        self.media = media.Media()
-        self.timeloop = timeloop.TimeLoop()
-        self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem()
-        self.parameters = parameters.Parameters()
-        self.curves = curves.Curves()
-        self.processvars = processvars.ProcessVars()
-        self.linsolvers = linsolvers.LinSolvers()
-        self.nonlinsolvers = nonlinsolvers.NonLinSolvers()
         sys.setrecursionlimit(10000)
         self.tag = []
         self.logfile = "out.log"
@@ -88,9 +76,46 @@ class OGS:
                 raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
         else:
             self.inputfile = None
+            self.root = ET.Element("OpenGeoSysProject")
+            """if len(self.geo.tree['geometry']['text']) > 0:
+                self.__dict2xml(self.root, self.geo.tree)
+            self.__dict2xml(self.root, self.mesh.tree)
+            if len(self.pyscript.tree['pythonscript']['text']) > 0:
+                self.__dict2xml(self.root, self.pyscript.tree)
+            self.__dict2xml(self.root, self.processes.tree)
+            if len(self.media.tree['media']['children']) > 0:
+                self.__dict2xml(self.root, self.media.tree)
+            self.__dict2xml(self.root, self.timeloop.tree)
+            if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
+                self.__dict2xml(self.root, self.local_coordinate_system.tree)
+            self.__dict2xml(self.root, self.parameters.tree)
+            if len(self.curves.tree['curves']['children']) > 0:
+                self.__dict2xml(self.root, self.curves.tree)
+            self.__dict2xml(self.root, self.processvars.tree)
+            self.__dict2xml(self.root, self.nonlinsolvers.tree)
+            self.__dict2xml(self.root, self.linsolvers.tree))
+            self._add_includes(self.root)"""
+            # Reparsing for pretty_print to work properly
+            parse = ET.XMLParser(remove_blank_text=True)
+            tree_string = ET.tostring(self.root, pretty_print=True)
+            tree_ = ET.fromstring(tree_string, parser=parse)
+            self.tree = ET.ElementTree(tree_)
         if "XMLSTRING" in args:
             root = ET.fromstring(args['XMLSTRING'])
             self.tree = ET.ElementTree(root)
+        self.geometry = geo.Geo(self.tree)
+        self.mesh = mesh.Mesh(self.tree)
+        self.processes = processes.Processes(self.tree)
+        self.python_script = python_script.PythonScript(self.tree)
+        self.processes = processes.Processes(self.tree)
+        self.media = media.Media(self.tree)
+        self.time_loop = timeloop.TimeLoop(self.tree)
+        self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem(self.tree)
+        self.parameters = parameters.Parameters(self.tree)
+        self.curves = curves.Curves(self.tree)
+        self.process_variables = processvars.ProcessVars(self.tree)
+        self.nonlinear_solvers = nonlinsolvers.NonLinSolvers(self.tree)
+        self.linear_solvers = linsolvers.LinSolvers(self.tree)
 
     def __dict2xml(self, parent, dictionary):
         for entry in dictionary:
@@ -127,7 +152,8 @@ class OGS:
             if self.inputfile is not None:
                 self.tree = ET.parse(self.inputfile, parser)
             else:
-                self.build_tree()
+                raise RuntimeError("This should not happen.")
+                #self.build_tree()
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
@@ -742,7 +768,7 @@ class OGS:
                         print(line)
             raise RuntimeError('OGS execution was not successful.')
 
-    def build_tree(self):
+    """def build_tree(self):
         self.root = ET.Element("OpenGeoSysProject")
         if len(self.geo.tree['geometry']['text']) > 0:
             self.__dict2xml(self.root, self.geo.tree)
@@ -767,6 +793,7 @@ class OGS:
         tree_string = ET.tostring(self.root, pretty_print=True)
         tree_ = ET.fromstring(tree_string, parser=parse)
         self.tree = ET.ElementTree(tree_)
+    """
 
     def write_input(self, keep_includes=False):
         """Writes the projectfile to disk
@@ -792,6 +819,7 @@ class OGS:
                             xml_declaration=True,
                             pretty_print=True)
             return True
+        raise RuntimeError("Something went wrong")
         self.build_tree()
         ET.indent(self.tree, space="    ")
         if self.verbose is True:

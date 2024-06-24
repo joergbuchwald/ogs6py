@@ -20,9 +20,9 @@ model.processes.add_process_variable(process_variable="pressure",
                                    process_variable_name="pressure")
 model.processes.add_process_variable(process_variable="temperature",
                                    process_variable_name="temperature")
-model.processes.add_process_variable(secondary_variable="sigma",
+model.processes.add_secondary_variable(internal_name="sigma",
                                    output_name="sigma")
-model.processes.add_process_variable(secondary_variable="epsilon",
+model.processes.add_secondary_variable(internal_name="epsilon",
                                    output_name="epsilon")
 model.media.add_property(medium_id="0",
                             phase_type="AqueousLiquid",
@@ -225,4 +225,4 @@ model.linsolvers.add_lin_solver(name="general_linear_solver",
                               max_iteration_step="10000",
                               error_tolerance="1e-16")
 model.write_input()
-model.run_model(logfile="out_thm.log")
+#model.run_model(logfile="out_thm.log")

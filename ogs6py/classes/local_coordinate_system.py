@@ -13,15 +13,10 @@ class LocalCoordinateSystem(build_tree.BuildTree):
     """
     Class for defining a local coordinate system in the project file"
     """
-    def __init__(self):
-        self.tree = {
-            'local_coordinate_system': {
-                'tag': 'local_coordinate_system',
-                'text': "",
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.lcs = None
 
     def add_basis_vec(self, **args):
         """
@@ -37,23 +32,11 @@ class LocalCoordinateSystem(build_tree.BuildTree):
                          name of the parameter containing the basis vector
         """
         self._convertargs(args)
+        self.lcs = self.populate_tree(self.root, "local_coordinate_system", overwrite=True)
         if "basis_vector_0" not in args:
             raise KeyError("no vector given")
-        self.tree['local_coordinate_system']['children'] = {
-                'basis_vector_0': {
-                'tag': 'basis_vector_0',
-                'text': args["basis_vector_0"],
-                'attr': {},
-                'children': {}}}
+        self.populate_tree(self.lcs, "basis_vector_0", text=args["basis_vector_0"])
         if "basis_vector_1" in args:
-            self.tree['local_coordinate_system']['children']['basis_vector_1'] = {
-                    'tag': 'basis_vector_1',
-                    'text': args["basis_vector_1"],
-                    'attr': {},
-                    'children': {}}
+            self.populate_tree(self.lcs, "basis_vector_1", text=args["basis_vector_1"])
         if "basis_vector_2" in args:
-            self.tree['local_coordinate_system']['children']['basis_vector_2'] = {
-                'tag': 'basis_vector_2',
-                'text': args["basis_vector_2"],
-                'attr': {},
-                'children': {}}
+            self.populate_tree(self.lcs, "basis_vector_2", text=args["basis_vector_2"])

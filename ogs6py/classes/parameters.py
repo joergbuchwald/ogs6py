@@ -13,15 +13,10 @@ class Parameters(build_tree.BuildTree):
     """
     Class for managing the parameters section of the project file.
     """
-    def __init__(self):
-        self.tree = {
-            'parameters': {
-                'tag': 'parameters',
-                'text': '',
-                'attr': {},
-                'children': {}
-            }
-        }
+    def __init__(self, tree):
+        self.tree = tree
+        self.root = self._get_root()
+        self.parameters = self.populate_tree(self.root, 'parameters', overwrite=True)
 
     def add_parameter(self, **args):
         """
@@ -47,49 +42,41 @@ class Parameters(build_tree.BuildTree):
             raise KeyError("No parameter name given.")
         if "type" not in args:
             raise KeyError("Parameter type not given.")
-        entries = len(self.tree['parameters']['children'])
-        self.tree['parameters']['children'][
-                'param' + str(entries)] = self.populate_tree('parameter',
-                                                                children={})
-        parameter = self.tree['parameters']['children']['param' +
-                                                                str(entries)]
-        parameter['children']['name'] = self.populate_tree(
-                    'name', text=args['name'], children={})
-        parameter['children']['type'] = self.populate_tree(
-                    'type', text=args['type'], children={})
+        parameter = self.populate_tree(self.parameters, 'parameter')
+        self.populate_tree(parameter, 'name', text=args['name'])
+        self.populate_tree(parameter, 'type', text=args['type'])
+        #entries = len(self.tree['parameters']['children'])
+        #self.tree['parameters']['children'][
+        #        'param' + str(entries)] = self.populate_tree('parameter',
+        #                                                        children={})
+        #parameter = self.tree['parameters']['children']['param' +
+        #                                                        str(entries)]
+        #parameter['children']['name'] = self.populate_tree(
+        #            'name', text=args['name'], children={})
+        #parameter['children']['type'] = self.populate_tree(
+        #            'type', text=args['type'], children={})
         if args["type"] == "Constant":
             if "value" in args:
-                parameter['children']['value'] = self.populate_tree(
-                        'value', text=args['value'], children={})
+                self.populate_tree(parameter, 'value', text=args['value'])
             elif "values" in args:
-                parameter['children']['values'] = self.populate_tree(
-                        'values', text=args['values'], children={})
+                self.populate_tree(parameter, 'values', text=args['values'])
         elif args["type"] == "MeshElement" or args["type"] == "MeshNode":
-            parameter['children']['mesh'] = self.populate_tree(
-                        'mesh', text=args['mesh'], children={})
-            parameter['children']['field_name'] = self.populate_tree(
-                        'field_name', text=args['field_name'], children={})
+            if 'mesh' in args:
+                self.populate_tree(parameter, 'mesh', text=args['mesh'])
+            self.populate_tree(parameter, 'field_name', text=args['field_name'])
         elif args["type"] == "Function":
             if "mesh" in args:
-                parameter['children']['mesh'] = self.populate_tree(
-                        'mesh', text=args['mesh'], children={})
-            if isinstance(args['expression'],str) is True:
-                parameter['children']['expression'] = self.populate_tree(
-                        'expression', text=args['expression'], children={})
-            elif isinstance(args['expression'],list) is True:
+                self.populate_tree(parameter, 'mesh', text=args['mesh'])
+            if isinstance(args['expression'], str) is True:
+                self.populate_tree(parameter, 'expression', text=args['expression'])
+            elif isinstance(args['expression'], list) is True:
                 for i, entry in enumerate(args['expression']):
-                    parameter['children'][f'expression{i}'] = self.populate_tree(
-                        'expression', text=entry, children={})
-            elif 'mesh' in args:                        
-                        parameter['children']['mesh'] = self.populateTree(
-                        'mesh', text=args['mesh'], children={})
+                    self.populate_tree(parameter, 'expression', text=entry)
         elif args["type"] == "CurveScaled":
             if "curve" in args:
-                parameter['children']['curve'] = self.populate_tree(
-                        'curve', text=args['curve'], children={})
+                self.populate_tree(parameter, 'curve', text=args['curve'])
             if "parameter" in args:
-                parameter['children']['parameter'] = self.populate_tree(
-                        'parameter', text=args['parameter'], children={})
+                self.populate_tree(parameter, 'parameter', text=args['parameter'])
         elif args["type"] == "TimeDependentHeterogeneousParameter":
             if "time" not in args:
                 raise KeyError("time missing.")
@@ -97,18 +84,15 @@ class Parameters(build_tree.BuildTree):
                 raise KeyError("Parameter name missing.")
             if not len(args["time"]) == len(args["parameter_name"]):
                 raise KeyError("parameter_name and time lists have different length.")
-            parameter['children']['time_series'] = self.populate_tree('time_series', children={})
-            ts_pair = parameter['children']['time_series']['children']
+            time_series = self.populate_tree(parameter, 'time_series')
             for i, _ in enumerate(args["parameter_name"]):
-                ts_pair['pair' + str(i)] = self.populate_tree('pair', children={})
-                ts_pair['pair' + str(i)]['children']['time'] = self.populate_tree(
-                        'time', text=str(args["time"][i]), children={})
-                ts_pair['pair' + str(i)]['children']['parameter_name'] = self.populate_tree(
-                        'parameter_name', text=args["parameter_name"][i], children={})
+                ts_pair = self.populate_tree(time_series, 'pair')
+                self.populate_tree(ts_pair, 'time', text=args['time'][i])
+                self.populate_tree(ts_pair, 'time', text=args['parameter_name'][i])
         else:
             raise KeyError("Parameter type not supported (yet).")
         if "use_local_coordinate_system" in args:
             if (args["use_local_coordinate_system"] == "true") or (
                     args["use_local_coordinate_system"] is True):
-                parameter['children']['use_local_coordinate_system'] = self.populate_tree(
-                      'use_local_coordinate_system', text='true', children={})
+                self.populate_tree(parameter,
+                      'use_local_coordinate_system', text='true')
