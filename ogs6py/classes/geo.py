@@ -26,4 +26,4 @@ class Geo(build_tree.BuildTree):
         ----------
         filename : `str`
         """
-        geom = self.populate_tree(self.root, "geometry", text=filename, overwrite=True)
+        self.populate_tree(self.root, "geometry", text=filename, overwrite=True)

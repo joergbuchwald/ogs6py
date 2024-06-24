@@ -37,7 +37,7 @@ class Processes(build_tree.BuildTree):
         process_variable_name : `str`
         """
         self.procvars = self.populate_tree(self.process, "process_variables", overwrite=True)
-        if not process_variable == "":
+        if process_variable != "":
             if process_variable_name == "":
                 raise KeyError("process_variable_name missing.")
             self.procvar[process_variable] = self.populate_tree(self.procvars,
@@ -90,7 +90,7 @@ class Processes(build_tree.BuildTree):
             self.populate_tree(self.process, "specific_body_force", text=" ".join(str(x) for x in args['specific_body_force']))
         for key, value in args.items():
             if isinstance(value, str):
-                self.populate_tree(self.process, key, text=args[key])
+                self.populate_tree(self.process, key, text=value)
 
 
     def set_constitutive_relation(self, **args):
@@ -115,6 +115,9 @@ class Processes(build_tree.BuildTree):
 
 
     def add_bhe_type(self, bhe_type):
+        """
+        Adds a BHE type
+        """
         self.borehole_heat_exchangers = self.populate_tree(
                 self.process, "borehole_heat_exchangers", overwrite=True)
         self.borehole_heat_exchanger.append(self.populate_tree(
@@ -122,8 +125,12 @@ class Processes(build_tree.BuildTree):
         self.populate_tree(self.borehole_heat_exchanger[-1], "type", text = bhe_type)
 
     def add_bhe_component(self, index=0, **args):
+        """
+        adds a BHE component
+        """
         self._convertargs(args)
-        if not 'comp_type' in args:
+        bhe_type = ""
+        if 'comp_type' not in args:
             raise KeyError("No BHE component name specified.")
         bhecomponent = self.populate_tree(self.borehole_heat_exchanger[index], args['comp_type'])
         if bhecomponent.tag == "borehole":
@@ -133,10 +140,9 @@ class Processes(build_tree.BuildTree):
             for element in self.borehole_heat_exchanger[index]:
                 if element.tag == "type":
                     bhe_type = element.text
-            if bhe_type == "1U" or bhe_type == "2U":
-                inlet_text = "inlet"
-                outlet_text = "outlet"
-            elif bhe_type == "CXA" or bhe_type == "CXC":
+            inlet_text = "inlet"
+            outlet_text = "outlet"
+            if bhe_type in ("CXA", "CXC"):
                 inlet_text = "inner"
                 outlet_text = "outer"
             inlet = self.populate_tree(bhecomponent, inlet_text)

@@ -19,11 +19,11 @@ import copy
 import shutil
 import pandas as pd
 from lxml import etree as ET
-from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop, 
+from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop,
         local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
-from ogs6py.classes.properties import * 
+from ogs6py.classes.properties import *
 
 class OGS:
     """Class for an OGS6 model.
@@ -77,24 +77,6 @@ class OGS:
         else:
             self.inputfile = None
             self.root = ET.Element("OpenGeoSysProject")
-            """if len(self.geo.tree['geometry']['text']) > 0:
-                self.__dict2xml(self.root, self.geo.tree)
-            self.__dict2xml(self.root, self.mesh.tree)
-            if len(self.pyscript.tree['pythonscript']['text']) > 0:
-                self.__dict2xml(self.root, self.pyscript.tree)
-            self.__dict2xml(self.root, self.processes.tree)
-            if len(self.media.tree['media']['children']) > 0:
-                self.__dict2xml(self.root, self.media.tree)
-            self.__dict2xml(self.root, self.timeloop.tree)
-            if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
-                self.__dict2xml(self.root, self.local_coordinate_system.tree)
-            self.__dict2xml(self.root, self.parameters.tree)
-            if len(self.curves.tree['curves']['children']) > 0:
-                self.__dict2xml(self.root, self.curves.tree)
-            self.__dict2xml(self.root, self.processvars.tree)
-            self.__dict2xml(self.root, self.nonlinsolvers.tree)
-            self.__dict2xml(self.root, self.linsolvers.tree))
-            self._add_includes(self.root)"""
             # Reparsing for pretty_print to work properly
             parse = ET.XMLParser(remove_blank_text=True, huge_tree=True)
             tree_string = ET.tostring(self.root, pretty_print=True)
@@ -116,15 +98,6 @@ class OGS:
         self.process_variables = processvars.ProcessVars(self.tree)
         self.nonlinear_solvers = nonlinsolvers.NonLinSolvers(self.tree)
         self.linear_solvers = linsolvers.LinSolvers(self.tree)
-
-    def __dict2xml(self, parent, dictionary):
-        for entry in dictionary:
-            self.tag.append(ET.SubElement(parent, dictionary[entry]['tag']))
-            self.tag[-1].text = str(dictionary[entry]['text'])
-            for attr in dictionary[entry]['attr']:
-                self.tag[-1].set(attr, dictionary[entry]['attr'][attr])
-            if len(dictionary[entry]['children']) > 0:
-                self.__dict2xml(self.tag[-1], dictionary[entry]['children'])
 
     def __replace_blocks_by_includes(self):
         for i, file in enumerate(self.include_files):
@@ -371,7 +344,7 @@ class OGS:
         """
         root = self._get_root()
         elements = root.findall(xpath)
-        if tag == None:
+        if tag is None:
             for element in elements:
                 element.getparent().remove(element)
         else:
@@ -576,8 +549,8 @@ class OGS:
                 "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum",
                 "compensate_all": "./process_variables/process_variable/compensate_non_equilibrium_initial_residuum"
                 }
-        for arg in args:
-            self.replace_text(args[arg], xpath=property_db[arg])
+        for key, val in args.items():
+            self.replace_text(val, xpath=property_db[key])
 
 
     def restart(self, restart_suffix="_restart", t_initial=None, t_end=None, zero_displacement=False):
@@ -768,32 +741,6 @@ class OGS:
                         print(line)
             raise RuntimeError('OGS execution was not successful.')
 
-    """def build_tree(self):
-        self.root = ET.Element("OpenGeoSysProject")
-        if len(self.geo.tree['geometry']['text']) > 0:
-            self.__dict2xml(self.root, self.geo.tree)
-        self.__dict2xml(self.root, self.mesh.tree)
-        if len(self.pyscript.tree['pythonscript']['text']) > 0:
-            self.__dict2xml(self.root, self.pyscript.tree)
-        self.__dict2xml(self.root, self.processes.tree)
-        if len(self.media.tree['media']['children']) > 0:
-            self.__dict2xml(self.root, self.media.tree)
-        self.__dict2xml(self.root, self.timeloop.tree)
-        if len(self.local_coordinate_system.tree['local_coordinate_system']['children']) > 0:
-            self.__dict2xml(self.root, self.local_coordinate_system.tree)
-        self.__dict2xml(self.root, self.parameters.tree)
-        if len(self.curves.tree['curves']['children']) > 0:
-            self.__dict2xml(self.root, self.curves.tree)
-        self.__dict2xml(self.root, self.processvars.tree)
-        self.__dict2xml(self.root, self.nonlinsolvers.tree)
-        self.__dict2xml(self.root, self.linsolvers.tree)
-        self._add_includes(self.root)
-        # Reparsing for pretty_print to work properly
-        parse = ET.XMLParser(remove_blank_text=True)
-        tree_string = ET.tostring(self.root, pretty_print=True)
-        tree_ = ET.fromstring(tree_string, parser=parse)
-        self.tree = ET.ElementTree(tree_)
-    """
 
     def write_input(self, keep_includes=False):
         """Writes the projectfile to disk
@@ -819,16 +766,7 @@ class OGS:
                             xml_declaration=True,
                             pretty_print=True)
             return True
-        raise RuntimeError("Something went wrong")
-        self.build_tree()
-        ET.indent(self.tree, space="    ")
-        if self.verbose is True:
-            display.Display(self.tree)
-        self.tree.write(self.prjfile,
-                         encoding="ISO-8859-1",
-                         xml_declaration=True,
-                         pretty_print=True)
-        return True
+        raise RuntimeError("No tree has been build.")
 
     def parse_out(self, logfile=None, filter=None, maximum_lines=None, reset_index=True):
         """Parses the logfile
@@ -880,7 +818,7 @@ class OGS:
         for i in range(numofmedia):
             multidim_prop[i] = {}
         ## preprocessing
-        # write elastic properties to MPL       
+        # write elastic properties to MPL
         for entry in newtree.findall("./processes/process/constitutive_relation"):
             medium = self._get_medium_pointer(root, entry.attrib["id"])
             parent = medium.find("./phases/phase[type='Solid']/properties")
@@ -909,7 +847,7 @@ class OGS:
                     property_value = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name")
                     for entry in property_value:
                         entry.tag = "value"
-                        entry.text = param_value[0].text            
+                        entry.text = param_value[0].text
             # expand tensors
             expand_tensors(self, numofmedia, multidim_prop, root, location)
             expand_van_genuchten(self, numofmedia, root, location)

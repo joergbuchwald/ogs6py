@@ -51,6 +51,9 @@ class BuildTree:
 
     @classmethod
     def get_child_tag(cls, parent, tag, attr=None, attr_val=None):
+        """
+        search for child tag based on tag and possible attributes
+        """
         q = None
         for child in parent:
             if child.tag == tag:
@@ -63,6 +66,9 @@ class BuildTree:
 
     @classmethod
     def get_child_tag_for_type(cls, parent, tag, subtagval, subtag="type"):
+        """
+        search for child tag based on subtag type
+        """
         q = None
         for child in parent:
             if child.tag == tag:
