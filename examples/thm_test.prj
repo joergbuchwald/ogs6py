@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 <OpenGeoSysProject>
+    <geometry>square_1x1_thm.gml</geometry>
     <mesh axially_symmetric="true">quarter_002_2nd.vtu</mesh>
     <processes>
         <process>
@@ -324,5 +325,4 @@
             </petsc>
         </linear_solver>
     </linear_solvers>
-    <geometry>square_1x1_thm.gml</geometry>
 </OpenGeoSysProject>
