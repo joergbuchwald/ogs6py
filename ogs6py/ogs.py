@@ -89,7 +89,6 @@ class OGS:
         self.mesh = mesh.Mesh(self.tree)
         self.processes = processes.Processes(self.tree)
         self.python_script = python_script.PythonScript(self.tree)
-        self.processes = processes.Processes(self.tree)
         self.media = media.Media(self.tree)
         self.time_loop = timeloop.TimeLoop(self.tree)
         self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem(self.tree)
@@ -146,8 +145,8 @@ class OGS:
 
     def _remove_empty_elements(self):
         root = self._get_root()
-        empty_text_list = ["./geometry"]
-        empty_el_list = ["./time_loop/global_process_coupling"]
+        empty_text_list = ["./geometry", "./python_script"]
+        empty_el_list = ["./time_loop/global_process_coupling", "./curves"]
         for element in empty_text_list:
             entry = root.find(element)
             if entry.text == "":
