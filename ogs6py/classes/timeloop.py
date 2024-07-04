@@ -211,8 +211,8 @@ class TimeLoop(build_tree.BuildTree):
                 for mesh in args["meshes"]:
                     self.populate_tree(meshes, 'mesh', text=mesh)
                     # material_id attribute missing
-        timesteps = self.populate_tree(self.output, 'timesteps')
         if "repeat" in args:
+            timesteps = self.populate_tree(self.output, 'timesteps')
             if "each_steps" not in args:
                 raise KeyError("each_steps is a required tag if repeat is given.")
             if isinstance(args["repeat"], list) and isinstance(args["each_steps"], list):
@@ -286,7 +286,7 @@ class TimeLoop(build_tree.BuildTree):
         each_steps : `int` or `str` or `list`
         """
         self._convertargs(args)
-        timesteps = self.output.find("./timesteps")
+        timesteps = self.populate_tree(self.output, 'timesteps', overwrite=True)
         if "repeat" in args and "each_steps" in args:
             if isinstance(args["repeat"], list) and isinstance(args["each_steps"], list):
                 for i, entry in enumerate(args["repeat"]):
