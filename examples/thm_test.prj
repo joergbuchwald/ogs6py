@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='ISO-8859-1'?>
 <OpenGeoSysProject>
-    <geometry>square_1x1_thm.gml</geometry>
     <mesh axially_symmetric="true">quarter_002_2nd.vtu</mesh>
     <processes>
         <process>
@@ -8,7 +7,6 @@
             <type>THERMO_HYDRO_MECHANICS</type>
             <integration_order>4</integration_order>
             <dimension>2</dimension>
-            <reference_temperature>T0</reference_temperature>
             <specific_body_force>0 0</specific_body_force>
             <constitutive_relation>
                 <type>LinearElasticIsotropic</type>
@@ -49,7 +47,12 @@
                             <independent_variable>
                                 <variable_name>temperature</variable_name>
                                 <reference_condition>273.15</reference_condition>
-                                <slope>-4e-4</slope>
+                                <slope>-0.0004</slope>
+                            </independent_variable>
+                            <independent_variable>
+                                <variable_name>phase_pressure</variable_name>
+                                <reference_condition>100000.0</reference_condition>
+                                <slope>1e-20</slope>
                             </independent_variable>
                         </property>
                         <property>
@@ -110,6 +113,10 @@
                     <name>biot_coefficient</name>
                     <type>Constant</type>
                     <value>1.0</value>
+                </property>
+                <property>
+                    <name>thermal_conductivity</name>
+                    <type>EffectiveThermalConductivityPorosityMixing</type>
                 </property>
             </properties>
         </medium>
@@ -305,7 +312,7 @@
             <name>general_linear_solver</name>
             <lis>-i bicgstab -p ilu -tol 1e-16 -maxiter 10000</lis>
             <eigen>
-                <solver_type>PardisoLU</solver_type>
+                <solver_type>SparseLU</solver_type>
                 <precon_type>DIAGONAL</precon_type>
                 <max_iteration_step>10000</max_iteration_step>
                 <error_tolerance>1e-8</error_tolerance>
@@ -317,4 +324,5 @@
             </petsc>
         </linear_solver>
     </linear_solvers>
+    <geometry>square_1x1_thm.gml</geometry>
 </OpenGeoSysProject>
