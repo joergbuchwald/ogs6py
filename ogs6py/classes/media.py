@@ -184,7 +184,8 @@ class Media(build_tree.BuildTree):
         Parameters
         ----------
         medium_id : `int` or `str`
-        phase_type : `str`
+        phase_type : `str` optional
+        component_name : `str` optional
         name : `str`
         type : `str`
         value : `float` or `str`
@@ -212,9 +213,26 @@ class Media(build_tree.BuildTree):
                 if phase is None:
                     phase = self.populate_tree(phases, "phase")
                     self.populate_tree(phase, "type", text=args['phase_type'])
-                    properties = self.populate_tree(phase, "properties")
+                    if "component_name" in args:
+                        components = self.populate_tree(phase, "components")
+                        component = self.populate_tree(components, "component")
+                        self.populate_tree(component, "name", text=args['component_name'])
+                        properties = self.populate_tree(component, "properties")
+                    else:
+                        properties = self.populate_tree(phase, "properties")
                 else:
-                    properties = self.get_child_tag(phase, "properties")
+                    if "component_name" in args:
+                        components = self.get_child_tag(phase, "components")
+                        if components is None:
+                            components = self.populate_tree(phase, "components")
+                        component = self.get_child_tag_for_type(components, "component",
+                                                            args['component_name'], subtag="name")
+                        if component is None:
+                            component = self.populate_tree(components, "component")
+                            self.populate_tree(component, "name", text=args['component_name'])
+                        properties = self.populate_tree(component, "properties", overwrite=True)
+                    else:
+                        properties = self.get_child_tag(phase, "properties")
             else:
                 properties = self.get_child_tag(medium, "properties")
                 if properties is None:
