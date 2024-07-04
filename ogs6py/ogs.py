@@ -144,6 +144,19 @@ class OGS:
                     self.include_elements.append(child)
         return root
 
+    def _remove_empty_elements(self):
+        root = self._get_root()
+        empty_text_list = ["./geometry"]
+        empty_el_list = ["./time_loop/global_process_coupling"]
+        for element in empty_text_list:
+            entry = root.find(element)
+            if entry.text == "":
+                self.remove_element(element)
+        for element in empty_el_list:
+            entry = root.find(element)
+            if len(entry.getchildren()) == 0:
+                self.remove_element(element)
+
     @classmethod
     def _get_parameter_pointer(cls, root, name, xpath):
         params = root.findall(xpath)
@@ -750,6 +763,7 @@ class OGS:
         keep_includes : `boolean`, optional
         """
         if not self.tree is None:
+            self._remove_empty_elements()
             if keep_includes is True:
                 self.__replace_blocks_by_includes()
             root = self.tree.getroot()

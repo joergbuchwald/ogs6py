@@ -17,6 +17,7 @@ class TimeLoop(build_tree.BuildTree):
         self.tree = tree
         self.root = self._get_root()
         self.time_loop = self.populate_tree(self.root, 'time_loop', overwrite=True)
+        self.gpc = self.populate_tree(self.time_loop, "global_process_coupling", overwrite=True)
         self.processes = self.populate_tree(self.time_loop, 'processes', overwrite=True)
         self.output = self.populate_tree(self.time_loop, 'output', overwrite=True)
 
@@ -341,10 +342,9 @@ class TimeLoop(build_tree.BuildTree):
         local_coupling_processes_max_iter : `str`
         """
         self._convertargs(args)
-        gpc = self.populate_tree(self.time_loop, "global_process_coupling", overwrite=True)
         if "max_iter" in args:
-            self.populate_tree(gpc, "max_iter", text=args['max_iter'], overwrite=True)
-        convergence_criteria = self.populate_tree(gpc, "convergence_criteria", overwrite=True)
+            self.populate_tree(self.gpc, "max_iter", text=args['max_iter'], overwrite=True)
+        convergence_criteria = self.populate_tree(self.gpc, "convergence_criteria", overwrite=True)
         if "convergence_type" not in args:
             raise KeyError("No convergence criterion given. \
                             Specify convergence_type.")
@@ -372,7 +372,7 @@ class TimeLoop(build_tree.BuildTree):
         if "local_coupling_processes" in args:
             if "local_coupling_processes_max_iter" not in args:
                 raise KeyError("local_coupling_processes_max_iter parameter is missing")
-            lcp = self.populate_tree(gpc, "local_coupling_processes")
+            lcp = self.populate_tree(self.gpc, "local_coupling_processes")
             self.populate_tree(lcp, "max_iter", text=args['local_coupling_processes_max_iter'])
             for name in args["local_coupling_processes"]:
                 self.populate_tree(lcp, "process_name", text=name)
