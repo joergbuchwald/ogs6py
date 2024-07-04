@@ -83,6 +83,8 @@ class TimeLoop(build_tree.BuildTree):
         ----------
         type : `str`
         process : `str`
+        process_count : `int` optional
+          for staggered coupling
         t_initial : `int` or `str`
         initial_dt : `float` or `str`
         t_end : `int` or `str`
@@ -104,11 +106,20 @@ class TimeLoop(build_tree.BuildTree):
             raise KeyError("Process reference missing")
         procs = self.processes.findall("./process")
         process = None
+        procs_sub = []
         for proc in procs:
             if args["process"] == proc.get("ref"):
-                process = proc
-        if process is None:
-            raise KeyError("Process reference not found.")
+                procs_sub.append(proc)
+        if "process_count" in args:
+            try:
+                process = procs_sub[int(args['process_count'])]
+            except KeyError:
+                KeyError("Process count out of bounds.")
+        else:
+            try:
+                process = procs_sub[-1]
+            except KeyError:
+                KeyError("Process reference not found.")
         if "type" not in args:
             raise KeyError("No type given.")
         time_stepping = self.populate_tree(process, 'time_stepping')
@@ -245,6 +256,8 @@ class TimeLoop(build_tree.BuildTree):
         Parameters
         ----------
         process : `str`
+        process_count : `int` optional
+          for staggered coupling
         repeat : `int` or `str` or `list`
         delta_t : `int` or `str` or `list`
 
@@ -254,11 +267,20 @@ class TimeLoop(build_tree.BuildTree):
             raise KeyError("No process referenced")
         procs = self.processes.findall("./process")
         process = None
+        procs_sub = []
         for proc in procs:
             if args["process"] == proc.get("ref"):
-                process = proc
-        if process is None:
-            raise KeyError("Process reference not found.")
+                procs_sub.append(proc)
+        if "process_count" in args:
+            try:
+                process = procs_sub[int(args['process_count'])]
+            except KeyError:
+                KeyError("Process count out of bounds.")
+        else:
+            try:
+                process = procs_sub[-1]
+            except KeyError:
+                KeyError("Process reference not found.")
         ts = process.find("./time_stepping/timesteps")
         if ts is None:
             raise RuntimeError("Cannot find time stepping section in the input file.")
@@ -300,3 +322,59 @@ class TimeLoop(build_tree.BuildTree):
         else:
             raise KeyError("You muss provide repeat and each_steps attributes \
                         to define additional output pairs.")
+
+    def add_global_process_coupling(self, **args):
+        """
+        Add a process section to timeloop
+
+        Parameters
+        ----------
+        max_iter : `str`
+          optional, needs to be specified once
+        convergence_type : `str`
+        abstol : `str`
+        abstols : `str`
+        reltol : `str`
+        reltols : `str`
+        norm_type : `str`
+        local_coupling_processes : `list` with names
+        local_coupling_processes_max_iter : `str`
+        """
+        self._convertargs(args)
+        gpc = self.populate_tree(self.time_loop, "global_process_coupling", overwrite=True)
+        if "max_iter" in args:
+            self.populate_tree(gpc, "max_iter", text=args['max_iter'], overwrite=True)
+        convergence_criteria = self.populate_tree(gpc, "convergence_criteria", overwrite=True)
+        if "convergence_type" not in args:
+            raise KeyError("No convergence criterion given. \
+                            Specify convergence_type.")
+        conv_crit = self.populate_tree(convergence_criteria, 'convergence_criterion')
+        self.populate_tree(conv_crit, 'type', text=args['convergence_type'])
+        if "norm_type" not in args:
+            raise KeyError("No norm_type given.")
+        self.populate_tree(conv_crit, 'norm_type', text=args['norm_type'])
+        if (args["convergence_type"] == "DeltaX") or (args["convergence_type"] == "Residual"):
+            if (("abstols" in args) or ("reltols" in args)):
+                raise KeyError("Plural tolerances only available for PerComponent conv. types")
+            if "abstol" in args:
+                self.populate_tree(conv_crit, 'abstol', text=args['abstol'])
+            if "reltol" in args:
+                self.populate_tree(conv_crit, 'reltol', text=args['reltol'])
+        elif (args["convergence_type"] == "PerComponentDeltaX") or (args["convergence_type"] == "PerComponentResidual"):
+            if (("abstol" in args) or ("reltol" in args)):
+                raise KeyError("Singular tolerances only available for scalar conv. types")
+            if "abstols" in args:
+                self.populate_tree(conv_crit, 'abstols', text=args['abstols'])
+            if "reltols" in args:
+                self.populate_tree(conv_crit, 'reltols', text=args['reltols'])
+        else:
+            raise KeyError("No convergence_type given.")
+        if "local_coupling_processes" in args:
+            if "local_coupling_processes_max_iter" not in args:
+                raise KeyError("local_coupling_processes_max_iter parameter is missing")
+            lcp = self.populate_tree(gpc, "local_coupling_processes")
+            self.populate_tree(lcp, "max_iter", text=args['local_coupling_processes_max_iter'])
+            for name in args["local_coupling_processes"]:
+                self.populate_tree(lcp, "process_name", text=name)
+
+
