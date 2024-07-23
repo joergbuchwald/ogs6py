@@ -149,12 +149,13 @@ class OGS:
         empty_el_list = ["./time_loop/global_process_coupling", "./curves"]
         for element in empty_text_list:
             entry = root.find(element)
-            if entry.text == "":
-                self.remove_element(element)
+            if entry is not None:
+                self.remove_element(".", tag=entry.tag, text="")
         for element in empty_el_list:
             entry = root.find(element)
-            if len(entry.getchildren()) == 0:
-                self.remove_element(element)
+            if entry is not None:
+                if len(entry.getchildren()) == 0:
+                    entry.getparent().remove(entry)
 
     @classmethod
     def _get_parameter_pointer(cls, root, name, xpath):
