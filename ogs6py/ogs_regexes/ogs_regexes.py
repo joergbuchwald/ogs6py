@@ -125,6 +125,12 @@ class ComponentConvergenceCriterion(MPIProcess,Info):
     x: float
     dx_x: float
 
+@dataclass
+class ComponentConvergenceCriterionResidual(MPIProcess,Info):
+    component: int
+    dr: float
+    r0: float
+    dr_r0: float
 
 @dataclass
 class TimeStepConvergenceCriterion(MPIProcess,Info):
@@ -132,6 +138,15 @@ class TimeStepConvergenceCriterion(MPIProcess,Info):
     x: float
     dx_x: float
 
+@dataclass
+class ConvergenceCriterionResidual(MPIProcess,Info):
+    dr: float
+    r0: float
+    dr_r0: float
+
+@dataclass
+class Residual(MPIProcess,Info):
+    r: float
 
 @dataclass
 class CouplingIterationConvergence(MPIProcess,Info):
@@ -186,6 +201,12 @@ def ogs_regexes():
             (
                 "info: Convergence criterion, component (\d+): \|dx\|=([\d\.e+-]+), \|x\|=([\d\.e+-]+), \|dx\|/\|x\|=([\d\.e+-]+|nan|inf)$",
                 ComponentConvergenceCriterion),
+            (
+                "info: Convergence criterion, component (\d+): \|dr\|=([\d\.e+-]+), \|r0\|=([\d\.e+-]+), \|dr\|/\|r0\|=([\d\.e+-]+|nan|inf)$",
+                ComponentConvergenceCriterionResidual),
+            ("info: Convergence criterion: \|dr\|=([\d\.e+-]+) \|r0\|=([\d\.e+-]+) \|dr\|/\|r0\|=([\d\.e+-]+|nan|inf)",
+             ConvergenceCriterionResidual),
+            ("info: \[time\] Residual norm: ([\d\.e+-]+|nan|inf)", Residual),
             ("critical: (.*)", CriticalMessage),
             ("error: (.*)", ErrorMessage),
             ("warning: (.*)", WarningMessage)

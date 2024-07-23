@@ -782,7 +782,7 @@ class OGS:
             return True
         raise RuntimeError("No tree has been build.")
 
-    def parse_out(self, logfile=None, filter=None, maximum_lines=None, reset_index=True):
+    def parse_out(self, logfile=None, filter=None, maximum_lines=None, reset_index=True, return_records=False):
         """Parses the logfile
 
         Parameters
@@ -799,7 +799,9 @@ class OGS:
         """
         if logfile is None:
             logfile = self.logfile
-        records = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        records, _ = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        if return_records is True:
+            return records
         df = pd.DataFrame(records)
 
         df = parse_fcts.fill_ogs_context(df)
