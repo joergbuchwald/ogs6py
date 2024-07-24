@@ -30,7 +30,7 @@ class BuildTree:
                 args[item] = str(value)
 
     @classmethod
-    def populate_tree(cls, parent, tag, text='', attr=None, overwrite=False):
+    def populate_tree(cls, parent, tag, text=None, attr=None, overwrite=False):
         """
         method to create dictionary from an xml entity
         """

@@ -40,7 +40,7 @@ class Mesh(build_tree.BuildTree):
         elif isinstance(axially_symmetric, str):
             attr_dict = {"axially_symmetric": axially_symmetric}
         if self.mesh is not None:
-            if self.mesh.text == "":
+            if self.mesh.text == "" or self.mesh.text is None:
                 self.populate_tree(self.root, "mesh", text=filename, attr=attr_dict, overwrite=True)
             else:
                 entry = self.mesh.text

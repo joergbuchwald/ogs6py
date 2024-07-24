@@ -151,6 +151,8 @@ class OGS:
             entry = root.find(element)
             if entry is not None:
                 self.remove_element(".", tag=entry.tag, text="")
+            if entry is not None:
+                self.remove_element(".", tag=entry.tag, text=None)
         for element in empty_el_list:
             entry = root.find(element)
             if entry is not None:
