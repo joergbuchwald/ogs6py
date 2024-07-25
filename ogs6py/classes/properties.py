@@ -95,10 +95,10 @@ def expand_tensors(obj, numofmedia, multidim_prop, root, location):
                 for i in range(multidim_prop[medium_id][name]):
                     textlist = [f"{name}{i}", "Constant", f"{proplist[i]}"]
                     q = ET.SubElement(properties_level, "property")
-                    for i, tag in enumerate(taglist):
+                    for j, tag in enumerate(taglist):
                         r = ET.SubElement(q, tag)
-                        if not textlist[i] is None:
-                            r.text = str(textlist[i])
+                        if not textlist[j] is None:
+                            r.text = str(textlist[j])
     for element in tobedeleted:
         element.getparent().remove(element)
 
