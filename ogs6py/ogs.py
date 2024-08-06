@@ -146,7 +146,7 @@ class OGS:
     def _remove_empty_elements(self):
         root = self._get_root()
         empty_text_list = ["./geometry", "./python_script"]
-        empty_el_list = ["./time_loop/global_process_coupling", "./curves"]
+        empty_el_list = ["./time_loop/global_process_coupling", "./curves", "./media"]
         for element in empty_text_list:
             entry = root.find(element)
             if entry is not None:
