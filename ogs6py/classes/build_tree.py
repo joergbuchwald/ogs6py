@@ -22,7 +22,7 @@ class BuildTree:
         return self.tree.getroot()
 
     @classmethod
-    def _convertargs(cls, args: dict[str, str]) -> None:
+    def _convertargs(cls, args: dict) -> None:
         """
         convert arguments that are not lists or dictionaries to strings
         """
