@@ -7,14 +7,7 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 """
 
 
-from typing import TypeAlias
-
 from lxml import etree as ET
-
-OptionalETElement: TypeAlias = (
-    ET.Element
-)  # ToDo this should be Optional[ET.Element]
-
 
 # pylint: disable=C0103, R0902, R0914, R0913
 class BuildTree:
@@ -71,7 +64,7 @@ class BuildTree:
         tag: str,
         attr: dict[str, str] | None = None,
         attr_val: str | None = None,
-    ) -> OptionalETElement:
+    ) -> ET.Element:
         """
         search for child tag based on tag and possible attributes
         """
@@ -88,7 +81,7 @@ class BuildTree:
     @classmethod
     def get_child_tag_for_type(
         cls, parent: ET.Element, tag: str, subtagval: str, subtag: str = "type"
-    ) -> OptionalETElement:
+    ) -> ET.Element:
         """
         search for child tag based on subtag type
         """
