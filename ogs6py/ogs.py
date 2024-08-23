@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-ogs6py is a python-API for the OpenGeoSys finite element sofware.
+ogs6py is a python-API for the OpenGeoSys finite element software.
 Its main functionalities include creating and altering OGS6 input files as well as executing OGS.
 
 Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
@@ -11,19 +10,46 @@ Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 """
 
 # pylint: disable=C0103, R0902, R0914, R0913
-import sys
-import os
-import subprocess
-import time
+
 import copy
+import os
 import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
 import pandas as pd
 from lxml import etree as ET
-from ogs6py.classes import (display, geo, mesh, python_script, processes, media, timeloop,
-        local_coordinate_system, parameters, curves, processvars, linsolvers, nonlinsolvers)
+
+from ogs6py.classes import (
+    curves,
+    display,
+    geo,
+    linsolvers,
+    local_coordinate_system,
+    media,
+    mesh,
+    nonlinsolvers,
+    parameters,
+    processes,
+    processvars,
+    python_script,
+    timeloop,
+)
+from ogs6py.classes.properties import (
+    Property,
+    PropertySet,
+    Value,
+    expand_tensors,
+    expand_van_genuchten,
+    location_pointer,
+    property_dict,
+)
 import ogs6py.log_parser.log_parser as parser
 import ogs6py.log_parser.common_ogs_analyses as parse_fcts
-from ogs6py.classes.properties import *
+
 
 class OGS:
     """Class for an OGS6 model.
@@ -38,42 +64,44 @@ class OGS:
     INPUT_FILE : `str`, optional
         Filename of the input project file
     XMLSTRING : `str`,optional
+        String containing the XML tree
     OMP_NUM_THREADS : `int`, optional
         Sets the environmentvariable before OGS execution to restrict number of OMP Threads
     VERBOSE : `bool`, optional
         Default: False
+
     """
-    def __init__(self, **args):
+
+    def __init__(self, **args: Any) -> None:
         sys.setrecursionlimit(10000)
-        self.tag = []
-        self.logfile = "out.log"
+        self.logfile: Path = Path("out.log")
         self.tree = None
-        self.include_elements = []
-        self.include_files = []
-        self.add_includes = []
-        self.output_dir = ""
-        if "VERBOSE" in args:
-            self.verbose = args["VERBOSE"]
-        else:
-            self.verbose = False
-        if "OMP_NUM_THREADS" in args:
-            self.threads = args["OMP_NUM_THREADS"]
-        else:
-            self.threads = None
+        self.include_elements: list[ET.Element] = []
+        self.include_files: list[Path] = []
+        self.add_includes: list[dict[str, str]] = []
+        self.output_dir: Path = Path()  # default -> current dir
+        self.verbose: bool = args.get("VERBOSE", False)
+        self.threads: int = args.get("OMP_NUM_THREADS", None)
+        self.asm_threads: int = args.get("OGS_ASM_THREADS", self.threads)
+        self.inputfile: Path | None = None
+        self.folder: Path = Path()
+
         if "PROJECT_FILE" in args:
-            self.prjfile = args['PROJECT_FILE']
+            self.prjfile = Path(args["PROJECT_FILE"])
         else:
             print("PROJECT_FILE for output not given. Calling it default.prj.")
-            self.prjfile = "default.prj"
+            self.prjfile = Path("default.prj")
         if "INPUT_FILE" in args:
-            if os.path.isfile(args['INPUT_FILE']) is True:
-                self.inputfile = args['INPUT_FILE']
-                self.folder, _ = os.path.split(self.inputfile)
+            input_file = Path(args["INPUT_FILE"])
+            if input_file.is_file():
+                self.inputfile = input_file
+                self.folder = input_file.parent
                 _ = self._get_root()
                 if self.verbose is True:
                     display.Display(self.tree)
             else:
-                raise RuntimeError(f"Input project file {args['INPUT_FILE']} not found.")
+                msg = f"Input project file {args['INPUT_FILE']} not found."
+                raise FileNotFoundError(msg)
         else:
             self.inputfile = None
             self.root = ET.Element("OpenGeoSysProject")
@@ -83,7 +111,7 @@ class OGS:
             tree_ = ET.fromstring(tree_string, parser=parse)
             self.tree = ET.ElementTree(tree_)
         if "XMLSTRING" in args:
-            root = ET.fromstring(args['XMLSTRING'])
+            root = ET.fromstring(args["XMLSTRING"])
             self.tree = ET.ElementTree(root)
         self.geometry = geo.Geo(self.tree)
         self.mesh = mesh.Mesh(self.tree)
@@ -91,47 +119,57 @@ class OGS:
         self.python_script = python_script.PythonScript(self.tree)
         self.media = media.Media(self.tree)
         self.time_loop = timeloop.TimeLoop(self.tree)
-        self.local_coordinate_system = local_coordinate_system.LocalCoordinateSystem(self.tree)
+        self.local_coordinate_system = (
+            local_coordinate_system.LocalCoordinateSystem(self.tree)
+        )
         self.parameters = parameters.Parameters(self.tree)
         self.curves = curves.Curves(self.tree)
         self.process_variables = processvars.ProcessVars(self.tree)
         self.nonlinear_solvers = nonlinsolvers.NonLinSolvers(self.tree)
         self.linear_solvers = linsolvers.LinSolvers(self.tree)
 
-    def __replace_blocks_by_includes(self):
+    def __replace_blocks_by_includes(self) -> None:
         for i, file in enumerate(self.include_files):
             parent_element = self.include_elements[i].getparent()
             include_element = ET.SubElement(parent_element, "include")
-            if self.folder == "":
-                file_ = file
-            else:
-                file_ = file.replace(f"{self.folder}/","")
-            include_element.set("file", file_)
+            file_ = file if self.folder.cwd() else file.relative_to(self.folder)
+            include_element.set("file", str(file_))
             parse = ET.XMLParser(remove_blank_text=True)
-            include_string = ET.tostring(self.include_elements[i], pretty_print=True)
+            include_string = ET.tostring(
+                self.include_elements[i], pretty_print=True
+            )
             include_parse = ET.fromstring(include_string, parser=parse)
             include_tree = ET.ElementTree(include_parse)
             ET.indent(include_tree, space="    ")
-            include_tree.write(file,
-                            encoding="ISO-8859-1",
-                            xml_declaration=False,
-                            pretty_print=True)
+            include_tree.write(
+                file,
+                encoding="ISO-8859-1",
+                xml_declaration=False,
+                pretty_print=True,
+            )
             parent_element.remove(self.include_elements[i])
 
-    def _get_root(self, remove_blank_text=False, remove_comments=False):
-        parser = ET.XMLParser(remove_blank_text=remove_blank_text, remove_comments=remove_comments, huge_tree=True)
+    def _get_root(
+        self, remove_blank_text: bool = False, remove_comments: bool = False
+    ) -> ET.Element:
+        parser = ET.XMLParser(
+            remove_blank_text=remove_blank_text,
+            remove_comments=remove_comments,
+            huge_tree=True,
+        )
         if self.tree is None:
             if self.inputfile is not None:
-                self.tree = ET.parse(self.inputfile, parser)
+                self.tree = ET.parse(str(self.inputfile), parser)
             else:
-                raise RuntimeError("This should not happen.")
-                #self.build_tree()
+                msg = "This should not happen."
+                raise RuntimeError(msg)
+                # self.build_tree()
         root = self.tree.getroot()
         all_occurrences = root.findall(".//include")
         for occurrence in all_occurrences:
-            self.include_files.append(os.path.join(self.folder, occurrence.attrib["file"]))
-        for i, occurrence in enumerate(all_occurrences):
-            _tree = ET.parse(self.include_files[i], parser)
+            self.include_files.append(occurrence.attrib["file"])
+        for i, _ in enumerate(all_occurrences):
+            _tree = ET.parse(str(self.folder / self.include_files[i]), parser)
             _root = _tree.getroot()
             parentelement = all_occurrences[i].getparent()
             children_before = parentelement.getchildren()
@@ -143,10 +181,15 @@ class OGS:
                     self.include_elements.append(child)
         return root
 
-    def _remove_empty_elements(self):
+    def _remove_empty_elements(self) -> None:
         root = self._get_root()
         empty_text_list = ["./geometry", "./python_script"]
-        empty_el_list = ["./time_loop/global_process_coupling", "./curves", "./media"]
+        empty_el_list = [
+            "./time_loop/global_process_coupling",
+            "./curves",
+            "./media",
+            "./local_coordinate_system",
+        ]
         for element in empty_text_list:
             entry = root.find(element)
             if entry is not None:
@@ -155,44 +198,45 @@ class OGS:
                 self.remove_element(".", tag=entry.tag, text=None)
         for element in empty_el_list:
             entry = root.find(element)
-            if entry is not None:
-                if len(entry.getchildren()) == 0:
-                    entry.getparent().remove(entry)
+            if (entry is not None) and (len(entry.getchildren()) == 0):
+                entry.getparent().remove(entry)
 
     @classmethod
-    def _get_parameter_pointer(cls, root, name, xpath):
+    def _get_parameter_pointer(
+        cls, root: ET.Element, name: str, xpath: str
+    ) -> ET.Element:
         params = root.findall(xpath)
         parameterpointer = None
         for parameter in params:
             for paramproperty in parameter:
-                if paramproperty.tag == "name":
-                    if paramproperty.text == name:
-                        parameterpointer = parameter
+                if (paramproperty.tag == "name") and (
+                    paramproperty.text == name
+                ):
+                    parameterpointer = parameter
         if parameterpointer is None:
-            print("Parameter/Property not found")
-            raise RuntimeError
+            msg = "Parameter/Property not found"
+            raise RuntimeError(msg)
         return parameterpointer
 
     @classmethod
-    def _get_medium_pointer(cls, root, mediumid):
+    def _get_medium_pointer(cls, root: ET.Element, mediumid: int) -> ET.Element:
         xpathmedia = "./media/medium"
         mediae = root.findall(xpathmedia)
         mediumpointer = None
         for medium in mediae:
             try:
-                if medium.attrib['id'] == str(mediumid):
+                if medium.attrib["id"] == str(mediumid):
                     mediumpointer = medium
             except KeyError:
-                if len(mediae) == 1:
-                    if str(mediumid) == "0":
-                        mediumpointer = medium
+                if (len(mediae) == 1) and (str(mediumid) == "0"):
+                    mediumpointer = medium
         if mediumpointer is None:
-            print("Medium not found")
-            raise RuntimeError
+            msg = "Medium not found"
+            raise RuntimeError(msg)
         return mediumpointer
 
     @classmethod
-    def _get_phase_pointer(cls, root, phase):
+    def _get_phase_pointer(cls, root: ET.Element, phase: str) -> ET.Element:
         phases = root.findall("./phases/phase")
         phasetypes = root.findall("./phases/phase/type")
         phasecounter = None
@@ -201,12 +245,14 @@ class OGS:
                 phasecounter = i
         phasepointer = phases[phasecounter]
         if phasepointer is None:
-            print("Phase not found")
-            raise RuntimeError
+            msg = "Phase not found"
+            raise RuntimeError(msg)
         return phasepointer
 
     @classmethod
-    def _get_component_pointer(cls, root, component):
+    def _get_component_pointer(
+        cls, root: ET.Element, component: str
+    ) -> ET.Element:
         components = root.findall("./components/component")
         componentnames = root.findall("./components/component/name")
         componentcounter = None
@@ -215,21 +261,32 @@ class OGS:
                 componentcounter = i
         componentpointer = components[componentcounter]
         if componentpointer is None:
-            print("Component not found")
-            raise RuntimeError
+            msg = "Component not found"
+            raise RuntimeError(msg)
         return componentpointer
 
     @classmethod
-    def _set_type_value(cls, parameterpointer, value, parametertype, valuetag=None):
+    def _set_type_value(
+        cls,
+        parameterpointer: ET.Element,
+        value: int,
+        parametertype: Any | None,
+        valuetag: str | None = None,
+    ) -> None:
         for paramproperty in parameterpointer:
-            if paramproperty.tag == valuetag:
-                if not value is None:
-                    paramproperty.text = str(value)
-            elif paramproperty.tag == "type":
-                if not parametertype is None:
-                    paramproperty.text = str(parametertype)
+            if (paramproperty.tag == valuetag) and (value is not None):
+                paramproperty.text = str(value)
+            elif paramproperty.tag == "type" and parametertype is not None:
+                paramproperty.text = str(parametertype)
 
-    def add_element(self, parent_xpath="./", tag=None, text=None, attrib_list=None, attrib_value_list=None):
+    def add_element(
+        self,
+        parent_xpath: str = "./",
+        tag: str | None = None,
+        text: str | None = None,
+        attrib_list: Any | None = None,
+        attrib_value_list: Any | None = None,
+    ) -> None:
         """General method to add an Entry
 
         An element is a single tag containing 'text',
@@ -251,22 +308,24 @@ class OGS:
         root = self._get_root()
         parents = root.findall(parent_xpath)
         for parent in parents:
-            if not tag is None:
+            if tag is not None:
                 q = ET.SubElement(parent, tag)
-                if not text is None:
+                if text is not None:
                     q.text = str(text)
-                if not attrib_list is None:
+                if attrib_list is not None:
                     if attrib_value_list is None:
-                        print("attrib_value_list is not given for add_element")
-                        raise RuntimeError
+                        msg = "attrib_value_list is not given for add_element"
+                        raise RuntimeError(msg)
                     if len(attrib_list) != len(attrib_value_list):
-                        print("The size of attrib_list is not the same as that of attrib_value_list")
-                        raise RuntimeError
+                        msg = "The size of attrib_list is not the same as that of attrib_value_list"
+                        raise RuntimeError(msg)
 
-                    for attrib, attrib_value in zip (attrib_list, attrib_value_list):
+                    for attrib, attrib_value in zip(
+                        attrib_list, attrib_value_list, strict=False
+                    ):
                         q.set(attrib, attrib_value)
 
-    def add_include(self, parent_xpath="./", file=""):
+    def add_include(self, parent_xpath: str = "./", file: str = "") -> None:
         """add include element
 
         Parameters
@@ -276,17 +335,24 @@ class OGS:
         file : `str`
             file name
         """
-        self.add_includes.append({'parent_xpath': parent_xpath, 'file': file})
+        self.add_includes.append({"parent_xpath": parent_xpath, "file": file})
 
-    def _add_includes(self, root):
+    def _add_includes(self, root: ET.Element) -> None:
         for add_include in self.add_includes:
-            parent = root.findall(add_include['parent_xpath'])
+            parent = root.findall(add_include["parent_xpath"])
             newelement = []
             for i, entry in enumerate(parent):
                 newelement.append(ET.SubElement(entry, "include"))
-                newelement[i].set("file", add_include['file'])
+                newelement[i].set("file", add_include["file"])
 
-    def add_block(self, blocktag, block_attrib=None, parent_xpath="./", taglist=None, textlist=None):
+    def add_block(
+        self,
+        blocktag: str,
+        block_attrib: Any | None = None,
+        parent_xpath: str = "./",
+        taglist: list[str] | None = None,
+        textlist: list[str] | None = None,
+    ) -> None:
         """General method to add a Block
 
         A block consists of an enclosing tag containing a number of
@@ -297,26 +363,31 @@ class OGS:
         blocktag : `str`
             name of the enclosing tag
         block_attrib : 'dict', optional
+            attributes belonging to the blocktag
         parent_xpath : `str`, optional
             XPath of the parent tag
         taglist : `list`
             list of strings containing the keys
         textlist : `list`
             list of strings, ints or floats retaining the corresponding values
+
         """
         root = self._get_root()
         parents = root.findall(parent_xpath)
         for parent in parents:
             q = ET.SubElement(parent, blocktag)
-            if not block_attrib is None:
+            if block_attrib is not None:
                 for key, val in block_attrib.items():
-                    q.set(key,val)
-            for i, tag in enumerate(taglist):
-                r = ET.SubElement(q, tag)
-                if not textlist[i] is None:
-                    r.text = str(textlist[i])
+                    q.set(key, val)
+            if (taglist is not None) and (textlist is not None):
+                for i, tag in enumerate(taglist):
+                    r = ET.SubElement(q, tag)
+                    if textlist[i] is not None:
+                        r.text = str(textlist[i])
 
-    def deactivate_property(self, name, mediumid=None, phase=None):
+    def deactivate_property(
+        self, name: str, mediumid: int = 0, phase: str | None = None
+    ) -> None:
         """Replaces MPL properties by a comment
 
         Parameters
@@ -324,20 +395,27 @@ class OGS:
         mediumid : `int`
             id of the medium
         phase : `str`
+            name of the phase
         name : `str`
             property name
         """
         root = self._get_root()
         mediumpointer = self._get_medium_pointer(root, mediumid)
-        phasepointer = self._get_phase_pointer(mediumpointer, phase)
         xpathparameter = "./properties/property"
         if phase is None:
-            parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
+            parameterpointer = self._get_parameter_pointer(
+                mediumpointer, name, xpathparameter
+            )
         else:
-            parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
-        parameterpointer.getparent().replace(parameterpointer, ET.Comment(ET.tostring(parameterpointer)))
+            phasepointer = self._get_phase_pointer(mediumpointer, phase)
+            parameterpointer = self._get_parameter_pointer(
+                phasepointer, name, xpathparameter
+            )
+        parameterpointer.getparent().replace(
+            parameterpointer, ET.Comment(ET.tostring(parameterpointer))
+        )
 
-    def deactivate_parameter(self, name):
+    def deactivate_parameter(self, name: str) -> None:
         """Replaces parameters by a comment
 
         Parameters
@@ -347,10 +425,16 @@ class OGS:
         """
         root = self._get_root()
         parameterpath = "./parameters/parameter"
-        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
-        parameterpointer.getparent().replace(parameterpointer, ET.Comment(ET.tostring(parameterpointer)))
+        parameterpointer = self._get_parameter_pointer(
+            root, name, parameterpath
+        )
+        parameterpointer.getparent().replace(
+            parameterpointer, ET.Comment(ET.tostring(parameterpointer))
+        )
 
-    def remove_element(self, xpath, tag = None, text = None):
+    def remove_element(
+        self, xpath: str, tag: str | None = None, text: str | None = None
+    ) -> None:
         """Removes an element
 
         Parameters
@@ -369,7 +453,9 @@ class OGS:
                     if sub_element.tag == tag and sub_element.text == text:
                         sub_element.getparent().remove(sub_element)
 
-    def replace_text(self, value, xpath=".", occurrence=-1):
+    def replace_text(
+        self, value: str | int, xpath: str = ".", occurrence: int = -1
+    ) -> None:
         """General method for replacing text between opening and closing tags
 
 
@@ -380,19 +466,22 @@ class OGS:
         xpath : `str`, optional
             XPath of the tag
         occurrence : `int`, optional
-            Easy way to adress nonunique XPath addresses by their occurence
+            Easy way to address nonunique XPath addresses by their occurrence
             from the top of the XML file
             Default: -1
         """
         root = self._get_root()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
-            if occurrence < 0:
-                entry.text = str(value)
-            elif i == occurrence:
+            if occurrence < 0 or i == occurrence:
                 entry.text = str(value)
 
-    def replace_block_by_include(self, xpath="./", filename="include.xml", occurrence=0):
+    def replace_block_by_include(
+        self,
+        xpath: str = "./",
+        filename: str = "include.xml",
+        occurrence: int = 0,
+    ) -> None:
         """General method for replacing a block by an include
 
 
@@ -401,20 +490,22 @@ class OGS:
         xpath : `str`, optional
             XPath of the tag
         filename : `str`, optional
+            name of the include file
         occurrence : `int`, optional
             Addresses nonunique XPath by their occurece
-            Default: 0
         """
-        print("Note: Includes are only written if write_input(keep_includes=True) is called.")
+        print(
+            "Note: Includes are only written if write_input(keep_includes=True) is called."
+        )
         root = self._get_root()
         find_xpath = root.findall(xpath)
         for i, entry in enumerate(find_xpath):
             if i == occurrence:
                 self.include_elements.append(entry)
-                self.include_files.append(os.path.join(self.folder, filename))
+                self.include_files.append(self.prjfile.parent / filename)
 
-    def replace_mesh(self, oldmesh, newmesh):
-        """ Method to replace meshes
+    def replace_mesh(self, oldmesh: str, newmesh: str) -> None:
+        """Method to replace meshes
 
         Parameters
         ----------
@@ -423,24 +514,31 @@ class OGS:
         """
         root = self._get_root()
         bulkmesh = root.find("./mesh")
-        try:
+        if bulkmesh is not None:
             if bulkmesh.text == oldmesh:
                 bulkmesh.text = newmesh
-        except:
-            pass
+            else:
+                msg = "Bulk mesh name and oldmesh argument don't agree."
+                raise RuntimeError(msg)
         all_occurrences_meshsection = root.findall("./meshes/mesh")
         for occurrence in all_occurrences_meshsection:
             if occurrence.text == oldmesh:
                 occurrence.text = newmesh
         all_occurrences = root.findall(".//mesh")
         for occurrence in all_occurrences:
-            if not occurrence in all_occurrences_meshsection:
-                oldmesh_stripped = os.path.split(oldmesh)[1].replace(".vtu","")
-                newmesh_stripped = os.path.split(newmesh)[1].replace(".vtu","")
+            if occurrence not in all_occurrences_meshsection:
+                oldmesh_stripped = os.path.split(oldmesh)[1].replace(".vtu", "")
+                newmesh_stripped = os.path.split(newmesh)[1].replace(".vtu", "")
                 if occurrence.text == oldmesh_stripped:
                     occurrence.text = newmesh_stripped
 
-    def replace_parameter(self, name=None, parametertype=None, taglist=None, textlist=None):
+    def replace_parameter(
+        self,
+        name: str = "",
+        parametertype: str = "",
+        taglist: list[str] | None = None,
+        textlist: list[str] | None = None,
+    ) -> None:
         """Replacing parametertypes and values
 
         Parameters
@@ -455,20 +553,24 @@ class OGS:
             values of parameter
         """
         root = self._get_root()
-        parameterpath = "./parameters/parameter[name=\'"+name+"\']"
+        parameterpath = "./parameters/parameter[name='" + name + "']"
         parent = root.find(parameterpath)
         children = parent.getchildren()
         for child in children:
-            if not child.tag in ["name","type"]:
+            if child.tag not in ["name", "type"]:
                 self.remove_element(f"{parameterpath}/{child.tag}")
         paramtype = root.find(f"{parameterpath}/type")
         paramtype.text = parametertype
-        for i, tag in enumerate(taglist):
-            if not tag in ["name","type"]:
-                self.add_element(parent_xpath=parameterpath,
-                                 tag=tag, text=textlist[i])
+        if (taglist is not None) and (textlist is not None):
+            for i, tag in enumerate(taglist):
+                if tag not in ["name", "type"]:
+                    self.add_element(
+                        parent_xpath=parameterpath, tag=tag, text=textlist[i]
+                    )
 
-    def replace_parameter_value(self, name=None, value=None, valuetag="value"):
+    def replace_parameter_value(
+        self, name: str = "", value: int = 0, valuetag: str = "value"
+    ) -> None:
         """Replacing parameter values
 
         Parameters
@@ -485,11 +587,21 @@ class OGS:
         """
         root = self._get_root()
         parameterpath = "./parameters/parameter"
-        parameterpointer = self._get_parameter_pointer(root, name, parameterpath)
+        parameterpointer = self._get_parameter_pointer(
+            root, name, parameterpath
+        )
         self._set_type_value(parameterpointer, value, None, valuetag=valuetag)
 
-    def replace_phase_property_value(self, mediumid=None, phase="AqueousLiquid", component=None, name=None, value=None,
-            propertytype=None, valuetag="value"):
+    def replace_phase_property_value(
+        self,
+        mediumid: int = 0,
+        phase: str = "AqueousLiquid",
+        component: str | None = None,
+        name: str = "",
+        value: int = 0,
+        propertytype: str = "Constant",
+        valuetag: str = "value",
+    ) -> None:
         """Replaces properties in medium phases
 
         Parameters
@@ -499,6 +611,7 @@ class OGS:
         phase : `str`
             name of the phase
         component : `str`
+            name of the component
         name : `str`
             property name
         value : `str`/any
@@ -515,11 +628,21 @@ class OGS:
         if component is not None:
             phasepointer = self._get_component_pointer(phasepointer, component)
         xpathparameter = "./properties/property"
-        parameterpointer = self._get_parameter_pointer(phasepointer, name, xpathparameter)
-        self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
+        parameterpointer = self._get_parameter_pointer(
+            phasepointer, name, xpathparameter
+        )
+        self._set_type_value(
+            parameterpointer, value, propertytype, valuetag=valuetag
+        )
 
-    def replace_medium_property_value(self, mediumid=None, name=None, value=None, propertytype=None,
-            valuetag="value"):
+    def replace_medium_property_value(
+        self,
+        mediumid: int = 0,
+        name: str = "",
+        value: int = 0,
+        propertytype: str = "Constant",
+        valuetag: str = "value",
+    ) -> None:
         """Replaces properties in medium (not belonging to any phase)
 
         Parameters
@@ -539,36 +662,45 @@ class OGS:
         root = self._get_root()
         mediumpointer = self._get_medium_pointer(root, mediumid)
         xpathparameter = "./properties/property"
-        parameterpointer = self._get_parameter_pointer(mediumpointer, name, xpathparameter)
-        self._set_type_value(parameterpointer, value, propertytype, valuetag=valuetag)
+        parameterpointer = self._get_parameter_pointer(
+            mediumpointer, name, xpathparameter
+        )
+        self._set_type_value(
+            parameterpointer, value, propertytype, valuetag=valuetag
+        )
 
-    def set(self, **args):
+    def set(self, **args: str | int) -> None:
         """
         Sets directly a uniquely defined property
         List of properties is given in the dictory below
         """
         property_db = {
-                "t_initial": "./time_loop/processes/process/time_stepping/t_initial",
-                "t_end": "./time_loop/processes/process/time_stepping/t_end",
-                "output_prefix": "./time_loop/output/prefix",
-                "reltols": "./time_loop/processes/process/convergence_criterion/reltols",
-                "abstols": "./time_loop/processes/process/convergence_criterion/abstols",
-                "mass_lumping": "./processes/process/mass_lumping",
-                "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type",
-                "eigen_precon": "./linear_solvers/linear_solver/eigen/precon_type",
-                "eigen_max_iteration_step": "./linear_solvers/linear_solver/eigen/max_iteration_step",
-                "eigen_error_tolerance": "./linear_solvers/linear_solver/eigen/error_tolerance",
-                "eigen_scaling": "./linear_solvers/linear_solver/eigen/scaling",
-                "petsc_prefix": "./linear_solvers/linear_solver/petsc/prefix",
-                "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters",
-                "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum",
-                "compensate_all": "./process_variables/process_variable/compensate_non_equilibrium_initial_residuum"
-                }
+            "t_initial": "./time_loop/processes/process/time_stepping/t_initial",
+            "t_end": "./time_loop/processes/process/time_stepping/t_end",
+            "output_prefix": "./time_loop/output/prefix",
+            "reltols": "./time_loop/processes/process/convergence_criterion/reltols",
+            "abstols": "./time_loop/processes/process/convergence_criterion/abstols",
+            "mass_lumping": "./processes/process/mass_lumping",
+            "eigen_solver": "./linear_solvers/linear_solver/eigen/solver_type",
+            "eigen_precon": "./linear_solvers/linear_solver/eigen/precon_type",
+            "eigen_max_iteration_step": "./linear_solvers/linear_solver/eigen/max_iteration_step",
+            "eigen_error_tolerance": "./linear_solvers/linear_solver/eigen/error_tolerance",
+            "eigen_scaling": "./linear_solvers/linear_solver/eigen/scaling",
+            "petsc_prefix": "./linear_solvers/linear_solver/petsc/prefix",
+            "petsc_parameters": "./linear_solvers/linear_solver/petsc/parameters",
+            "compensate_displacement": "./process_variables/process_variable[name='displacement']/compensate_non_equilibrium_initial_residuum",
+            "compensate_all": "./process_variables/process_variable/compensate_non_equilibrium_initial_residuum",
+        }
         for key, val in args.items():
             self.replace_text(val, xpath=property_db[key])
 
-
-    def restart(self, restart_suffix="_restart", t_initial=None, t_end=None, zero_displacement=False):
+    def restart(
+        self,
+        restart_suffix: str = "_restart",
+        t_initial: float | None = None,
+        t_end: float | None = None,
+        zero_displacement: bool = False,
+    ) -> None:
         """Prepares the project file for a restart.
 
         Takes the last time step from the PVD file mentioned in the PRJ file.
@@ -588,16 +720,17 @@ class OGS:
 
         root_prj = self._get_root()
         filetype = root_prj.find("./time_loop/output/type").text
-        pvdfile = root_prj.find("./time_loop/output/prefix").text+".pvd"
-        pvdfile = os.path.join(self.output_dir, pvdfile)
-        if not filetype == "VTK":
-            raise RuntimeError("Output fil (*args: object) Please use VTK")
-        tree =  ET.parse(pvdfile)
-        xpath="./Collection/DataSet"
+        pvdfile = root_prj.find("./time_loop/output/prefix").text + ".pvd"
+        pvdfile = self.output_dir / pvdfile
+        if filetype != "VTK":
+            msg = "Output file type unknown. Please use VTK."
+            raise RuntimeError(msg)
+        tree = ET.parse(pvdfile)
+        xpath = "./Collection/DataSet"
         root_pvd = tree.getroot()
         find_xpath = root_pvd.findall(xpath)
-        lastfile = find_xpath[-1].attrib['file']
-        last_time = find_xpath[-1].attrib['timestep']
+        lastfile = find_xpath[-1].attrib["file"]
+        last_time = find_xpath[-1].attrib["timestep"]
         try:
             bulk_mesh = root_prj.find("./mesh").text
         except AttributeError:
@@ -606,32 +739,65 @@ class OGS:
             except AttributeError:
                 print("Can't find bulk mesh.")
         self.replace_mesh(bulk_mesh, lastfile)
-        root_prj.find("./time_loop/output/prefix").text = root_prj.find("./time_loop/output/prefix").text + restart_suffix
-        t_initials = root_prj.findall("./time_loop/processes/process/time_stepping/t_initial")
-        t_ends = root_prj.findall("./time_loop/processes/process/time_stepping/t_end")
+        root_prj.find("./time_loop/output/prefix").text = (
+            root_prj.find("./time_loop/output/prefix").text + restart_suffix
+        )
+        t_initials = root_prj.findall(
+            "./time_loop/processes/process/time_stepping/t_initial"
+        )
+        t_ends = root_prj.findall(
+            "./time_loop/processes/process/time_stepping/t_end"
+        )
         for i, t0 in enumerate(t_initials):
             if t_initial is None:
                 t0.text = last_time
             else:
                 t0.text = str(t_initial)
-            if not t_end is None:
+            if t_end is not None:
                 t_ends[i].text = str(t_end)
-        process_vars = root_prj.findall("./process_variables/process_variable/name")
-        ic_names = root_prj.findall("./process_variables/process_variable/initial_condition")
+        process_vars = root_prj.findall(
+            "./process_variables/process_variable/name"
+        )
+        ic_names = root_prj.findall(
+            "./process_variables/process_variable/initial_condition"
+        )
         for i, process_var in enumerate(process_vars):
             if process_var.text == "displacement" and zero_displacement is True:
-                print("Please make sure that epsilon_ip is removed from the VTU file before you run OGS.")
+                print(
+                    "Please make sure that epsilon_ip is removed from the VTU file before you run OGS."
+                )
                 zero = {"1": "0", "2": "0 0", "3": "0 0 0"}
-                cpnts = root_prj.find("./process_variables/process_variable[name='displacement']/components").text
-                self.replace_parameter(name=ic_names[i].text, parametertype="Constant", taglist=["values"],
-                               textlist=[zero[cpnts]])
+                cpnts = root_prj.find(
+                    "./process_variables/process_variable[name='displacement']/components"
+                ).text
+                self.replace_parameter(
+                    name=ic_names[i].text,
+                    parametertype="Constant",
+                    taglist=["values"],
+                    textlist=[zero[cpnts]],
+                )
             else:
-                self.replace_parameter(name=ic_names[i].text, parametertype="MeshNode", taglist=["mesh","field_name"],
-                               textlist=[lastfile.split("/")[-1].replace(".vtu",""), process_var.text])
+                self.replace_parameter(
+                    name=ic_names[i].text,
+                    parametertype="MeshNode",
+                    taglist=["mesh", "field_name"],
+                    textlist=[
+                        lastfile.split("/")[-1].replace(".vtu", ""),
+                        process_var.text,
+                    ],
+                )
         self.remove_element("./processes/process/initial_stress")
 
-
-    def run_model(self, logfile="out.log", path=None, args=None, container_path=None, wrapper=None, write_logs=True, write_prj_to_pvd=True):
+    def run_model(
+        self,
+        logfile: Path = Path("out.log"),
+        path: Path | None = None,
+        args: Any | None = None,
+        container_path: Path | str | None = None,
+        wrapper: Any | None = None,
+        write_logs: bool = True,
+        write_prj_to_pvd: bool = True,
+    ) -> None:
         """Command to run OGS.
 
         Runs OGS with the project file specified as PROJECT_FILE
@@ -654,55 +820,75 @@ class OGS:
         write_logs: `bolean`, optional
             set False to omit logging
         """
-
-        ogs_path = ""
-        if self.threads is None:
-            env_export = ""
-        else:
-            env_export = f"export OMP_NUM_THREADS={self.threads} && "
-        if not container_path is None:
-            container_path = os.path.expanduser(container_path)
-            if os.path.isfile(container_path) is False:
-                raise RuntimeError('The specific container-path is not a file. Please provide a path to the OGS container.')
-            if not container_path.endswith(".sif"):
-                raise RuntimeError('The specific file is not a Singularity container. Please provide a *.sif file containing OGS.')
-        if not path is None:
-            path = os.path.expanduser(path)
-            if os.path.isdir(path) is False:
-                if not container_path is None:
-                    raise RuntimeError('The specified path is not a directory. Please provide a directory containing the Singularity executable.')
-                raise RuntimeError('The specified path is not a directory. Please provide a directory containing the OGS executable.')
-            ogs_path += path
-        if not logfile is None:
-            self.logfile = logfile
-        if not container_path is None:
+        ogs_path: Path = Path()
+        env_export = ""
+        if self.threads is not None:
+            env_export += f"export OMP_NUM_THREADS={self.threads} && "
+        if self.asm_threads is not None:
+            env_export += f"export OGS_ASM_THREADS={self.asm_threads} && "
+        if container_path is not None:
+            container_path = Path(container_path)
+            container_path = container_path.expanduser()
+            if not container_path.is_file():
+                msg = "The specific container-path is not a file. Please provide a path to the OGS container."
+                raise RuntimeError(msg)
+            if str(container_path.suffix).lower() != ".sif":
+                msg = "The specific file is not a Singularity container. Please provide a *.sif file containing OGS."
+                raise RuntimeError(msg)
+        if path:
+            path = Path(path)
+            path = path.expanduser()
+            if not path.is_dir():
+                if container_path is not None:
+                    msg = "The specified path is not a directory. Please provide a directory containing the Singularity executable."
+                    raise RuntimeError(msg)
+                msg = "The specified path is not a directory. Please provide a directory containing the OGS executable."
+                raise RuntimeError(msg)
+            ogs_path = ogs_path / path
+        if logfile is not None:
+            self.logfile = Path(logfile)
+        if container_path is not None:
             if sys.platform == "win32":
-                raise RuntimeError('Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions.')
-            ogs_path = os.path.join(ogs_path, "singularity")
-            if shutil.which(ogs_path) is None:
-                raise RuntimeError('The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions.')
+                msg = "Running OGS in a Singularity container is only possible in Linux. See https://sylabs.io/guides/3.0/user-guide/installation.html for Windows solutions."
+                raise RuntimeError(msg)
+            ogs_path = ogs_path / "singularity"
+            if shutil.which(str(ogs_path)) is None:
+                msg = "The Singularity executable was not found. See https://www.opengeosys.org/docs/userguide/basics/container/ for installation instructions."
+                raise RuntimeError(msg)
         else:
             if sys.platform == "win32":
-                ogs_path = os.path.join(ogs_path, "ogs.exe")
+                ogs_path = ogs_path / "ogs.exe"
             else:
-                ogs_path = os.path.join(ogs_path, "ogs")
-            if shutil.which(ogs_path) is None:
-                raise RuntimeError('The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions.')
+                ogs_path = ogs_path / "ogs"
+            if shutil.which(str(ogs_path)) is None:
+                msg = "The OGS executable was not found. See https://www.opengeosys.org/docs/userguide/basics/introduction/ for installation instructions."
+                raise RuntimeError(msg)
         cmd = env_export
-        if not wrapper is None:
+        if wrapper is not None:
             cmd += wrapper + " "
         cmd += f"{ogs_path} "
-        if not container_path is None:
-            if not wrapper is None:
-                cmd = env_export + "singularity exec " + f"{container_path} " + wrapper + " "
+        if container_path is not None:
+            if wrapper is not None:
+                cmd = (
+                    env_export
+                    + "singularity exec "
+                    + f"{container_path} "
+                    + wrapper
+                    + " "
+                )
             else:
-                cmd = env_export + "singularity exec " + f"{container_path} " + "ogs "
-        if not args is None:
+                cmd = (
+                    env_export
+                    + "singularity exec "
+                    + f"{container_path} "
+                    + "ogs "
+                )
+        if args is not None:
             argslist = args.split(" ")
             output_dir_flag = False
             for entry in argslist:
                 if output_dir_flag is True:
-                    self.output_dir = entry
+                    self.output_dir = Path(entry)
                     output_dir_flag = False
                 if "-o" in entry:
                     output_dir_flag = True
@@ -713,9 +899,22 @@ class OGS:
             cmd += f"{self.prjfile}"
         startt = time.time()
         if sys.platform == "win32":
-            returncode = subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            returncode = subprocess.run(
+                cmd,
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
         else:
-            returncode = subprocess.run(cmd, shell=True, executable="bash", stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+            returncode = subprocess.run(
+                cmd,
+                shell=True,
+                executable="bash",
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                check=False,
+            )
         stopt = time.time()
         self.exec_time = stopt - startt
         if returncode.returncode == 0:
@@ -723,48 +922,77 @@ class OGS:
             print(f"Execution took {self.exec_time} s")
             if write_prj_to_pvd is True:
                 self.inputfile = self.prjfile
-                self.tree = None
-                root = self._get_root(remove_blank_text=True, remove_comments=True)
-                prjstring = ET.tostring(root, pretty_print = True)
-                prjstring = str(prjstring).replace('\r', ' ').replace('\n', ' ').replace('--','')
+                # self.tree = None # TODO: check whether this line can be safely removed
+                root = self._get_root(
+                    remove_blank_text=True, remove_comments=True
+                )
+                prjstring = ET.tostring(root, pretty_print=True)
+                prjstring = (
+                    str(prjstring)
+                    .replace("\r", " ")
+                    .replace("\n", " ")
+                    .replace("--", "")
+                )
+                if self.tree is None:
+                    msg = "self.tree is empty."
+                    raise AttributeError(msg)
                 fn_type = self.tree.find("./time_loop/output/type").text
                 fn = None
                 if fn_type == "VTK":
-                    fn = self.tree.find("./time_loop/output/prefix").text + ".pvd"
-                    fn = os.path.join(self.output_dir, fn)
+                    fn = (
+                        self.tree.find("./time_loop/output/prefix").text
+                        + ".pvd"
+                    )
+                    fn = self.output_dir / fn
                 elif fn_type == "XDMF":
                     prefix = self.tree.find("./time_loop/output/prefix").text
                     mesh = self.tree.find("./mesh")
                     if mesh is None:
                         mesh = self.tree.find("./meshes/mesh")
-                    prefix = os.path.join(self.output_dir, prefix)
-                    fn = prefix + "_" + mesh.text.split(".vtu")[0] + ".xdmf"
-                if not fn is None:
+                    prefix = self.output_dir / prefix
+                    if mesh is not None:
+                        fn = (
+                            str(prefix)
+                            + "_"
+                            + mesh.text.split(".vtu")[0]
+                            + ".xdmf"
+                        )
+                    else:
+                        msg = "No mesh found"
+                        raise AttributeError(msg)
+                if fn is not None:
                     tree_pvd = ET.parse(fn)
                     root_pvd = tree_pvd.getroot()
                     root_pvd.append(ET.Comment(prjstring))
-                    tree_pvd.write(fn, encoding="ISO-8859-1", xml_declaration=True, pretty_print=True)
+                    tree_pvd.write(
+                        fn,
+                        encoding="ISO-8859-1",
+                        xml_declaration=True,
+                        pretty_print=True,
+                    )
                     print("Project file written to output.")
         else:
             print(f"Error code: {returncode.returncode}")
             if write_logs is False:
-                raise RuntimeError('OGS execution was not successful. Please set write_logs to True to obtain more information.')
-            num_lines = sum(1 for line in open(self.logfile))
-            with open(self.logfile) as file:
+                msg = "OGS execution was not successful. Please set write_logs to True to obtain more information."
+                raise RuntimeError(msg)
+            with self.logfile.open() as lf:
+                num_lines = len(lf.readlines())
+            with self.logfile.open() as file:
                 for i, line in enumerate(file):
-                    if i > num_lines-10:
+                    if i > num_lines - 10:
                         print(line)
-            raise RuntimeError('OGS execution was not successful.')
+            msg = "OGS execution was not successful."
+            raise RuntimeError(msg)
 
-
-    def write_input(self, keep_includes=False):
+    def write_input(self, keep_includes: bool = False) -> None:
         """Writes the projectfile to disk
 
         Parameters
         ----------
         keep_includes : `boolean`, optional
         """
-        if not self.tree is None:
+        if self.tree is not None:
             self._remove_empty_elements()
             if keep_includes is True:
                 self.__replace_blocks_by_includes()
@@ -777,14 +1005,20 @@ class OGS:
             ET.indent(self.tree, space="    ")
             if self.verbose is True:
                 display.Display(self.tree)
-            self.tree.write(self.prjfile,
-                            encoding="ISO-8859-1",
-                            xml_declaration=True,
-                            pretty_print=True)
-            return True
-        raise RuntimeError("No tree has been build.")
+            self.tree.write(
+                self.prjfile,
+                encoding="ISO-8859-1",
+                xml_declaration=True,
+                pretty_print=True,
+            )
+        else:
+            msg = "No tree has been build."
+            raise RuntimeError(msg)
 
-    def parse_out(self, logfile=None, filter=None, maximum_lines=None, reset_index=True):
+    def parse_out(self, logfile: str | None = None,
+                  filter: str | None = None,
+                  maximum_lines: int | None = None,
+                  reset_index: bool = True) -> pd.DataFrame:
         """Parses the logfile
 
         Parameters
@@ -821,11 +1055,16 @@ class OGS:
             return df.reset_index()
         return df
 
-    def property_dataframe(self, mediamapping=None):
+    def property_dataframe(
+        self, mediamapping: dict[int, str] | None = None
+    ) -> pd.DataFrame:
         newtree = copy.deepcopy(self.tree)
+        if (newtree is None) or (self.tree is None):
+            msg = "No tree existing."
+            raise AttributeError(msg)
         root = newtree.getroot()
-        property_list = []
-        multidim_prop = {}
+        property_list: list[Property] = []
+        multidim_prop: dict[int, dict] = {}
         numofmedia = len(self.tree.findall("./media/medium"))
         if mediamapping is None:
             mediamapping = {}
@@ -835,71 +1074,131 @@ class OGS:
             multidim_prop[i] = {}
         ## preprocessing
         # write elastic properties to MPL
-        for entry in newtree.findall("./processes/process/constitutive_relation"):
-            medium = self._get_medium_pointer(root, entry.attrib["id"])
+        for entry in newtree.findall(
+            "./processes/process/constitutive_relation"
+        ):
+            medium = self._get_medium_pointer(root, entry.attrib.get("id", "0"))
             parent = medium.find("./phases/phase[type='Solid']/properties")
             taglist = ["name", "type", "parameter_name"]
             for subentry in entry:
-                if subentry.tag in ["youngs_modulus", "poissons_ratio","youngs_moduli", "poissons_ratios", "shear_moduli"]:
+                if subentry.tag in [
+                    "youngs_modulus",
+                    "poissons_ratio",
+                    "youngs_moduli",
+                    "poissons_ratios",
+                    "shear_moduli",
+                ]:
                     textlist = [subentry.tag, "Parameter", subentry.text]
                     q = ET.SubElement(parent, "property")
                     for i, tag in enumerate(taglist):
                         r = ET.SubElement(q, tag)
-                        if not textlist[i] is None:
+                        if textlist[i] is not None:
                             r.text = str(textlist[i])
 
         for location in location_pointer:
             # resolve parameters
-            parameter_names_add = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name")
+            parameter_names_add = newtree.findall(
+                f"./media/medium/{location_pointer[location]}properties/property[type='Parameter']/parameter_name"
+            )
             parameter_names = [name.text for name in parameter_names_add]
             for parameter_name in parameter_names:
-                param_type = newtree.find(f"./parameters/parameter[name='{parameter_name}']/type").text
+                param_type = newtree.find(
+                    f"./parameters/parameter[name='{parameter_name}']/type"
+                ).text
                 if param_type == "Constant":
-                    param_value = newtree.findall(f"./parameters/parameter[name='{parameter_name}']/value")
-                    param_value.append(newtree.find(f"./parameters/parameter[name='{parameter_name}']/values"))
-                    property_type = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/type")
+                    param_value = newtree.findall(
+                        f"./parameters/parameter[name='{parameter_name}']/value"
+                    )
+                    param_value.append(
+                        newtree.find(
+                            f"./parameters/parameter[name='{parameter_name}']/values"
+                        )
+                    )
+                    property_type = newtree.findall(
+                        f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/type"
+                    )
                     for entry in property_type:
                         entry.text = "Constant"
-                    property_value = newtree.findall(f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name")
+                    property_value = newtree.findall(
+                        f"./media/medium/{location_pointer[location]}properties/property[parameter_name='{parameter_name}']/parameter_name"
+                    )
                     for entry in property_value:
                         entry.tag = "value"
                         entry.text = param_value[0].text
             # expand tensors
             expand_tensors(self, numofmedia, multidim_prop, root, location)
             expand_van_genuchten(self, numofmedia, root, location)
-            property_names = [name.text for name in newtree.findall(f"./media/medium/{location_pointer[location]}properties/property/name")]
+            property_names = [
+                name.text
+                for name in newtree.findall(
+                    f"./media/medium/{location_pointer[location]}properties/property/name"
+                )
+            ]
             property_names = list(dict.fromkeys(property_names))
-            values = {}
+            values: dict[str, list] = {}
             for name in property_names:
                 values[name] = []
-                orig_name = ''.join(c for c in name if not c.isnumeric())
-                number_suffix = ''.join(c for c in name if c.isnumeric())
+                orig_name = "".join(c for c in name if not c.isnumeric())
+                number_suffix = "".join(c for c in name if c.isnumeric())
                 if orig_name in property_dict[location]:
                     for medium_id in range(numofmedia):
                         if medium_id in mediamapping:
                             medium = self._get_medium_pointer(root, medium_id)
-                            proptytype = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/type")
+                            proptytype = medium.find(
+                                f"./{location_pointer[location]}properties/property[name='{name}']/type"
+                            )
                             if proptytype is None:
-                                values[name].append(Value(mediamapping[medium_id],None))
+                                values[name].append(
+                                    Value(mediamapping[medium_id], None)
+                                )
                             else:
-                                if  "Constant" == proptytype.text:
-                                    value_entry = medium.find(f"./{location_pointer[location]}properties/property[name='{name}']/value").text
+                                if proptytype.text == "Constant":
+                                    value_entry = medium.find(
+                                        f"./{location_pointer[location]}properties/property[name='{name}']/value"
+                                    ).text
                                     value_entry_list = value_entry.split(" ")
                                     if len(value_entry_list) == 1:
-                                        values[name].append(Value(mediamapping[medium_id],float(value_entry)))
+                                        values[name].append(
+                                            Value(
+                                                mediamapping[medium_id],
+                                                float(value_entry),
+                                            )
+                                        )
                                 else:
-                                    values[name].append(Value(mediamapping[medium_id],None))
-                    if not number_suffix == "":
-                        new_symbol = property_dict[location][orig_name]["symbol"][:-1]+"_"+number_suffix +"$"
+                                    values[name].append(
+                                        Value(mediamapping[medium_id], None)
+                                    )
+                    if number_suffix != "":
+                        new_symbol = (
+                            property_dict[location][orig_name]["symbol"][:-1]
+                            + "_"
+                            + number_suffix
+                            + "$"
+                        )
                     else:
-                        new_symbol = property_dict[location][orig_name]["symbol"]
-                    property_list.append(Property(property_dict[location][orig_name]["title"], new_symbol, property_dict[location][orig_name]["unit"], values[name]))
+                        new_symbol = property_dict[location][orig_name][
+                            "symbol"
+                        ]
+                    property_list.append(
+                        Property(
+                            property_dict[location][orig_name]["title"],
+                            new_symbol,
+                            property_dict[location][orig_name]["unit"],
+                            values[name],
+                        )
+                    )
         properties = PropertySet(property=property_list)
         return pd.DataFrame(properties)
 
-    def write_property_latextable(self, latexfile="property_dataframe.tex", mediamapping=None, float_format="{:.2e}"):
-        with open(latexfile, "w") as tf:
-            tf.write(self.property_dataframe(mediamapping).to_latex(index=False,
-                  float_format=float_format.format))
-
-
+    def write_property_latextable(
+        self,
+        latexfile: Path = Path("property_dataframe.tex"),
+        mediamapping: dict[int, str] | None = None,
+        float_format: str = "{:.2e}",
+    ) -> None:
+        with latexfile.open("w") as tf:
+            tf.write(
+                self.property_dataframe(mediamapping).to_latex(
+                    index=False, float_format=float_format.format
+                )
+            )
