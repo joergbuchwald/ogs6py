@@ -8,7 +8,7 @@ Copyright (c) 2012-2024, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from lxml import etree as ET
 
-from ogstools.ogs6py import build_tree
+from ogs6py.classes import build_tree
 
 
 class PythonScript(build_tree.BuildTree):

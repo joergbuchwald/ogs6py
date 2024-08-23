@@ -8,11 +8,6 @@ Copyright (c) 2012-2024, OpenGeoSys Community (http://www.opengeosys.org)
 # pylint: disable=C0103, R0902, R0914, R0913
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ogstools.ogs6py.ogs import OGS
-
 from collections.abc import Generator
 from dataclasses import dataclass, field
 from typing import Any

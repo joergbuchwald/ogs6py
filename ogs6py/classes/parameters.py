@@ -10,7 +10,7 @@ from typing import Any
 
 from lxml import etree as ET
 
-from ogstools.ogs6py import build_tree
+from ogs6py.classes import build_tree
 
 
 class Parameters(build_tree.BuildTree):
