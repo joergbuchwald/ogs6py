@@ -193,7 +193,7 @@ class Media(build_tree.BuildTree):
                 "maximal_porosity",
                 "minimal_porosity",
             ],
-            "VapourDiffusionFEBEX": ["tortuosity"],
+            "VapourDiffusionFEBEX": [],
             "VapourDiffusionPMQ": [],
             "VermaPruessModel": [
                 "critical_porosity",
