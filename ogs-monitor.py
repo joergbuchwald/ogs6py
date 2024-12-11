@@ -265,6 +265,8 @@ class OGSMONITOR(object):
                 self.q0_xb.plot(logfile_df[1]["time_step"], logfile_df[1]["step_start_time"], 'r-', label="start time (actual)")
                 """
                 self.q0_xb.plot(np.array(self.timesteps["actual"])[-window_length:], np.array(self.ts_simtime["actual"])[:,0][-window_length:], 'r-', label="ts start time (actual)")
+                if not self.ref_file is None:
+                    self.q0_xb.plot(np.array(self.timesteps["ref"])[ts0:ts1], np.array(self.ts_simtime["ref"])[:,0][ts0:ts1], 'g-', label="ts start time (reference)")
                 self.q0_xb.set_ylabel("time / s", color="r")
                 self.q0_xb.yaxis.set_label_position("right")
                 lines, labels = self.q0_yb.get_legend_handles_labels()
