@@ -1018,7 +1018,8 @@ class OGS:
     def parse_out(self, logfile: str | None = None,
                   filter: str | None = None,
                   maximum_lines: int | None = None,
-                  reset_index: bool = True) -> pd.DataFrame:
+                  reset_index: bool = True,
+                  return_records: bool = False) -> pd.DataFrame:
         """Parses the logfile
 
         Parameters
@@ -1035,7 +1036,9 @@ class OGS:
         """
         if logfile is None:
             logfile = self.logfile
-        records = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        records, _ = parser.parse_file(logfile, maximum_lines=maximum_lines, force_parallel=False)
+        if return_records is True:
+            return records
         df = pd.DataFrame(records)
 
         df = parse_fcts.fill_ogs_context(df)
